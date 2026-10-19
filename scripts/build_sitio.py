@@ -1,12 +1,13 @@
-"""Construye el sitio web del proyecto (carpeta sitio/): informe visual con storytelling, guía de estudio y modo presentación.
+"""Construye la guía de estudio completa del sitio (sitio/estudio.html): informe visual largo con storytelling, glosario, preguntas de defensa y modo presentación.
 
-    python scripts/build_sitio.py                  # sitio/index.html + img/ + cuaderno.html + tablero.html + descargas/
-    python scripts/build_sitio.py --sin-copias     # solo index.html e img/ (sin copiar cuaderno, tablero ni PDF)
+    python scripts/build_sitio.py                  # sitio/estudio.html + img/ + cuaderno.html + tablero.html + descargas/
+    python scripts/build_sitio.py --sin-copias     # solo estudio.html e img/ (sin copiar cuaderno, tablero ni PDF)
     python scripts/build_sitio.py --fragmento RUTA # además escribe una versión sin la envoltura del documento (para publicarla como artefacto)
 
-La estructura sigue la guía de la maestra: ciclo KDD (5 fases), evidencia de las siete semanas, protocolo, dataset validado, gráficos justificados y
+La página principal para presentar es sitio/index.html (scripts/build_sitio_lite.py): pocas láminas, gráficas interactivas y casi sin texto.
+Esta versión larga sigue la guía de la maestra: ciclo KDD (5 fases), evidencia de las siete semanas, protocolo, dataset validado, gráficos justificados y
 honestos, y el informe visual con hallazgos. Todas las cifras salen de results/ (las mismas del cuaderno, el informe y las presentaciones) y el guion de
-cada escena es el de las notas del orador de la presentación completa. Abre sitio/index.html con doble clic o súbela a cualquier hosting estático.
+cada escena es el de las notas del orador de la presentación completa. Abre sitio/estudio.html con doble clic o súbela a cualquier hosting estático.
 """
 from __future__ import annotations
 
@@ -63,6 +64,7 @@ def indice(reg: list[dict]) -> str:
 def pagina(cuerpo: str, rail: str, css: str, js: str, fragmento: bool) -> str:
     barra = (f'<header class="topbar"><div class="topbar__in"><button type="button" class="btn btn--chico btn--ghost" id="btn-indice" aria-label="Abrir el índice">Índice</button>'
              f'<a class="marca" href="#portada">{e(TITULO)}<small>Equipo 1 · ENOE 2025-T4</small></a>'
+             f'<a class="btn btn--chico btn--ghost" href="index.html">Versión para presentar</a>'
              f'<button type="button" class="btn btn--chico" data-presentar>Presentar</button>'
              f'<button type="button" class="btn btn--chico btn--ghost" id="btn-tema" aria-label="Cambiar entre tema claro y oscuro">Tema</button></div></header>')
     pres = ('<div class="pres" id="pres" role="toolbar" aria-label="Controles del modo presentación"><button type="button" id="pres-ant" aria-label="Escena anterior">←</button><button type="button" id="pres-sig" aria-label="Escena siguiente">→</button>'
@@ -148,7 +150,7 @@ def main() -> Path:
     salida.mkdir(parents=True, exist_ok=True)
     n_img = preparar_imagenes(salida)
     copias = [] if a.sin_copias else copiar_documentos(salida)
-    destino = salida / "index.html"
+    destino = salida / "estudio.html"
     destino.write_text(pagina(cuerpo, rail, css, js, fragmento=False), encoding="utf-8")
     if a.fragmento:
         Path(a.fragmento).write_text(pagina(cuerpo, rail, css, js, fragmento=True), encoding="utf-8")

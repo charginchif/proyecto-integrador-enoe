@@ -3,7 +3,7 @@
     python scripts/run_all.py            # ~10 minutos (el bootstrap de 1,000 réplicas toma ~5)
     python scripts/run_all.py --rapido   # B=100 réplicas, sin cuaderno, presentaciones, informe ni sitio (verificación rápida)
 
-Pasos: ETL -> análisis -> figuras -> documentos NoSQL -> tablero -> cuaderno -> presentaciones (corta y completa) -> informe (Word) -> sitio web -> pruebas.
+Pasos: ETL -> análisis -> figuras -> documentos NoSQL -> tablero -> cuaderno -> presentaciones (corta y completa) -> informe (Word) -> sitio web (guía de estudio y versión para presentar) -> pruebas.
 El índice y el PDF del informe se actualizan aparte con scripts/exportar_informe.ps1 y el PDF de la presentación con scripts/exportar_presentacion.ps1
 (necesitan Microsoft Word y PowerPoint en Windows); el sitio copia esos PDF si existen.
 """
@@ -35,7 +35,8 @@ def main() -> None:
                   ("Presentación corta", [py, str(S / "build_deck.py")]),
                   ("Presentación completa", [py, str(S / "build_deck_completa.py")]),
                   ("Informe técnico (Word)", [py, str(S / "build_informe.py")]),
-                  ("Sitio web (informe visual y modo presentación)", [py, str(S / "build_sitio.py")])]
+                  ("Sitio web: guía de estudio (estudio.html)", [py, str(S / "build_sitio.py")]),
+                  ("Sitio web: versión para presentar (index.html)", [py, str(S / "build_sitio_lite.py")])]
     pasos.append(("Pruebas automáticas", [py, "-m", "unittest", "discover", "-s", str(RAIZ / "tests")]))
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     t0 = time.time()
