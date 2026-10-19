@@ -1,0 +1,8 @@
+﻿especificacion,descripcion,n,retorno_pct,inf,sup,p
+R0 Base,"Grupo A, 15-65 años, sin atípicos, ponderado",111958,5.141630024783117,4.964356088369226,5.319203358532465,0.0
+R1 Sin recorte,No se eliminan los atípicos,113088,5.432258539816792,5.237505540020315,5.627371950388227,0.0
+R2 Solo asalariados,Trabajadores subordinados y remunerados,86552,5.359561358975862,5.183732829890797,5.535683808715852,0.0
+R3 Con rangos imputados,Grupo A + grupo B (ingreso imputado por rango),145529,4.9094357807744515,4.756167546128709,5.062928261422162,0.0
+R4 Ajuste por no respuesta,Ponderadores x 1/P(declara monto exacto),111958,5.679409097053667,5.475000829535781,5.884213503367475,0.0
+R5 Sin ponderar,Sin ponderadores (errores por UPM),111958,5.064389388795343,4.953019349541221,5.175877607456991,0.0
+R6 Ingreso mensual,Ingreso mensual en vez de por hora,111958,5.38071931523556,5.183565774916521,5.578242395398347,0.0

@@ -1,0 +1,16 @@
+# Versiones con las que se desarrolló y verificó el proyecto (Python 3.12)
+pandas==3.0.5
+numpy==2.5.2
+scipy==1.18.1
+statsmodels==0.15.0
+matplotlib==3.11.1
+plotly==7.1.0            # solo para incrustar plotly.js en el tablero
+nbformat==5.11.1
+nbconvert==7.17.1
+ipykernel==7.3.0
+jinja2==3.1.6            # estilos de tabla del cuaderno
+python-pptx==1.0.2       # solo para regenerar las presentaciones
+python-docx==1.2.0       # solo para regenerar el informe técnico (Word)
+pillow==12.3.0           # recortes de figuras para las presentaciones y el informe
+lxml==6.1.2              # (dependencia de python-pptx y python-docx)
+# Opcional (carga a un servidor MongoDB): pymongo

@@ -1,0 +1,17 @@
+﻿id,tipo,descripcion,regla,n_antes,n_despues,afectados
+L0,filtro,Registros crudos de la tabla SDEMT,"todas las personas del hogar, todas las edades",419038,419038,0
+L1,filtro,Entrevista completa,r_def == 0 (resultado definitivo de la entrevista),419038,418146,892
+L2,filtro,Residente habitual,"c_res in {1, 3}; se excluye c_res = 2 (nuevo residente, sin datos de sexo/edad)",418146,408099,10047
+L3,filtro,Población de 15 años y más con edad válida,15 <= eda <= 98 (99 = no especificado),408099,323367,84732
+L4,filtro,Población ocupada,clase2 == 1,323367,190187,133180
+L5,filtro,Ponderador positivo,fac_tri > 0,190187,190187,0
+L6,marca,Ventana de análisis 15-65 años (bandera),eda <= 65,190187,181198,181198
+M1,marca,Años de escolaridad no especificados,anios_esc == 99 -> NaN,190187,610,610
+M2,marca,Ocupados con 0 horas trabajadas la semana de referencia,hrsocup == 0 -> NaN,190187,5278,5278
+M3,marca,Jornadas imposibles (> 112 h/semana),hrsocup > 112 -> NaN,190187,41,41
+M4,marca,Nivel de instrucción no especificado,niv_ins == 5,190187,479,479
+QA,marca,Ingreso grupo A: Monto exacto declarado (ingocup > 0),clasificación mutuamente excluyente,190187,120948,120948
+QB,marca,"Ingreso grupo B: Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",clasificación mutuamente excluyente,190187,36438,36438
+QC,marca,Ingreso grupo C: No recibe ingresos (ing7c = 6),clasificación mutuamente excluyente,190187,7666,7666
+QD,marca,Ingreso grupo D: No especificó (ing7c = 7),clasificación mutuamente excluyente,190187,25135,25135
+O1,marca,Ingreso por hora atípico (fuera de P0.5-P99.5 por entidad),ln(ing_hora) < P0.5 o > P99.5 de su entidad,113338,1133,1133

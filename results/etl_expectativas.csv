@@ -1,0 +1,16 @@
+﻿expectativa,cumple,critica,detalle
+persona_id único,True,True,"190,187 ids distintos / 190,187 filas"
+32 entidades presentes,True,True,32 entidades
+"sexo en {1,2}",True,True,"[np.int64(1), np.int64(2)]"
+edad entre 15 y 98,True,True,"min=15, max=98"
+ponderador positivo,True,True,min=12
+todos son ocupados,True,True,clase2 == 1
+grupo de ingreso exhaustivo,True,True,"{'A': 120948, 'B': 36438, 'D': 25135, 'C': 7666}"
+ing7c consistente con ingocup/salario mínimo,True,True,100.0000% de los registros del grupo A
+ing_x_hrs = ingocup / (hrsocup x 4.3),True,True,máxima diferencia relativa 7.25e-05
+niv_ins=1 implica <= 5 años de escolaridad,True,True,"12,416 registros"
+niv_ins=4 implica >= 12 años de escolaridad,True,True,"93,188 registros"
+horas entre 0 y 168 (crudas),True,True,max=168
+"ingocup entre 0 y 1,000,000",True,True,"max=250,000"
+p6c (COE2T) reproduce ing7c (SDEMT) en el grupo B,True,True,"100.0000% de 36,438 registros"
+ingocup == p6b2 (COE2T) en el grupo A,True,False,"100.0000% de 120,948 registros"

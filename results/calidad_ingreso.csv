@@ -1,0 +1,29 @@
+﻿grupo,descripcion,poblacion,pct,inf,sup
+A,Monto exacto declarado (ingocup > 0),Total,60.84596564275401,60.23992055211656,61.44393379581602
+A,Monto exacto declarado (ingocup > 0),Hombres,60.26625621253275,59.581299679979615,60.912470558533535
+A,Monto exacto declarado (ingocup > 0),Mujeres,61.66719723168953,60.90137908064908,62.40353956531507
+A,Monto exacto declarado (ingocup > 0),Nivel 1. Primaria incompleta,68.97070085289351,67.16778563911177,70.66568503650036
+A,Monto exacto declarado (ingocup > 0),Nivel 2. Primaria completa,68.05187561944877,66.87501777665817,69.23763598988802
+A,Monto exacto declarado (ingocup > 0),Nivel 3. Secundaria completa,65.62189877962554,64.77703563007971,66.4516521257421
+A,Monto exacto declarado (ingocup > 0),Nivel 4. Medio superior y superior,54.70011538462948,53.90891106968081,55.53833425802897
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Total,22.199924479308297,21.65732993700224,22.764071602286133
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Hombres,22.636773096700683,22.020894147840906,23.28055542721635
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Mujeres,21.58107326612635,20.949911875525167,22.230089666582213
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Nivel 1. Primaria incompleta,12.461388841061275,11.19737834064461,13.738968568562306
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Nivel 2. Primaria completa,16.052557558016083,15.15716436099713,16.946693363227393
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Nivel 3. Secundaria completa,19.69417468277981,18.96041688453852,20.451339349329324
+B,"Solo rango de salarios mínimos (ingocup = 0, ing7c 1-5)",Nivel 4. Medio superior y superior,26.779951728259487,26.064948438959988,27.527958476987646
+C,No recibe ingresos (ing7c = 6),Total,4.2494650735123445,4.052639182470698,4.473819247580212
+C,No recibe ingresos (ing7c = 6),Hombres,3.791784850352225,3.539654100588626,4.0447301600069645
+C,No recibe ingresos (ing7c = 6),Mujeres,4.897826885992611,4.624741338182789,5.22230974750981
+C,No recibe ingresos (ing7c = 6),Nivel 1. Primaria incompleta,11.361685149127156,10.147622637903526,12.669836765364595
+C,No recibe ingresos (ing7c = 6),Nivel 2. Primaria completa,7.058748256422315,6.453879768020452,7.657053636834737
+C,No recibe ingresos (ing7c = 6),Nivel 3. Secundaria completa,4.4683944911193905,4.170644744581655,4.779451952182738
+C,No recibe ingresos (ing7c = 6),Nivel 4. Medio superior y superior,2.465673164334607,2.2923571804032017,2.656078933736691
+D,No especificó (ing7c = 7),Total,12.704644804425353,12.288762841495418,13.12630238078049
+D,No especificó (ing7c = 7),Hombres,13.305185840414335,12.854427239111363,13.80004559023754
+D,No especificó (ing7c = 7),Mujeres,11.853902616191505,11.386737232742897,12.37473134750952
+D,No especificó (ing7c = 7),Nivel 1. Primaria incompleta,7.206225156918053,6.382357325435928,8.077380302343716
+D,No especificó (ing7c = 7),Nivel 2. Primaria completa,8.83681856611283,8.140787843719034,9.524046376154125
+D,No especificó (ing7c = 7),Nivel 3. Secundaria completa,10.215532046475264,9.723226027467332,10.740225013834456
+D,No especificó (ing7c = 7),Nivel 4. Medio superior y superior,16.05425972277643,15.442950127803392,16.658832281261056

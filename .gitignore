@@ -1,0 +1,17 @@
+# Datos originales (300 MB) y derivados pesados
+data/raw/
+data/processed/*.sqlite
+data/processed/mongo/personas.ndjson.gz
+logs/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Temporales del sistema y de Office
+~$*
+Thumbs.db
+.DS_Store
+*.tmp
+
+# Páginas temporales de revisión visual del sitio
+sitio/_qa_*

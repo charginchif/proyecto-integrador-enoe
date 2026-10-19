@@ -1,0 +1,6 @@
+﻿id,descripcion,n,excluidos
+W0,Ocupados de 15 a 65 años,181198,0
+W1,con monto exacto de ingreso (grupo A),115785,65413
+W2,con horas trabajadas válidas (1-112),113338,2447
+W3,con escolaridad y nivel especificados,113088,250
+W4,sin ingreso por hora atípico (P0.5-P99.5 por entidad),111958,1130
