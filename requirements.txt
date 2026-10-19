@@ -13,4 +13,7 @@ python-pptx==1.0.2       # solo para regenerar las presentaciones
 python-docx==1.2.0       # solo para regenerar el informe técnico (Word)
 pillow==12.3.0           # recortes de figuras para las presentaciones y el informe
 lxml==6.1.2              # (dependencia de python-pptx y python-docx)
-# Opcional (carga a un servidor MongoDB): pymongo
+# Capa documental: pymongo carga en un servidor MongoDB; mongomock (simulador en memoria) permite probar la carga sin servidor.
+# Sin ellos todo lo demás funciona y sus pruebas se omiten.
+pymongo==4.19.0
+mongomock==4.3.0

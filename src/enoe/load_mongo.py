@@ -12,11 +12,13 @@ Colecciones:
     metadatos  : linaje del pipeline (versiones, semilla, huellas SHA-256 de los archivos de origen).
 
 Si pymongo o el servidor no están disponibles, ``exportar`` deja los mismos documentos en archivos NDJSON
-listos para ``mongoimport``; el código de carga no cambia.
+listos para ``mongoimport``; el código de carga no cambia. Sin servidor, ``cargar_mongo(cliente=mongomock.MongoClient())``
+ejecuta la misma carga (lotes, índices) y el mismo pipeline de agregación contra un simulador en memoria.
 """
 from __future__ import annotations
 
 import gzip
+import itertools
 import json
 import math
 import sqlite3
@@ -142,40 +144,83 @@ def exportar_todo(dir_salida: Path | None = None) -> dict:
     return cuentas
 
 
+# El índice parcial usa otra combinación de campos que el índice simple por entidad: antes de MongoDB 7.3 no se pueden crear
+# dos índices con la misma clave que solo difieran en sus opciones (error IndexOptionsConflict), y así funciona en cualquier versión.
 INDICES = {
     "entidades": [([("cve_ent", 1)], {"unique": True}), ([("region", 1)], {}), ([("informalidad.til1_pct", -1)], {})],
     "personas": [([("cve_ent", 1)], {}), ([("cve_ent", 1), ("ingreso.grupo", 1)], {}),
                  ([("cve_ent", 1), ("persona.sexo", 1)], {}),
-                 ([("cve_ent", 1)], {"name": "ix_salarial_por_entidad", "partialFilterExpression": {"muestras.salarial": True}})],
+                 ([("cve_ent", 1), ("ingreso.por_hora", 1)], {"name": "ix_salarial_por_entidad", "partialFilterExpression": {"muestras.salarial": True}})],
 }
 
 
-def cargar_mongo(uri: str = "mongodb://localhost:27017", base: str = "enoe_2025t4", lote: int = 5000) -> dict:
-    """Carga idempotente (reemplaza las colecciones). Requiere ``pip install pymongo`` y un servidor accesible."""
+def _cliente(uri: str, cliente=None):
+    """El cliente recibido (por ejemplo ``mongomock.MongoClient()``) o uno de pymongo para ``uri``."""
+    if cliente is not None:
+        return cliente
     try:
         from pymongo import MongoClient
     except ImportError as e:  # pragma: no cover
         raise RuntimeError("pymongo no está instalado: ejecute 'pip install pymongo' o use --exportar") from e
-    cli = MongoClient(uri, serverSelectionTimeoutMS=4000)
+    return MongoClient(uri, serverSelectionTimeoutMS=4000)
+
+
+def validar_bson(docs, maximo: int | None = None) -> int:
+    """Comprueba que cada documento se pueda codificar a BSON, que es lo que haría pymongo al insertarlo en un servidor real.
+
+    Un simulador como mongomock no lo exige; esta revisión sí detecta tipos que Mongo rechazaría (``pd.NA``, tipos de numpy, claves inválidas).
+    Devuelve cuántos documentos revisó; lanza ``ValueError`` con el ``_id`` del primero que falle."""
+    import bson  # viene con pymongo
+
+    n = 0
+    for d in docs:
+        try:
+            bson.encode(d)
+        except Exception as e:  # noqa: BLE001
+            raise ValueError(f"El documento {d.get('_id')!r} no es BSON válido: {e}") from e
+        n += 1
+        if maximo and n >= maximo:
+            break
+    return n
+
+
+def cargar_mongo(uri: str = "mongodb://localhost:27017", base: str = "enoe_2025t4", lote: int = 5000, cliente=None,
+                 limite_personas: int | None = None, validar: bool = False) -> dict:
+    """Carga idempotente (reemplaza las colecciones).
+
+    Con ``uri`` necesita ``pip install pymongo`` y un servidor accesible. Con ``cliente`` usa uno ya construido, por ejemplo
+    ``mongomock.MongoClient()``, para ejecutar la carga completa (lotes e índices) sin servidor. ``limite_personas`` carga solo
+    los primeros N documentos de persona (pruebas rápidas) y ``validar`` revisa antes de insertar que cada lote sea BSON válido."""
+    cli = _cliente(uri, cliente)
     cli.admin.command("ping")
     db = cli[base]
-    cuentas = {}
-    for nombre, docs in [("entidades", documentos_entidades()), ("metadatos", documento_metadatos()), ("personas", documentos_personas())]:
-        db.drop_collection(nombre)
-        col, buf, n = db[nombre], [], 0
-        for d in docs:
-            buf.append(d)
-            if len(buf) >= lote:
+    personas = documentos_personas()
+    try:
+        fuentes = [("entidades", documentos_entidades()), ("metadatos", documento_metadatos()),
+                   ("personas", itertools.islice(personas, int(limite_personas)) if limite_personas else personas)]
+        cuentas = {}
+        for nombre, docs in fuentes:
+            db.drop_collection(nombre)
+            col, buf, n = db[nombre], [], 0
+            for d in docs:
+                buf.append(d)
+                if len(buf) >= lote:
+                    if validar:
+                        validar_bson(buf)
+                    col.insert_many(buf, ordered=False)
+                    n += len(buf)
+                    buf = []
+            if buf:
+                if validar:
+                    validar_bson(buf)
                 col.insert_many(buf, ordered=False)
                 n += len(buf)
-                buf = []
-        if buf:
-            col.insert_many(buf, ordered=False)
-            n += len(buf)
-        for claves, opts in INDICES.get(nombre, []):
-            col.create_index(claves, **opts)
-        cuentas[nombre] = n
-    return cuentas
+            for claves, opts in INDICES.get(nombre, []):
+                col.create_index(claves, **opts)
+            cuentas[nombre] = n
+        return cuentas
+    finally:
+        personas.close()          # cierra la conexión a SQLite aunque se haya usado solo una parte de los documentos
 
 
 # --------------------------------------------------------------------------- #
@@ -190,19 +235,45 @@ PIPELINE_TIL1_POR_ENTIDAD = [
 ]
 
 
-def til1_por_entidad_desde_ndjson(ruta: Path | None = None) -> pd.DataFrame:
-    """Ejecuta en Python exactamente la lógica del pipeline anterior sobre los documentos exportados."""
-    ruta = Path(ruta or DIR_MONGO / "personas.ndjson.gz")
+def til1_por_entidad_desde_documentos(docs) -> pd.DataFrame:
+    """Ejecuta en Python exactamente la lógica del pipeline anterior sobre documentos de persona (listas, cursores o generadores)."""
     acum: dict[int, list] = {}
-    with gzip.open(ruta, "rt", encoding="utf-8") as f:
-        for linea in f:
-            d = json.loads(linea)
-            a = acum.setdefault(d["cve_ent"], [d["entidad"], 0.0, 0.0])
-            a[1] += d["fac_tri"]
-            if d["trabajo"]["informal"]:
-                a[2] += d["fac_tri"]
+    for d in docs:
+        a = acum.setdefault(d["cve_ent"], [d["entidad"], 0.0, 0.0])
+        a[1] += d["fac_tri"]
+        if d["trabajo"]["informal"]:
+            a[2] += d["fac_tri"]
     out = pd.DataFrame([(k, v[0], v[1], 100 * v[2] / v[1]) for k, v in acum.items()], columns=["cve_ent", "entidad", "ocupados", "til1_pct"])
     return out.sort_values("til1_pct", ascending=False).reset_index(drop=True)
+
+
+def til1_por_entidad_desde_ndjson(ruta: Path | None = None) -> pd.DataFrame:
+    """Lo mismo, leyendo los documentos exportados en ``personas.ndjson.gz``."""
+    ruta = Path(ruta or DIR_MONGO / "personas.ndjson.gz")
+    with gzip.open(ruta, "rt", encoding="utf-8") as f:
+        return til1_por_entidad_desde_documentos(json.loads(linea) for linea in f)
+
+
+def til1_por_entidad_en_motor(coleccion) -> pd.DataFrame:
+    """Ejecuta ``PIPELINE_TIL1_POR_ENTIDAD`` con el motor de agregación de la colección: un servidor MongoDB o mongomock."""
+    filas = list(coleccion.aggregate(PIPELINE_TIL1_POR_ENTIDAD))
+    out = pd.DataFrame([(f["_id"], f["entidad"], f["ocupados"], f["til1_pct"]) for f in filas], columns=["cve_ent", "entidad", "ocupados", "til1_pct"])
+    return out.sort_values("til1_pct", ascending=False).reset_index(drop=True)
+
+
+def diferencia_maxima(a: pd.DataFrame, b: pd.DataFrame) -> float:
+    """Mayor diferencia absoluta (puntos porcentuales) del TIL1 entre dos tablas con ``cve_ent`` y ``til1_pct``."""
+    return float((a.set_index("cve_ent")["til1_pct"] - b.set_index("cve_ent")["til1_pct"]).abs().max())
+
+
+def diferencia_con_sql(til1: pd.DataFrame, db_path: Path | None = None) -> float:
+    """Diferencia máxima (pp) entre ``til1`` y la vista SQL ``v_til_entidad`` (que redondea a 2 decimales: hasta 0.005 es esperable)."""
+    con = sqlite3.connect(db_path or C.DB_PATH)
+    try:
+        sql = pd.read_sql("SELECT cve_ent, til1_pct FROM v_til_entidad", con)
+    finally:
+        con.close()
+    return diferencia_maxima(til1, sql)
 
 
 def ficha_entidad(clave: int | str, ruta: Path | None = None) -> dict:

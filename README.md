@@ -72,6 +72,7 @@ python scripts/run_etl.py                    # 10 s   · limpia, valida y crea d
 python scripts/run_analysis.py               # ~5 min · 1,000 réplicas Rao-Wu; escribe results/ y tablas res_*
 python scripts/make_figures.py               # 17 figuras de datos y 8 diagramas en figures/
 python scripts/run_mongo.py --exportar       # documentos NoSQL + verificación contra SQL
+python scripts/run_mongo.py --simulado --limite 20000   # (opcional) carga y pipeline contra mongomock, sin servidor (sin --limite: carga completa, ~6 min)
 python scripts/build_dashboard.py            # tablero/tablero_enoe.html
 python scripts/build_notebook.py             # ejecuta y exporta el cuaderno (.ipynb y .html)
 python scripts/build_deck.py                 # presentación corta (.pptx, 24 diapositivas con notas del orador)
@@ -84,7 +85,7 @@ python -m unittest discover -s tests         # pruebas
 ```
 **Todo de una vez:** `python scripts/run_all.py` (≈ 10 min; `--rapido` usa 100 réplicas y omite cuaderno, presentaciones, informe y sitio).
 Para una prueba rápida del análisis: `python scripts/run_analysis.py --B 100`.
-Para cargar en un servidor MongoDB: `pip install pymongo` y `python scripts/run_mongo.py --uri mongodb://localhost:27017` (ver `docs/modelo_de_datos_nosql.md`).
+Para cargar en un servidor MongoDB: `python scripts/run_mongo.py --uri mongodb://localhost:27017` (necesita `pymongo`; carga las colecciones y repite la verificación con el motor del servidor; ver `docs/modelo_de_datos_nosql.md`).
 
 **Sitio web.** Abra `sitio/index.html` con doble clic (necesita internet solo para las tipografías; sin ellas se ve igual con las del sistema). Es HTML, CSS y JavaScript sin dependencias.
 Botón **Presentar** (o `#presentar` / `#presentar-corta` al final de la dirección): una escena a la vez, flechas para avanzar, `N` muestra el guion, `R` alterna ruta corta (18 min) y completa (49 min).
@@ -97,7 +98,8 @@ Para actualizar la página: regenerar con `python scripts/build_sitio.py` y lueg
 
 * ✔ 15 expectativas de datos, 7 cifras oficiales del INEGI, ETL idempotente, pruebas automáticas, equivalencia SQL ↔ agregación de MongoDB sobre los documentos exportados.
 * ✔ Cuaderno ejecutado de principio a fin; sus conclusiones tienen aserciones que impiden construirlo si dejaran de ser ciertas.
-* ⚠ **No se ejecutó la carga a un servidor MongoDB real** (no hay servidor ni `pymongo` en la máquina de desarrollo); los documentos están listos para `mongoimport`.
+* ✔ Capa documental probada **sin servidor, con mongomock** (simulador de MongoDB en memoria): carga completa por lotes de los 190,187 documentos de persona, los 32 de entidad y el de metadatos, recarga idempotente, siete índices, documentos BSON válidos y el pipeline de agregación «TIL1 por entidad» ejecutado en el motor, que reproduce la vista SQL (diferencia máxima 0.0049 pp). 41 pruebas automáticas en total, 7 de ellas de esta capa.
+* ⚠ **No se ejecutó la carga a un servidor MongoDB real** (no hay servidor instalado en la máquina de desarrollo): mongomock imita la API y la agregación, pero no es MongoDB. `python scripts/run_mongo.py --uri ...` hace la carga y las mismas verificaciones contra un servidor; los documentos también están listos para `mongoimport`.
 * ⚠ La redacción literal de los códigos de `p6c` (rangos de salarios mínimos) se infirió de su correspondencia exacta con `ing7c`; conviene contrastarla con el cuestionario oficial.
 * ⚠ Las cifras oficiales del INEGI usadas para validar se consultaron mediante búsqueda web de los boletines del 4T-2025; contrástelas con el PDF oficial antes de exponer.
 

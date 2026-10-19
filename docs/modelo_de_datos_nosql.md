@@ -89,7 +89,7 @@ Subdocumentos (`persona`, `trabajo`, `ingreso`, `diseno`, `muestras`) agrupan at
 | `personas` | `{cve_ent: 1}` | Consultas por entidad |
 | `personas` | `{cve_ent: 1, "ingreso.grupo": 1}` | Calidad del ingreso por entidad |
 | `personas` | `{cve_ent: 1, "persona.sexo": 1}` | Comparaciones por sexo |
-| `personas` | `{cve_ent: 1}` **parcial** (`muestras.salarial: true`) | Solo la muestra salarial: índice más pequeño |
+| `personas` | `{cve_ent: 1, "ingreso.por_hora": 1}` **parcial** (`muestras.salarial: true`) | Solo la muestra salarial: índice más pequeño. Su clave difiere de `{cve_ent: 1}` a propósito: antes de MongoDB 7.3 dos índices con la misma clave que solo se distinguen por sus opciones dan `IndexOptionsConflict` |
 
 ### 3.5 Consultas equivalentes
 
@@ -102,13 +102,16 @@ Subdocumentos (`persona`, `trabajo`, `ingreso`, `diseno`, `muestras`) agrupan at
 ## 4. Verificación
 
 * `scripts/run_mongo.py --exportar` genera los documentos y **comprueba que el pipeline de agregación «TIL1 por entidad» calculado sobre los documentos reproduce la vista SQL** `v_til_entidad` (diferencia máxima 0.005 puntos porcentuales, el redondeo a 2 decimales del SQL).
+* `scripts/run_mongo.py --simulado` (requiere `pip install pymongo mongomock`) hace además la **carga completa contra mongomock**, un simulador de MongoDB en memoria: inserta por lotes los 190,187 documentos de persona, los 32 de entidad y el de metadatos con la misma API de `pymongo` que se usaría con un servidor, vuelve a cargar reemplazando las colecciones, crea los siete índices, comprueba que **todos los documentos son BSON válido** y ejecuta `PIPELINE_TIL1_POR_ENTIDAD` en el motor de agregación. Resultado de la corrida completa: 32 entidades y una diferencia máxima de 0.0049 puntos porcentuales frente a la vista SQL (el redondeo a 2 decimales del SQL), en unos 6 minutos porque mongomock evalúa el pipeline en Python.
+* `tests/test_mongo_simulado.py` repite una versión rápida dentro de las pruebas automáticas (3,000 personas; conteos, idempotencia, índices, índice único, ficha por clave, BSON válido y pipeline con las 32 entidades). Se omite si faltan `pymongo`, `mongomock` o la base SQLite.
 * El tablero (`tablero/tablero_enoe.html`) se alimenta de `entidades.json`, es decir, de la colección «entidades» exportada.
 
-> **Alcance de la verificación (honestidad técnica).** En el equipo de desarrollo no hay servidor MongoDB ni `pymongo` instalados, así que la **carga real a un servidor no se ejecutó**. Lo que se verificó es (a) la construcción de los documentos y su exportación, (b) la equivalencia de la consulta de agregación mediante su lógica en Python sobre los mismos documentos y (c) que el código de carga usa solo operaciones básicas (`insert_many`, `create_index`, `drop_collection`).
-> Para cargar en un servidor real:
+> **Alcance de la verificación (honestidad técnica).** En el equipo de desarrollo no hay un servidor MongoDB, así que la **carga a un servidor real no se ejecutó**. Lo que sí se verificó es (a) la construcción de los documentos y su exportación, (b) la equivalencia de la consulta de agregación con la lógica en Python y ejecutando el pipeline en mongomock, (c) la carga por lotes, el reemplazo idempotente y la creación de índices con la API de `pymongo` contra mongomock y (d) que los documentos son BSON válido. mongomock imita la API y el motor de agregación, pero **no es MongoDB**: no comprueba, por ejemplo, el plan de consultas ni todas las reglas de índices de cada versión del servidor. Por eso el índice parcial usa una clave distinta de la del índice simple (ver 3.4): es una precaución basada en la documentación de MongoDB, no algo confirmado en un servidor.
+> Para cargar en un servidor real, `run_mongo.py` carga y repite la verificación con el motor del propio servidor:
 > ```bash
 > pip install pymongo
 > python scripts/run_mongo.py --uri mongodb://localhost:27017        # o una URI de MongoDB Atlas
+> python scripts/run_mongo.py --uri mongodb://localhost:27017 --limite 20000   # prueba rápida con 20 mil personas
 > # o, sin Python:
 > mongoimport --db enoe_2025t4 --collection entidades --file data/processed/mongo/entidades.ndjson
 > mongoimport --db enoe_2025t4 --collection personas  --gzip --file data/processed/mongo/personas.ndjson.gz
