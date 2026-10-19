@@ -325,6 +325,13 @@ p{margin:0}
   .titular{font-size:clamp(1.45rem,2.5vw,2.1rem)}
   .escena{padding-bottom:3.1rem;padding-top:calc(var(--top) + .7rem)}.escena>.cont{gap:.7rem}
   .cifra b{font-size:2.5rem}.cifra{padding:.6rem .9rem}.tarjeta{padding:.65rem .85rem .55rem}
+  .titular,.titular--ancho{max-width:none}                                          /* un titular corto cabe en una línea y deja más alto a la gráfica */
+  .tile{aspect-ratio:1/.88}.mosaico-info{min-height:1.9rem;margin-top:.35rem}
+}
+@media (max-height:700px) and (min-width:900px){                                   /* ventanas muy bajas (laptop de 768 px con la barra del navegador): aún más compactas */
+  .escena{padding-top:calc(var(--top) + .4rem)}.escena>.cont{gap:.5rem}
+  .tile{aspect-ratio:1/.8}.mosaico-marco{max-width:31rem}
+  .tarjeta__cab{margin-bottom:.25rem}.tarjeta__pie{margin-top:.3rem}
 }
 @media (max-width:760px){
   .puntos{display:none}.marca small{display:none}.marca{flex:1}
