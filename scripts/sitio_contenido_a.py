@@ -52,7 +52,7 @@ def construir(ctx: Ctx) -> list[str]:
         f'<p class="etq">Proyecto Integrador de Ciencia de Datos · Equipo 1</p>'
         f'<h1>Radiografía socioeconómica de México</h1>'
         f'<p class="hero__sub">Escolaridad, ingreso y brecha de género con la Encuesta Nacional de Ocupación y Empleo (INEGI, 4.º trimestre de 2025)</p>'
-        f'<p class="hero__meta">Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia<br>'
+        f'<p class="hero__meta">Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñiga<br>'
         f'Universidad de Especialidades UNE · Plantel Centro · Optativa III: Ciencia de Datos · 9.º semestre</p>'
         f'<div class="hero__acc"><a class="btn btn--sol" href="#historia">Leer la historia</a><button type="button" class="btn" data-presentar>Modo presentación</button>'
         f'<a class="btn" href="#estudiar">Estudiar</a></div></div>'
@@ -92,7 +92,7 @@ def construir(ctx: Ctx) -> list[str]:
 
     # ---- protocolo ----
     cards = [
-        ("1 · Portada", p("Radiografía socioeconómica de México. Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara y Luis Andre Gutierrez Zuñia. UNE Plantel Centro, Optativa III: Ciencia de Datos.")
+        ("1 · Portada", p("Radiografía socioeconómica de México. Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara y Luis Andre Gutierrez Zuñiga. UNE Plantel Centro, Optativa III: Ciencia de Datos.")
          + p("Roles: coordinación, ingeniería de datos (pipeline), análisis estadístico y visualización y comunicación; pueden rotar.")),
         ("2 · Problema y justificación", p("¿Cuánto rinde un año más de estudio, cambia entre estados y hay brecha de género con la misma escolaridad?")
          + p("Importa porque orienta política educativa, laboral y de igualdad, y la ENOE es la fuente oficial del mercado laboral.")),

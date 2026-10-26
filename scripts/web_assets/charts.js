@@ -118,6 +118,32 @@
     alEstado.forEach((f) => f(S.estado));
   }
 
+  /* los rótulos no se salen de la gráfica: en un teléfono, un título largo ensancharía toda la página y un nombre largo quedaría cortado por el borde;
+     cuando se encogen, se abrevian, y las marcas de un eje que se montan unas sobre otras se aclaran */
+  function ajustarRotulos(el, w) {
+    $$('svg text.t-ref, svg text.t-cat', el).forEach((t) => {
+      if (t.hasAttribute('transform')) return;                                           // los títulos girados del eje vertical quedan como están
+      const x = parseFloat(t.getAttribute('x')), anc = t.getAttribute('text-anchor') || 'start';
+      const libre = (anc === 'end' ? x : anc === 'middle' ? 2 * Math.min(x, w - x) : w - x) - 2;
+      let b = t.getBBox();
+      if (b.width <= libre) return;
+      const f = Math.max(0.82, libre / b.width);
+      if (f < 1) { t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * f).toFixed(2) + 'px'; b = t.getBBox(); }
+      let s = t.textContent;
+      while (b.width > libre && s.length > 6) { s = s.slice(0, -2); t.textContent = s.replace(/[\s(,;]+$/, '') + '…'; b = t.getBBox(); }
+    });
+    $$('svg g.eje', el).forEach((g) => {
+      const filas = {};
+      $$('text', g).forEach((t) => { if (!t.classList.contains('t-ref') && !t.hasAttribute('transform')) (filas[t.getAttribute('y')] = filas[t.getAttribute('y')] || []).push(t); });
+      Object.keys(filas).forEach((y) => {
+        if (filas[y].length < 3) return;
+        const ordenadas = filas[y].map((t) => ({ t: t, b: t.getBBox() })).sort((a, c) => a.b.x - c.b.x);
+        let fin = -1e9;
+        ordenadas.forEach((o) => { if (o.b.x < fin + 5) o.t.remove(); else fin = o.b.x + o.b.width; });
+      });
+    });
+  }
+
   function montar(el) {
     const f = GRAF[el.dataset.chart];
     if (!f) return;
@@ -125,15 +151,16 @@
       el: el, tab: null, w: 0,
       render() {
         if (el.getClientRects().length === 0) return;
-        const w = Math.floor(el.clientWidth);
+        const w = Math.floor(el.clientWidth / (this.escala || 1));                  // la escala > 1 dibuja en un lienzo menor y lo amplía (presentación)
         if (w < 40) return;
         this.w = w;
         el.textContent = '';
         this.tab = f(el, w, this) || null;
+        ajustarRotulos(el, w);
       },
     };
     charts.push(inst);
-    new ResizeObserver(() => { if (Math.floor(el.clientWidth) !== inst.w) inst.render(); }).observe(el);
+    new ResizeObserver(() => { if (Math.floor(el.clientWidth / (inst.escala || 1)) !== inst.w) inst.render(); }).observe(el);
     inst.render();
   }
 
@@ -346,8 +373,8 @@
     filas.forEach((r, i) => tx(svg, mL - 10, mT + i * rowH + rowH / 2, r.n, 't-cat' + (r.n === 'Total' ? ' sel' : ''), 'end'));
     paneles.forEach((p) => {
       const sx = (v) => p.ox + v / p.dom[1] * ancho, g = sv('g', { class: 'eje' }, svg);
-      tx(svg, p.ox, 6, p.tit + ' (% menos que los hombres)', 't-ref', 'start');
-      p.ticks.forEach((t) => { sv('line', { x1: sx(t), x2: sx(t), y1: mT, y2: mT + filas.length * rowH, class: 'rej' }, g); tx(g, sx(t), H - 10, t + ' %', null, 'middle'); });
+      tx(svg, p.ox, 6, ancho < 170 ? p.tit : p.tit + ' (% menos que los hombres)', 't-ref', 'start');
+      (ancho < 170 ? p.ticks.filter((t, i) => i % 2 === 0) : p.ticks).forEach((t) => { sv('line', { x1: sx(t), x2: sx(t), y1: mT, y2: mT + filas.length * rowH, class: 'rej' }, g); tx(g, sx(t), H - 10, t + ' %', null, 'middle'); });
       sv('line', { x1: sx(0), x2: sx(0), y1: mT, y2: mT + filas.length * rowH, class: 'base' }, svg);
       filas.forEach((r, i) => {
         const yc = mT + i * rowH + rowH / 2, d = r[p.k], gr = sv('g', null, svg);
@@ -460,14 +487,14 @@
     });
   };
 
-  GRAF.rankRho = function (el, W) {
+  GRAF.rankRho = function (el, W, inst) {
     const orden = D.estados.slice().sort((a, b) => b.rho[0] - a.rho[0]);
     const extremos = [orden[0].id, orden[orden.length - 1].id];
     const rows = orden.map((e) => ({ label: e.n, v: e.rho[0], lo: e.rho[1], hi: e.rho[2], sel: S.estado === e.id, id: e.id, txt: extremos.indexOf(e.id) >= 0 ? f2(e.rho[0]) : null,
       der: e.rho[3] + ' (' + e.rho[4] + '–' + e.rho[5] + ')', tip: [{ l: 'Correlación ρ', v: f2(e.rho[0]) }, { l: 'IC 95 %', v: ic(e.rho[1], e.rho[2], 2) }, { l: 'Lugar (intervalo)', v: e.rho[3] + ' (' + e.rho[4] + ' a ' + e.rho[5] + ')' }],
       nota: e.rho[5] - e.rho[4] > 14 ? 'Su lugar no se distingue del de varios estados vecinos en el ranking' : 'Lugar bien definido' }));
     const out = puntosH(el, W, {
-      rows: rows, rowH: FIJO ? 17 : clamp(Math.floor(innerHeight * 0.46 / 32), 12, 18), dom: [0.1, 0.6], ticks: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], tickFmt: f1, fmt: f2, derecha: 78, derechaTit: 'Lugar (intervalo)', mR: 6, radio: 4.6,
+      rows: rows, rowH: FIJO ? (inst && inst.compacto ? 11 : 17) : clamp(Math.floor(innerHeight * 0.46 / 32), 12, 18), dom: [0.1, 0.6], ticks: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], tickFmt: f1, fmt: f2, derecha: 78, derechaTit: 'Lugar (intervalo)', mR: 6, radio: 4.6,
       ejeTit: FIJO ? 'Correlación de Spearman entre escolaridad e ingreso por hora (ρ)' : null,
       aria: 'Correlación entre escolaridad e ingreso por hora en cada estado, con intervalo y lugar',
       alClic: (r) => setEstado(r.id), cols: ['Lugar', 'Entidad', 'ρ', 'IC 95 %', 'Intervalo del lugar'], colsNum: [0, 2],

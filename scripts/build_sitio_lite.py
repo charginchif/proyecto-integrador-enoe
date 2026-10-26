@@ -102,7 +102,7 @@ def construir(d: dict) -> str:
   <p class="etq">Proyecto Integrador · Ciencia de Datos · Equipo 1</p>
   <h1>{e(TITULO)}</h1>
   <p class="sub">¿Cuánto rinde estudiar, cambia entre estados y qué brechas hay?</p>
-  <p class="equipo">Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia<br>UNE Plantel Centro · Datos: ENOE 2025-T4, INEGI</p>
+  <p class="equipo">Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñiga<br>UNE Plantel Centro · Datos: ENOE 2025-T4, INEGI</p>
  </div>
  <div><p class="mosaico-tit">Informalidad laboral por entidad (%)</p>{viz("mosaicoPortada")}</div>
 </div>
@@ -251,7 +251,7 @@ def construir(d: dict) -> str:
     sec.append(escena("e-cierre", "Cierre", etiqueta("reflexión final y productos", "Cierre") + '<h2 class="titular">Lo que entregamos y lo que aprendimos</h2>'
         f'<div class="cierre"><div><p class="etq">Reflexión final del equipo</p>{acordeon}</div><div><p class="etq">Productos importantes (esta presentación resume la tesina web)</p>{prods}</div></div>'
         f'<p class="pie">Datos: INEGI, ENOE 2025-T4 (microdatos públicos). Estimaciones ponderadas con el factor de expansión; IC 95 % por bootstrap de Rao-Wu con {n_es(k["B"])} réplicas. '
-        f'Equipo 1 · UNE Plantel Centro · <a href="index.html">Tesina completa ▸</a> · <a href="estudio.html">Guía de estudio ▸</a></p>', "Juan Evelio",
+        f'Equipo 1 · UNE Plantel Centro · <a href="index.html">Tesina completa ▸</a> · <a href="index.html#presentacion-breve">Presentación breve (18 min) ▸</a> · <a href="estudio.html">Guía de estudio ▸</a></p>', "Juan Evelio",
         "Respondemos las tres preguntas de reflexión y mostramos los productos: el cuaderno, el repositorio, el tablero, el informe y la presentación. Ajusten estas respuestas con su reparto real del trabajo."))
 
     return "\n".join(sec)
@@ -262,6 +262,7 @@ def pagina(cuerpo: str, datos_json: str, css: str, js: str, fragmento: bool) -> 
              '<div class="controles"><span class="estado-chip" id="chip-estado"><span></span><button type="button" aria-label="Quitar la entidad elegida">×</button></span>'
              '<select class="sel" id="sel-estado" aria-label="Resaltar una entidad en todas las gráficas"></select>'
              '<a class="btn solo-ancho" href="index.html" title="Documento completo">Tesina</a>'
+             '<a class="btn solo-ancho" href="index.html#presentacion-breve" title="Ruta corta de 18 diapositivas, con guion y reloj">Presentación breve</a>'
              '<button type="button" class="btn solo-ancho" id="btn-notas" aria-pressed="false" title="Notas del orador (N)">Notas</button>'
              '<button type="button" class="btn solo-ancho" id="btn-pantalla" title="Pantalla completa (F)">Pantalla completa</button>'
              '<button type="button" class="btn" id="btn-tema" aria-label="Cambiar entre tema claro y oscuro">Tema</button></div></header>')

@@ -18,7 +18,7 @@ def s_portada(d):
                   [("Encuesta Nacional de Ocupación y Empleo (ENOE), 4.º trimestre de 2025 · INEGI", {"size": 18, "spec": TC.BACKGROUND_1})]], espacio=6)
     _, tf = caja(s, M, 4.45, 11.5, 1.2, "Equipo")
     parrafos(tf, [[("Equipo 1: ", {"size": 18, "bold": True, "spec": TC.BACKGROUND_1}),
-                   ("Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia", {"size": 18, "spec": TC.BACKGROUND_1})],
+                   ("Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñiga", {"size": 18, "spec": TC.BACKGROUND_1})],
                   [("Proyecto Integrador de Ciencia de Datos · Ingeniería en Computación, 9.º semestre · UNE Plantel Centro · 18 de octubre de 2026", {"size": 14, "spec": RGB["soft"]})]], espacio=6)
     for i, (v, l) in enumerate([(f"{419038:,}", "registros"), (f"{n_u:,}", "ocupados de 15+"), ("32", "entidades"), (f"{R['B']:,}", "réplicas bootstrap")]):
         x = M + i * 3.0

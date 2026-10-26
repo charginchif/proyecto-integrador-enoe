@@ -29,6 +29,7 @@ from informe_datos import cargar, f1, n_es  # noqa: E402
 from informe_html import InformeHTML, e, md, slug  # noqa: E402
 from sitio_textos import ALT, PORQUE  # noqa: E402
 from web_datos import datos_web  # noqa: E402
+from web_ruta_corta import ruta_corta_html  # noqa: E402
 
 ASSETS = Path(__file__).resolve().parent / "web_assets"
 SITIO = RAIZ / "sitio"
@@ -36,7 +37,7 @@ TITULO = "Radiografía socioeconómica de México"
 SUBTITULO = "Escolaridad, ingreso y brecha de género a partir de la Encuesta Nacional de Ocupación y Empleo (ENOE), 4.º trimestre de 2025"
 REPO = "https://github.com/charginchif/proyecto-integrador-enoe"
 URL = "https://charginchif.github.io/proyecto-integrador-enoe/"
-AUTORES = ["Juan Evelio Culin Grajeda", "Angel Yireh Garcia Jara", "Luis Andre Gutierrez Zuñia"]
+AUTORES = ["Juan Evelio Culin Grajeda", "Angel Yireh Garcia Jara", "Luis Andre Gutierrez Zuñiga"]
 FUENTES = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400'
            '&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">')
@@ -182,6 +183,7 @@ def icono(nombre: str) -> str:
         "buscar": '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
         "tema": '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
         "flecha": '<path d="M12 19V5M5 12l7-7 7 7"/>',
+        "pres": '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>',
     }
     return f'<svg class="ic-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{trazos[nombre]}</svg>'
 
@@ -203,7 +205,7 @@ def portada(d: dict, D) -> str:
     <p class="portada__sub">{e(SUBTITULO)}</p>
     <div class="portada__autores"><p class="eq">Equipo 1</p><ul>{autores}</ul></div>
     <p class="portada__fecha">Octubre de 2026</p>
-    <p class="portada__acc"><a class="btn btn--sol" href="#resumen">Leer el resumen</a><a class="btn" href="#indice-general">Ver el índice</a><a class="btn" href="#cap-7">Ir a los resultados</a></p>
+    <p class="portada__acc"><a class="btn btn--sol" href="#resumen">Leer el resumen</a><a class="btn" href="#indice-general">Ver el índice</a><a class="btn" href="#cap-7">Ir a los resultados</a><button type="button" class="btn" data-abrir-pres>Presentación breve · 18 min</button></p>
    </div>
    <figure class="portada__fig"><div class="viz" data-chart="mosaicoPortada" role="group" aria-label="Mosaico de las 32 entidades con su tasa de informalidad laboral"></div>
     <figcaption>Informalidad laboral por entidad (TIL1, %): cada mosaico es un estado y todos ocupan la misma área. Pasa el cursor para ver el dato; un clic lo resalta en las figuras del documento.</figcaption></figure>
@@ -260,13 +262,15 @@ def ficha_tecnica(D, d: dict) -> str:
 def rutas_lectura() -> str:
     rutas = [("5 minutos", "Lo esencial", "Resumen, hallazgos clave y conclusiones.", [("resumen", "Resumen"), ("hallazgos", "Hallazgos"), ("cap-9", "Conclusiones")]),
              ("20 minutos", "Método y resultados", "Cómo se midió y qué se encontró, sin el marco conceptual ni la ingeniería.", [("cap-6", "Metodología"), ("cap-7", "Resultados"), ("cap-8", "Discusión")]),
-             ("Lectura completa", "Todo el documento", "Los nueve capítulos, la bibliografía y los anexos.", [("cap-1", "Introducción"), ("cap-2", "Marco conceptual"), ("anexo-c", "Resultados por entidad")])]
-    tarjetas = "".join(f'<div class="ruta"><p class="ruta__t">{e(t)}</p><p class="ruta__n">{e(n)}</p><p class="ruta__d">{e(d)}</p><p class="ruta__l">' + " · ".join(f'<a href="#{i}">{e(x)}</a>' for i, x in enlaces) + "</p></div>" for t, n, d, enlaces in rutas)
+             ("Lectura completa", "Todo el documento", "Los nueve capítulos, la bibliografía y los anexos.", [("cap-1", "Introducción"), ("cap-2", "Marco conceptual"), ("anexo-c", "Resultados por entidad")]),
+             ("18 minutos", "Presentación breve", "La ruta corta, diapositiva por diapositiva, con el guion de quien expone y un reloj.", None)]
+    tarjetas = "".join(f'<div class="ruta"><p class="ruta__t">{e(t)}</p><p class="ruta__n">{e(n)}</p><p class="ruta__d">{e(d)}</p><p class="ruta__l">'
+                       + (" · ".join(f'<a href="#{i}">{e(x)}</a>' for i, x in enlaces) if enlaces else '<button type="button" class="btn btn--chico" data-abrir-pres>Iniciar la presentación</button>') + "</p></div>" for t, n, d, enlaces in rutas)
     return f'<section class="prelim prelim--ancho" id="rutas"><h2 class="prelim-t">Rutas de lectura</h2><div class="rutas">{tarjetas}</div></section>'
 
 
 def como_citar() -> str:
-    cita = (f"Culin Grajeda, J. E., Garcia Jara, A. Y., y Gutierrez Zuñia, L. A. (2026). {TITULO}: escolaridad, ingreso y brecha de género [Tesina del Proyecto Integrador de Ciencia de Datos]. "
+    cita = (f"Culin Grajeda, J. E., Garcia Jara, A. Y., y Gutierrez Zuñiga, L. A. (2026). {TITULO}: escolaridad, ingreso y brecha de género [Tesina del Proyecto Integrador de Ciencia de Datos]. "
             f"Universidad de Especialidades UNE, Plantel Centro. {URL}")
     return (f'<section class="prelim" id="citar"><h2 class="prelim-t">Cómo citar</h2><div class="cita-caja"><p id="cita-texto">{e(cita)}</p>'
             '<button type="button" class="btn btn--chico" id="btn-copiar-cita">Copiar cita</button></div></section>')
@@ -291,6 +295,7 @@ def indice_general(res: dict) -> str:
 def indice_lateral(res: dict) -> str:
     pre = [("resumen", "Resumen"), ("abstract", "Abstract"), ("hallazgos", "Hallazgos clave"), ("ficha", "Ficha técnica"), ("rutas", "Rutas de lectura"), ("indice-general", "Índice general")]
     out = ['<nav class="indice" id="indice" aria-label="Índice de la tesina"><div class="indice__cab"><p class="indice__tit">Contenido</p><button type="button" class="btn-ic indice__cerrar" id="btn-cerrar-indice" aria-label="Cerrar el índice">×</button></div>'
+           '<button type="button" class="indice__pres" data-abrir-pres>Presentación breve · 18 min</button>'
            '<label class="indice__ent">Resaltar una entidad<select class="sel" data-sel-estado aria-label="Resaltar una entidad en todas las figuras interactivas"></select></label>'
            '<ol class="indice__lista"><li class="grupo">Preliminares</li>' + "".join(f'<li class="pre"><a href="#{i}" data-id="{i}">{e(t)}</a></li>' for i, t in pre)]
     previo = None
@@ -303,14 +308,14 @@ def indice_lateral(res: dict) -> str:
         subs = "".join(f'<li><a href="#{i}" data-id="{i}"><span class="n">{n}</span>{md(t)}</a></li>' for i, n, t in c["secciones"])
         out.append(f'<li class="cap" data-cap="{c["id"]}"><a href="#{c["id"]}" data-id="{c["id"]}"><span class="n">{e(num)}</span>{md(c["titulo"])}</a>' + (f'<ol class="subs">{subs}</ol>' if subs else "") + "</li>")
     out.append("</ol>"
-               '<div class="indice__enlaces"><p class="grupo">Otras versiones</p><a href="presentacion.html">Presentación</a><a href="estudio.html">Guía de estudio</a><a href="cuaderno.html">Cuaderno</a><a href="tablero.html">Tablero</a>'
+               '<div class="indice__enlaces"><p class="grupo">Otras versiones</p><a href="presentacion.html">Presentación interactiva (11 láminas)</a><a href="estudio.html">Guía de estudio</a><a href="cuaderno.html">Cuaderno</a><a href="tablero.html">Tablero</a>'
                '<a href="descargas/Informe_Final_Proyecto_ENOE.pdf">Informe técnico (PDF)</a><a href="descargas/Presentacion_Completa_Proyecto_ENOE.pdf">Presentación (PDF)</a>'
                f'<a href="{REPO}" rel="noopener">Código en GitHub</a></div></nav>')
     return "".join(out)
 
 
 def pie_pagina() -> str:
-    enlaces = [("Presentación", "presentacion.html"), ("Guía de estudio", "estudio.html"), ("Cuaderno", "cuaderno.html"), ("Tablero", "tablero.html"),
+    enlaces = [("Presentación interactiva (11 láminas)", "presentacion.html"), ("Guía de estudio", "estudio.html"), ("Cuaderno", "cuaderno.html"), ("Tablero", "tablero.html"),
                ("Informe técnico (PDF)", "descargas/Informe_Final_Proyecto_ENOE.pdf"), ("Código", REPO)]
     return (f'<footer class="pie"><p>Proyecto Integrador de Ciencia de Datos · Equipo 1 ({", ".join(AUTORES)}) · Universidad de Especialidades UNE, Plantel Centro · Octubre de 2026.</p>'
             '<p>Datos: INEGI, Encuesta Nacional de Ocupación y Empleo, 4.º trimestre de 2025 (microdatos públicos). Material académico: los resultados son asociaciones y no efectos causales.</p>'
@@ -322,13 +327,14 @@ def barra() -> str:
             f'<a class="marca" href="#portada">{e(TITULO)}<small>Tesina · ENOE 2025-T4</small></a><p class="miga" id="miga"></p>'
             '<div class="barra__acc"><span class="estado-chip" id="chip-estado"><span></span><button type="button" aria-label="Quitar la entidad elegida">×</button></span>'
             '<select class="sel sel--barra" id="sel-estado" data-sel-estado aria-label="Resaltar una entidad en todas las figuras interactivas"></select>'
+            f'<button type="button" class="btn-ic btn-pres" data-abrir-pres title="Presentación breve: ruta corta de 18 diapositivas (tecla P)">{icono("pres")}<span>Presentar</span></button>'
             f'<button type="button" class="btn-ic" id="btn-buscar" aria-label="Buscar en la tesina (tecla /)">{icono("buscar")}<span>Buscar</span></button>'
             f'<button type="button" class="btn-ic" id="btn-tema" aria-label="Cambiar entre tema claro y oscuro">{icono("tema")}<span>Tema</span></button></div>'
             '<div class="progreso" aria-hidden="true"><i id="progreso"></i></div></header>')
 
 
-def extras() -> str:
-    return ('<div class="dock" id="dock" hidden role="status" aria-live="polite"></div>'
+def extras(D, d: dict) -> str:
+    return (ruta_corta_html(D, d) + '<div class="dock" id="dock" hidden role="status" aria-live="polite"></div>'
             '<div class="buscador" id="buscador" hidden role="dialog" aria-modal="true" aria-label="Buscar en la tesina"><div class="buscador__caja">'
             '<input type="search" id="buscar-texto" placeholder="Buscar en la tesina (por ejemplo: Rao-Wu, informalidad, brecha…)" autocomplete="off" aria-label="Texto que se busca">'
             '<ol id="buscar-res" aria-live="polite"></ol><p class="buscador__pie">Enter abre el primer resultado · Esc cierra</p></div></div>'
@@ -405,7 +411,7 @@ def pagina(cuerpo: str, res: dict, datos_json: str, css: str, js: str, fragmento
     principal = (resumen + resumen_ingles(D, k) + hallazgos(d, D) + ficha_tecnica(D, d) + rutas_lectura() + como_citar() + indice_general(res) + cuerpo + pie_pagina())
     aviso = '<noscript><p class="aviso-js">Las figuras interactivas necesitan JavaScript; sin él se muestran como imágenes. El texto y las tablas se leen igual.</p></noscript>'
     app = (f'<a class="saltar" href="#contenido">Saltar al contenido</a>{barra()}{portada(d, D)}<div class="marco">{indice_lateral(res)}'
-           f'<main id="contenido" class="tesina">{aviso}{principal}</main></div>{extras()}')
+           f'<main id="contenido" class="tesina">{aviso}{principal}</main></div>{extras(D, d)}')
     datos = f'<script type="application/json" id="datos">{datos_json}</script>'
     if fragmento:
         return f'<title>{e(TITULO)}</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n{FUENTES}\n<style>\n{css}\n</style>\n{app}\n{datos}\n<script>\n{js}\n</script>\n'

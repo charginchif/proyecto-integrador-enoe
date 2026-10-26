@@ -1,20 +1,21 @@
 # Radiografía socioeconómica de México: escolaridad, ingreso y brecha de género
 
 **Proyecto Integrador de Ciencia de Datos** · Optativa III: Ciencia de Datos · Ingeniería en Computación, 9.º semestre · UNE Plantel Centro
-**Equipo 1:** Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia
+**Equipo 1:** Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñiga
 **Datos:** INEGI, Encuesta Nacional de Ocupación y Empleo (ENOE), 4.º trimestre de 2025 (SDEMT y COE2T)
 **Sitio en línea:** <https://charginchif.github.io/proyecto-integrador-enoe/> · **Repositorio:** <https://github.com/charginchif/proyecto-integrador-enoe>
 
 Ciclo KDD completo sobre 419,038 registros reales: selección y validación contra cifras oficiales, limpieza documentada, pipeline de ingeniería de datos
 (SQLite + MongoDB), estadística con **diseño muestral complejo** (bootstrap de Rao-Wu), 17 visualizaciones y 8 diagramas explicativos, cuaderno narrado,
 tablero interactivo, **informe técnico en Word** (67 páginas, explica todo en palabras sencillas), **dos presentaciones** (completa de 48 diapositivas y corta de 24)
-y un **sitio web** con la **tesina en formato web** (el documento completo, con figuras interactivas), una presentación de 11 láminas para exponer y una guía de estudio.
+y un **sitio web** con la **tesina en formato web** (el documento completo, con figuras interactivas y una **presentación breve** de 18 diapositivas con guion y reloj), una presentación de 11 láminas para exponer y una guía de estudio.
 
 ## Entregables
 
 | Qué | Dónde |
 |---|---|
 | **Tesina web** (el documento principal): portada, resumen en español e inglés, hallazgos clave, ficha técnica, índice con figuras y tablas, 9 capítulos, bibliografía y 4 anexos; 14 figuras interactivas, tablas ordenables, búsqueda, tema claro y oscuro y ficha de la entidad elegida | `sitio/index.html` (doble clic; la carpeta `sitio/` es autocontenida) |
+| **Presentación breve** (la ruta corta ★ de la presentación completa: 18 diapositivas, unos 18 minutos, con quién presenta cada bloque, guion y reloj); está dentro de la tesina: botón «Presentar», tecla `P` o `index.html#presentacion-breve` | `sitio/index.html` |
 | **Presentación web** (11 láminas, casi sin texto): responde las 3 preguntas de investigación con gráficas interactivas, las 3 métricas de éxito, las competencias y la reflexión; `N` abre el guion | `sitio/presentacion.html` |
 | **Guía de estudio** (versión larga con modo presentación): storytelling, ciclo KDD, semanas 1-7, protocolo, glosario, preguntas de defensa y autoevaluación | `sitio/estudio.html` |
 | **Informe técnico** (Word y PDF): marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión, glosario, guía de ejecución, preguntas de defensa y guion | `documento/Informe_Final_Proyecto_ENOE.docx` · `.pdf` |
@@ -52,7 +53,7 @@ Proyecto_ENOE/
 │                          exportar_informe.ps1 · exportar_presentacion.ps1
 │                          bibliotecas: deck_lib · deck_slides_base · deck_slides_extra · informe_lib · informe_datos · informe_s1…s4
 │                                       sitio_lib · sitio_textos · sitio_contenido_a/b · sitio_estudio · sitio_assets/ (estilo.css, app.js)
-│                                       informe_html (el informe en HTML) · web_datos (cifras de las páginas interactivas)
+│                                       informe_html (el informe en HTML) · web_datos (cifras de las páginas interactivas) · web_ruta_corta (presentación breve)
 │                                       web_assets/ (charts.css/js compartidos · tesina.css/js · lite.css/js)
 ├── notebooks/             Proyecto_Integrador_ENOE.ipynb  (ejecutado)  y .html
 ├── tablero/               tablero_enoe.html  (un solo archivo, funciona sin internet)
@@ -97,6 +98,7 @@ Para cargar en un servidor MongoDB: `python scripts/run_mongo.py --uri mongodb:/
 **Tesina web.** Abra `sitio/index.html` con doble clic (necesita internet solo para las tipografías; sin ellas se ve igual con las del sistema). Es HTML, CSS y JavaScript sin dependencias.
 El texto, las tablas y las figuras salen de las mismas funciones que arman el informe en Word (`informe_s1.py` a `informe_s4.py`) mediante `informe_html.py`, así que una frase o una cifra se corrige en un solo lugar. Las figuras de datos se dibujan en el navegador a partir de los resultados; cada una conserva su imagen (botón «Imagen») y su tabla («Ver tabla»).
 Funciones: índice lateral con la sección actual, búsqueda (tecla `/` o `Ctrl+K`), selector de entidad que resalta una entidad en todas las figuras y abre su ficha, definiciones al pasar el cursor por los términos del glosario, tablas ordenables y con filtro, tema claro u oscuro, calculadora del rendimiento de estudiar y un ejemplo de la misma consulta en SQL y en MongoDB. Al imprimir desde el navegador (guardar como PDF) se usa una hoja de estilo propia.
+**Presentación breve.** Es la ruta corta de la presentación completa (las 18 diapositivas con ★) dentro de la tesina, con las mismas gráficas del documento. Se abre con el botón «Presentar» de la barra superior, la tecla `P` o la dirección `index.html#presentacion-breve`. `→` `Espacio` `↓` avanzan; `←` `↑` retroceden; `N` muestra u oculta el guion de quien expone (propuesta de quién presenta cada bloque); `T` inicia o pausa el reloj de 18 minutos (doble clic en el reloj lo reinicia y se pone ámbar si se pasa del tiempo sugerido); `F` pantalla completa; `Esc` sale; en el teléfono se desliza con el dedo. Los títulos y el guion se leen de las notas de `presentacion/Presentacion_Completa_Proyecto_ENOE.pptx` (`scripts/web_ruta_corta.py`); si se cambian las diapositivas con ★ hay que regenerar con `python scripts/build_tesina.py`.
 **Presentación y guía de estudio.** `sitio/presentacion.html` son 11 láminas del Proyecto 1 para exponer (`↑ ↓ ← →` o `Espacio` cambian de lámina, `N` abre el guion, `F` pantalla completa); `sitio/estudio.html` es la versión larga con modo presentación (`#presentar`), guion y reloj. Las cifras salen de `results/`, de la base SQLite y de los documentos NoSQL: si se vuelve a correr el análisis basta con `python scripts/build_sitio.py`, `python scripts/build_sitio_lite.py` y `python scripts/build_tesina.py`.
 
 **Publicación en GitHub Pages.** Se sirve la rama `main` desde la raíz (Settings → Pages → Deploy from a branch → `main` / `(root)`): el `index.html` de la raíz redirige a `sitio/` y `.nojekyll` evita que Jekyll procese los archivos.

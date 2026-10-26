@@ -123,6 +123,30 @@ GRAF.oaxacaCompleto = function (el, W) {
 let metricaMosaico = 'til';
 GRAF.mosaicoTil = (el) => mosaico(el, { metrica: () => metricaMosaico, textoInicial: 'Pasa el cursor o toca un mosaico; con un clic se resalta en las demás figuras.' });
 
+/* error estándar si se ignorara el diseño muestral, como porcentaje del error real (diapositiva de la presentación breve) */
+GRAF.efectoDiseno = function (el, W) {
+  const rows = D.efecto_diseno.map((r) => {
+    const rel = r.ee0 / r.ee * 100;
+    return { label: r.n, v: rel, lab: true, txt: f0(rel) + ' %', cls: 'm-s2',
+      tip: [{ l: 'Error estándar con el diseño (Rao-Wu)', v: num(r.ee, 4) }, { l: 'Error estándar como muestra aleatoria simple', v: num(r.ee0, 4) }, { l: 'Efecto de diseño', v: '×' + f1(r.deff) }, { l: 'Observaciones efectivas', v: f0(r.ne) }],
+      nota: 'Con el diseño, el error es ' + f1(r.ee / r.ee0) + ' veces el de una muestra aleatoria simple' };
+  });
+  return barrasH(el, W, {
+    rows: rows, dom: [0, 125], ticks: [0, 25, 50, 75, 100], tickFmt: (t) => t + ' %', fmt: (v) => f0(v) + ' %', rowH: 64, barH: 28, mR: 64, ref: { v: 100, label: 'Error real (con el diseño)' },
+    ejeTit: 'Error estándar al ignorar el diseño, como % del error real', aria: 'Error estándar al ignorar el diseño muestral, como porcentaje del error real',
+    cols: ['Estimador', 'EE con diseño', 'EE como m.a.s.', 'Efecto de diseño', 'Observaciones efectivas'], colsNum: [1, 2, 3, 4],
+    filasTabla: () => D.efecto_diseno.map((r) => [r.n, num(r.ee, 4), num(r.ee0, 4), '×' + f1(r.deff), f0(r.ne)]),
+  });
+};
+
+/* leyenda de los cuartiles de ingreso en la dispersión del rendimiento por estado */
+const dispEstadosBase = GRAF.dispEstados;
+GRAF.dispEstados = function (el, W, inst) {
+  const t = dispEstadosBase(el, W, inst);
+  leyendaColores(el, [1, 2, 3, 4].map((q) => ({ clase: 'sw-q' + q, texto: nombreCuartil[q] })));
+  return t;
+};
+
 /* ======================================================================================================================================
    Figuras: interactiva o imagen, tabla de datos y ampliación
    ====================================================================================================================================== */
@@ -346,6 +370,7 @@ function iniciarBuscador() {
   document.addEventListener('keydown', (ev) => {
     const tag = (ev.target && ev.target.tagName) || '';
     if (ev.key === 'Escape') { if (!caja.hidden) cerrar(); const v = $('#visor'); if (v && !v.hidden) v.hidden = true; return; }
+    if (document.body.classList.contains('presentando')) return;                                      // la presentación breve tiene sus propias teclas
     if (((ev.key === 'k' || ev.key === 'K') && (ev.ctrlKey || ev.metaKey)) || (ev.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT')) { ev.preventDefault(); abrir(); }
   });
 }
@@ -468,6 +493,106 @@ function iniciarComponentes() {
   if (v) { $('#visor-cerrar', v).addEventListener('click', () => { v.hidden = true; }); v.addEventListener('click', (ev) => { if (ev.target === v) v.hidden = true; }); }
 }
 
+/* ======================================================================================================================================
+   Presentación breve: la ruta corta (18 diapositivas) con reloj y guion de quien expone
+   ====================================================================================================================================== */
+function ajustarSvg(el) {                                      // una gráfica alta se reduce (conservando su proporción) para que quepa en la diapositiva
+  const svg = $('svg', el); if (!svg) return;
+  svg.style.maxWidth = ''; svg.style.margin = '';
+  const vb = svg.viewBox && svg.viewBox.baseVal; if (!vb || !vb.height) return;
+  const marco = $('#pres-marco'), caja = svg.getBoundingClientRect(), arriba = caja.top - marco.getBoundingClientRect().top + marco.scrollTop;      // lo que queda del marco bajo el inicio de la gráfica
+  const resto = Math.max(0, el.getBoundingClientRect().bottom - caja.bottom);                                                                            // leyendas u otros elementos bajo la gráfica
+  const maxH = Math.max(240, marco.clientHeight - arriba - 36 - resto), h = caja.height;
+  if (h > maxH) { svg.style.maxWidth = Math.round(maxH * vb.width / vb.height) + 'px'; svg.style.margin = '0 auto'; }
+}
+const escalaGraf = () => Math.max(1, Math.min(innerWidth / 100, innerHeight / 56.2, 24) / 13.66);                     // misma unidad --u de las diapositivas: las gráficas crecen con la pantalla
+function iniciarPresentacion() {
+  const pres = $('#pres'); if (!pres) return;
+  const dias = $$('.dia', pres), total = dias.length, notas = $('#pres-notas'), reloj = $('#pres-reloj'), pos = $('#pres-pos'), barra = $('#pres-barra'), tiempo = $('#pres-tiempo');
+  const minBloque = {}, nBloque = {};
+  dias.forEach((d) => { minBloque[d.dataset.bloque] = +d.dataset.min; nBloque[d.dataset.bloque] = (nBloque[d.dataset.bloque] || 0) + 1; });
+  let acu = 0;
+  const finSug = dias.map((d) => { acu += minBloque[d.dataset.bloque] / nBloque[d.dataset.bloque]; return acu; });          // minutos sugeridos al terminar cada diapositiva
+  const totalMin = Math.round(acu), mmss = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  let actual = 0, abierta = false, corre = false, acum = 0, t0 = 0, cronometro = null, opener = null;
+  $$('.viz[data-chart]', pres).forEach((v) => {
+    montar(v);
+    const inst = charts.filter((c) => c.el === v)[0]; if (!inst) return;
+    inst.compacto = true;
+    Object.defineProperty(inst, 'escala', { get: escalaGraf });
+    const original = inst.render; inst.render = function () { original.call(this); ajustarSvg(v); };
+  });
+  const transcurrido = () => acum + (corre ? performance.now() - t0 : 0);
+  const pintarReloj = () => {
+    reloj.textContent = (corre ? '⏸ ' : '▶ ') + mmss(transcurrido()) + ' / ' + totalMin + ':00';
+    reloj.classList.toggle('pasado', transcurrido() / 60000 > finSug[actual] + 0.75);
+  };
+  const alternarReloj = () => { if (corre) { acum += performance.now() - t0; corre = false; clearInterval(cronometro); } else { t0 = performance.now(); corre = true; cronometro = setInterval(pintarReloj, 500); } pintarReloj(); };
+  const reiniciarReloj = () => { corre = false; acum = 0; clearInterval(cronometro); pintarReloj(); };
+  const mostrar = (i) => {
+    actual = clamp(i, 0, total - 1);
+    dias.forEach((d, j) => { d.hidden = j !== actual; });
+    const d = dias[actual];
+    $$('.pres__bloques li', pres).forEach((li) => { const orden = dias.findIndex((x) => x.dataset.bloque === li.dataset.b); li.classList.toggle('actual', li.dataset.b === d.dataset.bloque); li.classList.toggle('hecho', orden >= 0 && orden < actual && li.dataset.b !== d.dataset.bloque); });
+    pos.textContent = (actual + 1) + ' / ' + total; barra.style.width = ((actual + 1) / total * 100) + '%';
+    const s = Math.round(finSug[actual] * 60); tiempo.textContent = d.dataset.bloqueNombre.split(' · ')[1] + ' · sugerido terminar hacia el minuto ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    $('h3', notas).textContent = 'Guion · ' + (d.dataset.quien ? 'propuesta: presenta ' + d.dataset.quien : 'diapositiva ' + (actual + 1));
+    $('p', notas).textContent = d.dataset.guion || 'Esta diapositiva no tiene guion.';
+    $('#pres-marco').scrollTop = 0;
+    [d, dias[actual + 1]].forEach((x) => { if (x) $$('img[loading="lazy"]', x).forEach((im) => { im.loading = 'eager'; }); });       // una imagen "perezosa" dentro de un bloque oculto no carga hasta tarde
+    charts.filter((c) => d.contains(c.el)).forEach((c) => c.render());
+    pintarReloj();
+  };
+  const inertarFondo = (si) => {                                            // mientras se presenta, el resto de la página no recibe foco ni lectura de pantalla
+    for (let n = pres; n && n !== document.body; n = n.parentElement) [].forEach.call(n.parentElement.children, (x) => { if (x !== n && x.tagName !== 'SCRIPT' && x.tagName !== 'STYLE') x.inert = si; });
+  };
+  const abrir = (i, origen) => {
+    if (abierta) return;
+    abierta = true; opener = origen || null; pres.hidden = false; document.body.classList.add('presentando'); document.body.style.overflow = 'hidden'; inertarFondo(true);
+    mostrar(i || 0); pres.focus();
+    try { history.replaceState(null, '', '#presentacion-breve'); } catch (e) { /* algunos visores no permiten cambiar la dirección */ }
+  };
+  const cerrar = () => {
+    if (!abierta) return;
+    abierta = false; pres.hidden = true; document.body.classList.remove('presentando'); document.body.style.overflow = ''; inertarFondo(false);
+    if (corre) alternarReloj();                                             // al salir, el reloj queda en pausa
+    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { /* nada */ } }
+    try { if (location.hash === '#presentacion-breve') history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* nada */ }
+    if (opener && opener.focus) opener.focus();
+  };
+  const pantalla = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else { const p = pres.requestFullscreen && pres.requestFullscreen(); if (p && p.catch) p.catch(() => {}); } } catch (e) { /* algunos visores no permiten pantalla completa */ } };
+  const alternarNotas = () => {
+    notas.hidden = !notas.hidden; $('#pres-notas-btn').setAttribute('aria-pressed', notas.hidden ? 'false' : 'true');
+    charts.filter((c) => dias[actual].contains(c.el)).forEach((c) => c.render());                 // la gráfica se acomoda al espacio que queda
+  };
+  $$('[data-abrir-pres]').forEach((b) => b.addEventListener('click', (ev) => { ev.preventDefault(); abrir(0, b); }));
+  $$('[data-cerrar-pres]').forEach((a) => a.addEventListener('click', () => cerrar()));
+  $('#pres-ant').addEventListener('click', () => mostrar(actual - 1)); $('#pres-sig').addEventListener('click', () => mostrar(actual + 1));
+  $('#pres-salir').addEventListener('click', cerrar); $('#pres-pantalla').addEventListener('click', pantalla); $('#pres-notas-btn').addEventListener('click', alternarNotas);
+  reloj.addEventListener('click', alternarReloj); reloj.addEventListener('dblclick', reiniciarReloj);
+  document.addEventListener('keydown', (ev) => {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const k = ev.key, tag = (ev.target && ev.target.tagName) || '';
+    if (!abierta) { if ((k === 'p' || k === 'P') && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && $('#buscador').hidden) { abrir(0); ev.preventDefault(); } return; }
+    if (!$('#buscador').hidden) return;                                     // la búsqueda tiene prioridad
+    if ((k === ' ' || k === 'Enter') && (tag === 'BUTTON' || tag === 'A' || tag === 'SUMMARY')) return;                     // los botones y enlaces conservan su acción
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(k) >= 0) mostrar(actual + 1);
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(k) >= 0) mostrar(actual - 1);
+    else if (k === 'Home') mostrar(0); else if (k === 'End') mostrar(total - 1);
+    else if (k === 'n' || k === 'N') alternarNotas(); else if (k === 'f' || k === 'F') pantalla(); else if (k === 't' || k === 'T') alternarReloj(); else if (k === 'Escape') cerrar();
+    else return;
+    ev.preventDefault(); ev.stopImmediatePropagation();
+  }, true);
+  let x0 = null, y0 = null;                                                 // deslizar con el dedo para cambiar de diapositiva
+  $('#pres-marco').addEventListener('touchstart', (ev) => { x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY; }, { passive: true });
+  $('#pres-marco').addEventListener('touchend', (ev) => { if (x0 == null) return; const dx = ev.changedTouches[0].clientX - x0, dy = ev.changedTouches[0].clientY - y0; if (Math.abs(dx) > 70 && Math.abs(dy) < 50) mostrar(actual + (dx < 0 ? 1 : -1)); x0 = null; }, { passive: true });
+  let espera = null;
+  addEventListener('resize', () => { if (!abierta) return; clearTimeout(espera); espera = setTimeout(() => charts.filter((c) => dias[actual].contains(c.el)).forEach((c) => c.render()), 120); });      // la gráfica se acomoda a la nueva altura
+  addEventListener('hashchange', () => { if (location.hash === '#presentacion-breve' && !abierta) abrir(0); else if (abierta && location.hash !== '#presentacion-breve') cerrar(); });
+  if (location.hash === '#presentacion-breve') abrir(0);
+  pintarReloj();
+}
+
 /* ---------- arranque ---------- */
 function iniciar() {
   iniciarComponentes();
@@ -476,6 +601,7 @@ function iniciar() {
   iniciarTextos();
   iniciarNavegacion();
   iniciarBuscador();
+  iniciarPresentacion();
   pintarFicha();
   let t = null;
   addEventListener('resize', () => { clearTimeout(t); t = setTimeout(renderTodo, 140); });

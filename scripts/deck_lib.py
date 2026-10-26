@@ -354,7 +354,7 @@ class Deck:
         self.prs.slide_width, self.prs.slide_height = Inches(SW), Inches(SH)
         aplicar_tema(self.prs)
         self.prs.core_properties.title = "Radiografía socioeconómica de México: escolaridad, ingreso y brecha de género"
-        self.prs.core_properties.author = "Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñia"
+        self.prs.core_properties.author = "Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñiga"
         self.prs.core_properties.subject = "Proyecto Integrador de Ciencia de Datos · ENOE 2025-T4 (INEGI)" + (" · presentación completa" if completa else "")
         self.layout = self.prs.slide_layouts[5]      # «Solo el título»
         self.salida = Path(salida)

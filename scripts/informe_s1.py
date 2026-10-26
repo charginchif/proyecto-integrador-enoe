@@ -46,7 +46,7 @@ def portada(inf: Informe, D) -> None:
     for _ in range(4):
         d.add_paragraph()
     inf.p("**Equipo 1**", size=13, color=NAVY, despues=4)
-    for nombre in ["Juan Evelio Culin Grajeda", "Angel Yireh Garcia Jara", "Luis Andre Gutierrez Zuñia"]:
+    for nombre in ["Juan Evelio Culin Grajeda", "Angel Yireh Garcia Jara", "Luis Andre Gutierrez Zuñiga"]:
         inf.p(nombre, size=13, despues=2)
     for _ in range(3):
         d.add_paragraph()

@@ -180,7 +180,7 @@ class Informe:
             lb.font.name, lb.font.size = FUENTE, Pt(TAM_BASE)
             lb.paragraph_format.space_after = Pt(3)
         d.core_properties.title = "Radiografía socioeconómica de México: escolaridad, ingreso y brecha de género"
-        d.core_properties.author = "Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñia"
+        d.core_properties.author = "Equipo 1: Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñiga"
         d.core_properties.subject = "Informe técnico final · Proyecto Integrador de Ciencia de Datos · ENOE 2025-T4"
         d.core_properties.language = "es-MX"
         self._pie_pagina(s)

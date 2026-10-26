@@ -123,7 +123,7 @@ md(f"""
 **Proyecto Integrador de Ciencia de Datos · Examen final**
 Optativa III: Ciencia de Datos · Ingeniería en Computación, 9.º semestre · Universidad de Especialidades UNE, Plantel Centro
 
-**Equipo 1:** Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia
+**Equipo 1:** Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñiga
 **Datos:** INEGI, Encuesta Nacional de Ocupación y Empleo (ENOE), 4.º trimestre de 2025 · **Fecha:** 18 de octubre de 2026
 
 ---

@@ -54,7 +54,10 @@ def datos_extra(D) -> dict:
                  "p": r(rb.loc[i, "p"], 4), "N": int(rb.loc[i, "n"])} for i in rb.index]
     subgrupos = [{"dim": f.dimension, "cat": f.categoria, "v": r(f.brecha_pct, 1), "lo": r(f.inf, 1), "hi": r(f.sup, 1), "pv": r(f.p_holm_dimension, 4), "sig": bool(f.p_holm_dimension < 0.05),
                   "nh": int(f.n_hombres), "nm": int(f.n_mujeres)} for f in D.brecha_subgrupos.itertuples()]
-    return {"oaxaca_full": oaxaca_full, "robustez": robustez, "subgrupos": subgrupos}
+    nombres = {"TIL1 nacional": "Informalidad nacional (TIL1)", "Brecha por hora total (log-puntos)": "Brecha por hora (log-puntos)"}
+    efecto_diseno = [{"n": nombres.get(f.estimador, f.estimador), "ee": r(f.ee_diseno, 5), "ee0": r(f.ee_mas, 5), "deff": r(f.deff, 2), "ne": int(round(f.n_efectivo))}
+                     for f in D.efecto_diseno[D.efecto_diseno["deff"].notna()].itertuples()]
+    return {"oaxaca_full": oaxaca_full, "robustez": robustez, "subgrupos": subgrupos, "efecto_diseno": efecto_diseno}
 
 
 def datos_web(extra: bool = False) -> dict:

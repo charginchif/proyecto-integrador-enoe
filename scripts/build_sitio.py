@@ -72,7 +72,7 @@ def pagina(cuerpo: str, rail: str, css: str, js: str, fragmento: bool) -> str:
             '<button type="button" id="pres-ruta" aria-pressed="false" title="Cambiar entre la ruta completa y la ruta corta (solo las escenas con ★)">Ruta: completa (R)</button><button type="button" id="pres-notas-btn" aria-pressed="false">Guion (N)</button><button type="button" id="pres-salir">Salir (Esc)</button></div>'
             '<aside id="pres-notas" hidden aria-label="Guion de la escena"></aside>')
     visor = '<dialog class="visor" id="visor" aria-label="Figura ampliada"><button type="button" class="btn btn--chico" id="visor-cerrar">Cerrar</button><img id="visor-img" alt=""><p id="visor-pie"></p></dialog>'
-    pie = (f'<footer class="pie"><div class="cont"><p>Proyecto Integrador de Ciencia de Datos · Equipo 1 (Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñia) · Universidad de Especialidades UNE, Plantel Centro · '
+    pie = (f'<footer class="pie"><div class="cont"><p>Proyecto Integrador de Ciencia de Datos · Equipo 1 (Juan Evelio Culin Grajeda, Angel Yireh Garcia Jara, Luis Andre Gutierrez Zuñiga) · Universidad de Especialidades UNE, Plantel Centro · '
            f'Datos: INEGI, Encuesta Nacional de Ocupación y Empleo, 4.º trimestre de 2025 (microdatos públicos). Material académico.</p></div></footer>')
     app = (f'<div id="app" data-min-corta="{sum(MIN_CORTA.values())}" data-min-completa="{sum(MINUTOS.values())}">{barra}<div class="shell">{rail}<main class="principal" id="contenido">{cuerpo}{pie}</main></div>{pres}{visor}</div>')
     if fragmento:
