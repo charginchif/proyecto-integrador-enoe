@@ -126,7 +126,7 @@ def seccion4(inf: Informe, D) -> None:
                  f"**Ventana 15 a 65 años ({n_es(D.n_v)}):** edades en las que la relación ingreso-educación es más estable (excluye a quienes ya se retiran).",
                  f"**Muestra salarial ({n_es(D.n_s)}, equivale a {R['muestras']['salarial_poblacion_millones']:.1f} millones de personas):** ventana 15-65 con monto exacto de ingreso, horas válidas, escolaridad y nivel especificados y sin ingreso atípico. Es la base de todos los resultados salariales.",
                  f"**Muestra salarial ampliada ({n_es(D.n_ext)}):** agrega a las personas del grupo B con ingreso imputado; solo para sensibilidad."])
-    inf.p("La mayor pérdida del embudo (65,413 personas) es la del paso W1: quienes no declararon un monto exacto de ingreso. Por eso el análisis de sensibilidad de la selección es una parte central del informe.", alinear="justificado")
+    inf.p("La mayor pérdida del embudo (65,413 personas) es la del paso W1: quienes no declararon un monto exacto de ingreso. Por eso el análisis de sensibilidad de la selección es una parte central de este trabajo.", alinear="justificado")
 
     # ------------------------------------------------------------------ 4.7
     inf.h2("4.7 Pruebas automáticas de calidad de los datos (15 «expectativas»)")
@@ -181,7 +181,7 @@ def seccion5(inf: Informe, D) -> None:
     inf.vinetas(["**Microdatos** (CSV del INEGI) → **ETL** (extraer, limpiar, transformar, validar) → **SQLite** (almacén relacional, fuente de verdad).",
                  "**Análisis** estadístico lee de SQLite/ETL y escribe 30 tablas de **resultados** (CSV y tablas `res_*` en la propia base).",
                  "**MongoDB** recibe una copia derivada (documentos por entidad y por persona) para servir el tablero.",
-                 "Garantías transversales: semilla única (20251231), idempotencia, 34 pruebas automáticas, bitácora de ejecución y huellas SHA-256 de los datos de origen."])
+                 f"Garantías transversales: semilla única (20251231), idempotencia, {D.n_pruebas} pruebas automáticas, bitácora de ejecución y huellas SHA-256 de los datos de origen."])
 
     # ------------------------------------------------------------------ 5.3
     inf.h2("5.3 Almacén relacional: SQLite con esquema en estrella")
@@ -248,25 +248,30 @@ ORDER BY til1_pct DESC;""")
                ["TIL1 ponderado por entidad", "`SUM(fac_tri*informal)/SUM(fac_tri) … GROUP BY cve_ent`", "`db.personas.aggregate([{$group: {_id: \"$cve_ent\", ocupados: {$sum: \"$fac_tri\"}, informales: {$sum: {$cond: [\"$trabajo.informal\", \"$fac_tri\", 0]}}}}, …])`"]],
               ["Pregunta", "SQL", "MongoDB"], [3.6, 5.6, 7.3], pie="Consultas equivalentes.", alinear=["izq", "izq", "izq"], fuente=8.5, negrita_col0=True)
     inf.h3("Qué se verificó y qué no (alcance honesto)")
-    inf.vinetas(["**Verificado:** los documentos se construyen y se exportan (`entidades.json`, `entidades.ndjson`, `personas.ndjson.gz`, `metadatos.ndjson`); el pipeline de agregación «TIL1 por entidad», ejecutado con su lógica en Python sobre los mismos documentos, reproduce la vista SQL `v_til_entidad` con una diferencia máxima de 0.005 puntos porcentuales (el redondeo del SQL); el tablero se alimenta de la colección `entidades`.",
-                 "**No ejecutado:** la carga a un servidor MongoDB real, porque en el equipo de desarrollo no hay servidor MongoDB ni la biblioteca `pymongo`. El código de carga existe (usa solo `insert_many`, `create_index` y `drop_collection`) y los archivos están listos para `mongoimport`."])
-    inf.recuadro("Cómo cargar en un servidor real", ["Con Python: `pip install pymongo` y luego `python scripts/run_mongo.py --uri mongodb://localhost:27017` (o una URI de MongoDB Atlas).",
-                                                     "Sin Python: `mongoimport --db enoe_2025t4 --collection entidades --file data/processed/mongo/entidades.ndjson`."], fondo="FFF7E6", borde="EDA100")
+    inf.vinetas(["**Verificado:** los documentos se construyen y se exportan (`entidades.json`, `entidades.ndjson`, `personas.ndjson.gz`, `metadatos.ndjson`) y la **carga completa se probó contra mongomock**, un simulador de MongoDB en memoria: los 190,187 documentos de persona, los 32 de entidad y el de metadatos, siete índices, documentos BSON válidos y una recarga que no duplica nada. "
+                 "El pipeline de agregación «TIL1 por entidad», ejecutado en el motor, reproduce la vista SQL `v_til_entidad` con una diferencia máxima de 0.005 puntos porcentuales (el redondeo del SQL); el tablero se alimenta de la colección `entidades`. Siete pruebas automáticas cubren esta capa.",
+                 "**No ejecutado:** la carga a un servidor MongoDB real, porque en el equipo de desarrollo no hay un servidor. mongomock imita la API y la agregación, pero **no es MongoDB**: no reproduce todo el comportamiento del servidor (por ejemplo, algunas reglas sobre los índices). "
+                 "El código de carga usa solo `insert_many`, `create_index` y `drop_collection`, y los archivos están listos para `mongoimport`."])
+    inf.recuadro("Cómo cargar en un servidor real", ["Con Python: `pip install -r requirements.txt` (incluye `pymongo`) y luego `python scripts/run_mongo.py --uri mongodb://localhost:27017` (o una URI de MongoDB Atlas).",
+                                                     "Sin Python: `mongoimport --db enoe_2025t4 --collection entidades --file data/processed/mongo/entidades.ndjson`.",
+                                                     "Sin servidor: `python scripts/run_mongo.py --simulado --limite 20000` carga y verifica contra mongomock (sin `--limite`, la carga completa tarda unos 6 minutos)."], fondo="FFF7E6", borde="EDA100")
 
     # ------------------------------------------------------------------ 5.5
     inf.h2("5.5 Reproducibilidad y pruebas")
     inf.p("Un resultado científico solo vale si otra persona puede obtenerlo. El proyecto incorpora varios mecanismos:", despues=2, keep=True)
-    inf.vinetas(["**Una sola orden:** `python scripts/run_all.py` ejecuta el ETL, el análisis, las figuras, la base documental, el tablero, el cuaderno, las dos presentaciones, el informe en Word y las 34 pruebas (de 6 a 10 minutos según el equipo; la opción `--rapido` usa 100 réplicas bootstrap y omite el cuaderno, las presentaciones y el informe).",
+    inf.vinetas([f"**Una sola orden:** `python scripts/run_all.py` ejecuta el ETL, el análisis, las figuras, la base documental, el tablero, el cuaderno, las dos presentaciones, el informe en Word y las {D.n_pruebas} pruebas (de 6 a 10 minutos según el equipo; la opción `--rapido` usa 100 réplicas bootstrap y omite el cuaderno, las presentaciones y el informe).",
                  f"**Semilla fija:** toda operación aleatoria usa la semilla {meta['semilla']}. Dos ejecuciones producen exactamente los mismos números: se comprobó que los 30 archivos de resultados son idénticos.",
                  "**Idempotencia:** la base se recrea desde cero y las colecciones documentales se eliminan y recargan, de modo que correr el proceso dos veces no duplica datos.",
                  "**Linaje:** la tabla `etl_run` guarda las versiones de Python y las bibliotecas, la semilla, los parámetros y la huella SHA-256 de cada archivo de origen.",
-                 "**Pruebas automáticas (34):** limpieza, estadística de encuestas (comparadas con `statsmodels` y con soluciones analíticas), modelos y una prueba de integración con los datos reales (se omite si los datos no están).",
+                 f"**Pruebas automáticas ({D.n_pruebas}):** limpieza, estadística de encuestas (comparadas con `statsmodels` y con soluciones analíticas), modelos, la capa documental contra mongomock y una prueba de integración con los datos reales (se omite si los datos no están).",
                  "**Parámetros centralizados:** todos los umbrales y catálogos viven en `config.py`; ninguna cifra queda «escondida» dentro del código."])
-    filas = [["`test_clean.py`", "8", "Cada regla de cobertura excluye lo que debe; ventana 15-65; recodificación de faltantes; grupos de ingreso excluyentes (y error si un ingreso queda sin clasificar); ingreso por hora; atípicos por entidad; imputación por mediana del rango"],
-             ["`test_survey.py`", "13", "Cuantiles y medias ponderadas; Spearman ponderado (igual a SciPy y a los datos «expandidos»); WLS; Holm; colapso de estratos; factores Rao-Wu con esperanza 1 y reproducibles; bootstrap = Taylor; el diseño complejo agranda la varianza; dominios; IC percentil"],
-             ["`test_modelos.py`", "6", "WLS y logit con diseño iguales a `statsmodels`; el efecto de conglomerado agranda el error; dominios con ponderadores cero; identidad exacta de Oaxaca-Blinder; brecha en %"],
-             ["`test_etl_datos_reales.py`", "7", "Integridad de SQLite; cifras oficiales del INEGI; TIL1 estatal; conteos de la cascada; la muestra salarial cumple su definición; 32 entidades y ponderador positivo; la vista de calidad suma 100 %"]]
-    inf.tabla(filas, ["Archivo", "Pruebas", "Qué verifica"], [4.4, 1.6, 10.5], pie="Conjunto de pruebas automáticas (34 en total).", alinear=["izq", "centro", "izq"], fuente=9)
+    n_p = D.pruebas
+    filas = [["`test_clean.py`", str(n_p["test_clean.py"]), "Cada regla de cobertura excluye lo que debe; ventana 15-65; recodificación de faltantes; grupos de ingreso excluyentes (y error si un ingreso queda sin clasificar); ingreso por hora; atípicos por entidad; imputación por mediana del rango"],
+             ["`test_survey.py`", str(n_p["test_survey.py"]), "Cuantiles y medias ponderadas; Spearman ponderado (igual a SciPy y a los datos «expandidos»); WLS; Holm; colapso de estratos; factores Rao-Wu con esperanza 1 y reproducibles; bootstrap = Taylor; el diseño complejo agranda la varianza; dominios; IC percentil"],
+             ["`test_modelos.py`", str(n_p["test_modelos.py"]), "WLS y logit con diseño iguales a `statsmodels`; el efecto de conglomerado agranda el error; dominios con ponderadores cero; identidad exacta de Oaxaca-Blinder; brecha en %"],
+             ["`test_etl_datos_reales.py`", str(n_p["test_etl_datos_reales.py"]), "Integridad de SQLite; cifras oficiales del INEGI; TIL1 estatal; conteos de la cascada; la muestra salarial cumple su definición; 32 entidades y ponderador positivo; la vista de calidad suma 100 %"],
+             ["`test_mongo_simulado.py`", str(n_p["test_mongo_simulado.py"]), "Capa documental contra mongomock: carga por lotes e idempotente, siete índices, documentos BSON válidos, el pipeline de agregación reproduce la vista SQL y la comparación detecta una diferencia"]]
+    inf.tabla(filas, ["Archivo", "Pruebas", "Qué verifica"], [4.4, 1.6, 10.5], pie=f"Conjunto de pruebas automáticas ({D.n_pruebas} en total).", alinear=["izq", "centro", "izq"], fuente=9)
 
     # ------------------------------------------------------------------ 5.6
     inf.h2("5.6 Mapa del código")

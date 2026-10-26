@@ -1,0 +1,90 @@
+/* Gráficas (SVG), globo de datos y mosaico de entidades: estilos compartidos por la presentación y la tesina.
+   La página debe definir: --bg --surface --surface-2 --ink --ink-2 --muted --line --grid --axis --accent --brand --brand-solid --on-brand --f-body --f-mono.
+   Colores de las gráficas: paleta validada para daltonismo (categorías: azul, naranja, verde, ámbar; magnitud ordenada: rampa azul de un solo tono). */
+:root{
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --rojo:#e34948;
+  --q1:#86b6ef; --q2:#3987e5; --q3:#1c5cab; --q4:#0d366b;
+  --ramp-lo:#d6e5fb; --ramp-hi:#0b2c66; --on-lo:#141a30; --on-hi:#ffffff;
+  --ok:#12805c; --ok-soft:#dff3ea; --warn:#7a4f00; --warn-soft:#fff2d3; --bad:#b83231;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --rojo:#e66767;
+  --q1:#184f95; --q2:#2a78d6; --q3:#6da7ec; --q4:#b7d3f6;
+  --ramp-lo:#17224f; --ramp-hi:#a9c9fa; --on-lo:#ffffff; --on-hi:#0b1030;
+  --ok:#4cd0a0; --ok-soft:#12342a; --warn:#f3c260; --warn-soft:#3a2d0c; --bad:#ff8785
+}}
+:root[data-theme="dark"]{
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --rojo:#e66767;
+  --q1:#184f95; --q2:#2a78d6; --q3:#6da7ec; --q4:#b7d3f6;
+  --ramp-lo:#17224f; --ramp-hi:#a9c9fa; --on-lo:#ffffff; --on-hi:#0b1030;
+  --ok:#4cd0a0; --ok-soft:#12342a; --warn:#f3c260; --warn-soft:#3a2d0c; --bad:#ff8785
+}
+
+/* ---------- elementos de las gráficas (SVG) ---------- */
+.eje text,.t-eje{font:500 12.5px var(--f-body);fill:var(--muted);font-variant-numeric:tabular-nums}
+.t-cat{font:500 13px var(--f-body);fill:var(--ink-2)}
+.t-cat.sel{font-weight:700;fill:var(--ink)}
+.t-val{font:600 12.5px var(--f-body);fill:var(--ink)}
+.t-dir{font:600 12.5px var(--f-body);fill:var(--ink-2)}
+.t-ref{font:500 12px var(--f-body);fill:var(--muted)}
+.t-dentro{font:600 12.5px var(--f-body)}
+.rej{stroke:var(--grid);stroke-width:1;shape-rendering:crispEdges}
+.base{stroke:var(--axis);stroke-width:1;shape-rendering:crispEdges}
+.ref{stroke:var(--muted);stroke-width:1;stroke-dasharray:none;opacity:.7}
+.m-s1{fill:var(--s1)}.m-s2{fill:var(--s2)}.m-s3{fill:var(--s3)}.m-s4{fill:var(--s4)}.m-rojo{fill:var(--rojo)}
+.sw-s1{background:var(--s1)}.sw-s2{background:var(--s2)}.sw-s3{background:var(--s3)}.sw-s4{background:var(--s4)}.sw-rojo{background:var(--rojo)}
+.sw-q1{background:var(--q1)}.sw-q2{background:var(--q2)}.sw-q3{background:var(--q3)}.sw-q4{background:var(--q4)}
+.t-halo{paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.t-mini{font:500 11.5px var(--f-body);fill:var(--muted)}
+.t-mini--v{font-weight:600;fill:var(--ink-2)}
+.m-q1{fill:var(--q1)}.m-q2{fill:var(--q2)}.m-q3{fill:var(--q3)}.m-q4{fill:var(--q4)}
+.l-s1{stroke:var(--s1)}.l-s2{stroke:var(--s2)}.l-q1{stroke:var(--q1)}.l-q2{stroke:var(--q2)}.l-q3{stroke:var(--q3)}.l-q4{stroke:var(--q4)}
+.linea{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.ic{stroke-width:2;stroke-linecap:round;fill:none;opacity:.9}
+.ic-gris{stroke:var(--ink-2);opacity:.75}
+.punto-m{stroke:var(--surface);stroke-width:2}
+.atenuado{opacity:.35}
+.destaca{stroke:var(--ink);stroke-width:2}
+.banda{fill:var(--s1);opacity:.1}
+.fila-hit{fill:transparent;cursor:pointer}
+.fila-sel{fill:color-mix(in srgb,var(--accent) 35%,transparent)}
+.cruz{stroke:var(--muted);stroke-width:1;shape-rendering:crispEdges}
+.m-hover{filter:brightness(1.12)}
+.neutro{fill:var(--axis)}
+.m-gris{fill:var(--muted);opacity:.55}
+.m-mark{fill:var(--accent);stroke:var(--ink);stroke-width:1.5}
+.m-hueco{fill:var(--surface);stroke:var(--s1);stroke-width:2.2}
+.t-cab{font:700 12.5px var(--f-body);fill:var(--ink)}
+
+.leyenda{display:flex;flex-wrap:wrap;gap:.3rem .9rem;margin-top:.3rem;font-size:.8rem;color:var(--ink-2)}
+.leyenda button,.leyenda span{display:inline-flex;align-items:center;gap:.4rem;border:0;background:transparent;padding:.15rem .25rem;border-radius:4px;color:inherit;font:inherit;cursor:default}
+.leyenda button{cursor:pointer}
+.leyenda button:hover{background:var(--surface-2)}
+.leyenda i{width:.85rem;height:.55rem;border-radius:2px;display:inline-block}
+.leyenda i.l{height:2px;width:1rem;border-radius:0}
+.leyenda .on{background:var(--surface-2);font-weight:600}
+[data-foco] .seg-a,[data-foco] .seg-b,[data-foco] .seg-c,[data-foco] .seg-d{opacity:.28}
+[data-foco="A"] .seg-a,[data-foco="B"] .seg-b,[data-foco="C"] .seg-c,[data-foco="D"] .seg-d{opacity:1}
+
+/* ---------- globo de ayuda ---------- */
+.globo{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:8px;padding:.5rem .65rem;font-size:.82rem;line-height:1.35;max-width:17rem;box-shadow:0 6px 24px rgba(0,0,0,.28);opacity:0;transition:opacity .08s}
+.globo.on{opacity:1}
+.globo b{display:block;font-size:.88rem;margin-bottom:.2rem}
+.globo .f{display:flex;align-items:center;gap:.4rem;justify-content:space-between}
+.globo .f strong{font-weight:700}
+.globo .k{display:inline-block;width:.9rem;height:3px;border-radius:2px;margin-right:.35rem;vertical-align:middle}
+.globo small{display:block;opacity:.8;margin-top:.15rem}
+
+/* ---------- mosaico de entidades (cartograma) ---------- */
+.mosaico-marco{max-width:36rem;margin-inline:auto;width:100%}
+.mosaico{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(6,auto);gap:3px;container-type:inline-size}
+.tile{aspect-ratio:1;border:0;border-radius:4px;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;overflow:hidden;
+  background:color-mix(in oklab,var(--ramp-lo),var(--ramp-hi) calc(var(--t) * 100%));color:var(--on-lo);font:600 clamp(.5rem,2.15cqw,.8rem)/1.1 var(--f-body);transition:transform .12s}
+.tile.alto{color:var(--on-hi)}
+.tile small{font-weight:500;font-size:.92em;opacity:.95}
+.tile:hover,.tile:focus-visible{transform:scale(1.14);z-index:2;outline:2px solid var(--ink);outline-offset:0}
+.tile.sel{outline:3px solid var(--accent);outline-offset:1px;z-index:3;transform:scale(1.1)}
+.escala{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font:500 .74rem var(--f-body);color:var(--muted)}
+.escala i{flex:1;height:.5rem;border-radius:3px;background:linear-gradient(90deg,var(--ramp-lo),var(--ramp-hi))}
+.mosaico-info{min-height:2.4rem;margin-top:.5rem;font-size:.92rem;color:var(--ink)}
+.mosaico-info b{font-weight:700}

@@ -1,4 +1,4 @@
-"""Datos de la página interactiva (sitio/index.html): todo sale de results/ y de la base SQLite, nada se escribe a mano.
+"""Datos de las páginas interactivas (tesina: sitio/index.html; presentación: sitio/presentacion.html): todo sale de results/ y de la base SQLite, nada se escribe a mano.
 
 ``datos_web()`` devuelve un diccionario listo para ``json.dumps``; la página lo incrusta y dibuja las gráficas en el navegador.
 Los números se redondean a lo que se muestra (2 decimales como máximo) para que el archivo pese poco.
@@ -42,7 +42,22 @@ def curva_ingreso(minimo: int = 60) -> list[dict]:
     return [filas[k] for k in sorted(filas)]
 
 
-def datos_web() -> dict:
+def datos_extra(D) -> dict:
+    """Series que solo usa la tesina (figuras del capítulo de resultados que la presentación no necesita)."""
+    ob = D.ob
+    claves = [("Brecha total", "Brecha total (log-puntos)", "total"), ("Explicada por características", "Explicada por características (referencia agrupada)", "explicada"),
+              ("escolaridad", "escolaridad", "comp"), ("edad / experiencia", "edad / experiencia", "comp"), ("entidad y localidad", "entidad y tamaño de localidad", "comp"),
+              ("posición e informalidad", "posición e informalidad", "comp"), ("rama de actividad", "rama de actividad", "comp"), ("No explicada", "No explicada (referencia agrupada)", "noexp")]
+    oaxaca_full = [{"n": n, "t": t, "v": r(ob.loc[k, "log_puntos"] * 100, 2), "lo": r(ob.loc[k, "ic_inf"] * 100, 2), "hi": r(ob.loc[k, "ic_sup"] * 100, 2)} for n, k, t in claves]
+    rb = D.rob_tot
+    robustez = [{"id": i.split(" ")[0], "n": i, "d": rb.loc[i, "descripcion"], "v": r(rb.loc[i, "brecha_pct"], 1), "lo": r(rb.loc[i, "inf"], 1), "hi": r(rb.loc[i, "sup"], 1),
+                 "p": r(rb.loc[i, "p"], 4), "N": int(rb.loc[i, "n"])} for i in rb.index]
+    subgrupos = [{"dim": f.dimension, "cat": f.categoria, "v": r(f.brecha_pct, 1), "lo": r(f.inf, 1), "hi": r(f.sup, 1), "pv": r(f.p_holm_dimension, 4), "sig": bool(f.p_holm_dimension < 0.05),
+                  "nh": int(f.n_hombres), "nm": int(f.n_mujeres)} for f in D.brecha_subgrupos.itertuples()]
+    return {"oaxaca_full": oaxaca_full, "robustez": robustez, "subgrupos": subgrupos}
+
+
+def datos_web(extra: bool = False) -> dict:
     D = cargar()
     R, rt, tot = D.R, D.rt, D.tot
     niv = {1: C.NIV_INS[1], 2: C.NIV_INS[2], 3: C.NIV_INS[3], 4: C.NIV_INS[4]}
@@ -161,11 +176,15 @@ def datos_web() -> dict:
     n = {"registros": int(b.loc["L0", "n_despues"]), "universo": int(D.n_u), "ventana": int(D.n_v), "salarial": int(D.n_s), "salarial_ext": int(D.n_ext),
          "filas_fact": int(D.n_u), "cols_fact": int(D.n_cols_fact), "pruebas_datos": int(len(D.etl_expectativas)), "variables_derivadas": 13}
 
-    return {
+    salida = {
         "k": k, "n": n, "estados": estados, "mongo": mongo, "curva": curva_ingreso(), "premio": premio, "brecha_nivel": brecha_nivel, "escalera": escalera,
         "cuantiles": cuantiles, "oaxaca": oaxaca, "calidad": calidad, "embudo": embudo, "validacion": validacion, "til_nivel": til_nivel, "til_region": til_region,
         "retorno_q": retorno_q,
     }
+    if extra:
+        salida.update(datos_extra(D))
+        salida["n"]["pruebas"] = int(D.n_pruebas)
+    return salida
 
 
 if __name__ == "__main__":

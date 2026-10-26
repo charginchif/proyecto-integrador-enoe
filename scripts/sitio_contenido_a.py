@@ -264,15 +264,15 @@ def construir(ctx: Ctx) -> list[str]:
                    dos('<p class="tit-c">SQL · vista v_til_entidad</p>' + codigo(sql, "sql"), '<p class="tit-c">MongoDB · pipeline de agregación</p>' + codigo(mongo, "javascript"), "dos--igual")
                    + cifras([("0.005 pp", "diferencia máxima entre ambas (el redondeo del SQL)")])
                    + nota("Ficha de una entidad", "SQL necesita varias consultas con JOIN; MongoDB, una lectura por clave: `db.entidades.findOne({cve_ent: 20})`.", "sencillo")
-                   + nota("Alcance honesto", "No se cargó a un servidor MongoDB real porque no hay uno instalado. Se verificó que la agregación de MongoDB, ejecutada con la misma lógica sobre los documentos exportados, reproduce la vista SQL, y los archivos están listos para `mongoimport`.", "cuidado"),
+                   + nota("Alcance honesto", "No se cargó a un servidor MongoDB real porque no hay uno instalado. La carga completa se probó con mongomock (un simulador) y la agregación ejecutada en el motor reproduce la vista SQL; los archivos están listos para `mongoimport`.", "cuidado"),
                    g=("La misma pregunta en SQL",)))
 
     mapa = [["`config.py`", "Rutas, parámetros, catálogos y cifras de referencia: la única fuente de decisiones"], ["`extract.py`, `validacion.py`", "Lectura de los CSV con huella SHA-256; comparación con las cifras del INEGI"], ["`clean.py`", "Cobertura, faltantes, grupos de ingreso, atípicos, muestras y 15 expectativas"],
             ["`transform.py`", "Llave de persona, unión 1 a 1, variables derivadas e imputación"], ["`pipeline.py`", "Orquesta el ETL completo y escribe metadatos y bitácora"], ["`load_sqlite.py`, `load_mongo.py`", "Esquema en estrella con restricciones y documentos NoSQL"],
             ["`survey.py`", "Rao-Wu, Taylor, Spearman ponderado, WLS y logit con diseño, Holm"], ["`datos.py`, `estimadores.py`, `modelos.py`, `analisis.py`", "Todo el análisis estadístico: 30 tablas de resultados"], ["`viz.py`, `viz_diagramas.py`, `figuras.py`", "17 figuras de datos y 8 diagramas explicativos"]]
-    out.append(esc("reprod", 3, "Reproducibilidad: una orden, una semilla, 34 pruebas",
+    out.append(esc("reprod", 3, f"Reproducibilidad: una orden, una semilla, {sum(C.contar_pruebas().values())} pruebas",
                    codigo("python scripts/run_all.py   # ETL → análisis → figuras → NoSQL → tablero → cuaderno → presentaciones → informe → pruebas (≈ 10 min)", "bash")
-                   + cifras([("20251231", "semilla única para todo lo aleatorio"), ("30 de 30", "archivos de resultados idénticos en dos corridas"), ("34", "pruebas automáticas (limpieza, encuestas, modelos, integración)"), ("SHA-256", "huella de cada archivo de origen")])
+                   + cifras([("20251231", "semilla única para todo lo aleatorio"), ("30 de 30", "archivos de resultados idénticos en dos corridas"), (str(sum(C.contar_pruebas().values())), "pruebas automáticas (limpieza, encuestas, modelos, capa documental, integración)"), ("SHA-256", "huella de cada archivo de origen")])
                    + lista(["**Idempotente:** la base se recrea desde cero.", "**Auditable:** bitácora de cada regla y tabla `etl_run` con versiones y parámetros.", "**Transparente:** todas las decisiones viven en `config.py`."])
                    + '<details class="guion"><summary>Mapa del código</summary>' + tabla(["Módulo", "Qué contiene"], mapa) + "</details>", g=("Reproducibilidad: una orden", "Mapa del código")))
     return out

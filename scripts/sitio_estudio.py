@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from deck_slides_extra import BLOQUES, MIN_CORTA, MINUTOS, PRESENTA
-from informe_datos import f1, n_es
+from informe_datos import contar_pruebas, f1, n_es
 from informe_s4 import GLOSARIO, preguntas_defensa
 from sitio_lib import Raw, e, lista, md, nota, p, tabla, tarjeta
 
@@ -25,7 +25,7 @@ def numeros_clave(D) -> list[tuple[str, str, str]]:
         ("Oaxaca-Blinder (log-puntos × 100)", f"{D.ob.loc['Brecha total (log-puntos)', 'log_puntos'] * 100:.1f} = {D.ob.loc['Explicada por características (referencia agrupada)', 'log_puntos'] * 100:.1f} + {D.ob.loc['No explicada (referencia agrupada)', 'log_puntos'] * 100:.1f}", "total = explicada + no explicada"),
         ("Rango de la brecha por hora en la robustez", f"{D.hora_specs['brecha_pct'].min():.1f} a {D.hora_specs['brecha_pct'].max():.1f} %", "sin controles; con controles, 8.2 %"), ("Informalidad nacional", f"{f1(D.nac['est'])} %", f"de {D.mn_til['til1_est']:.0f} % ({D.mn_til['entidad']}) a {D.mx_til['til1_est']:.0f} % ({D.mx_til['entidad']})"),
         ("Informalidad por escolaridad", f"{R['til1']['por_nivel']['1']:.0f} % → {R['til1']['por_nivel']['4']:.0f} %", "de primaria incompleta a media superior o más"), ("Spearman entre estados (informalidad y escolaridad)", f"{D.asoc.loc['rho_spearman_til_esc', 'est']:.2f}", f"pendiente {D.asoc.loc['pendiente_til_esc', 'est']:.1f} pp por año"),
-        ("Réplicas bootstrap y semilla", f"{R['B']:,} · {D.meta['semilla']}", "una sola semilla para todo"), ("Pruebas automáticas y expectativas de datos", "34 y 15", "todas cumplidas"),
+        ("Réplicas bootstrap y semilla", f"{R['B']:,} · {D.meta['semilla']}", "una sola semilla para todo"), ("Pruebas automáticas y expectativas de datos", f"{sum(contar_pruebas().values())} y 15", "todas cumplidas"),
     ]
 
 
@@ -135,7 +135,7 @@ def exponer(D) -> str:
 
 
 def descargas() -> str:
-    cards = [("Informe técnico (PDF)", "66 páginas: marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión y anexos.", "descargas/Informe_Final_Proyecto_ENOE.pdf", "PDF"),
+    cards = [("Informe técnico (PDF)", "67 páginas: marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión y anexos.", "descargas/Informe_Final_Proyecto_ENOE.pdf", "PDF"),
              ("Presentación completa (PDF)", "48 diapositivas; la versión editable está en la carpeta del proyecto.", "descargas/Presentacion_Completa_Proyecto_ENOE.pdf", "PDF"),
              ("Cuaderno ejecutado", "El notebook con código, tablas y gráficas, exportado a HTML.", "cuaderno.html", "HTML"),
              ("Tablero interactivo", "Ficha de cada entidad con mapa, ranking y gráficas (funciona sin internet).", "tablero.html", "HTML")]

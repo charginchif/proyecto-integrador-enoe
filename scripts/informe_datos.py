@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -33,8 +34,15 @@ def pval(p: float) -> str:
     return "< 0.001" if p < 0.001 else f"{p:.3f}"
 
 
+def contar_pruebas() -> dict[str, int]:
+    """Pruebas automáticas por archivo de tests/ (se cuentan las funciones ``test_``; así las cifras del documento nunca quedan desactualizadas)."""
+    return C.contar_pruebas()
+
+
 def cargar() -> SimpleNamespace:
     D = SimpleNamespace()
+    D.pruebas = contar_pruebas()
+    D.n_pruebas = sum(D.pruebas.values())
     D.R = json.loads((RES / "resumen.json").read_text(encoding="utf-8"))
     D.meta = json.loads((RES / "etl_meta.json").read_text(encoding="utf-8"))
     nombres = ["brecha_nivel", "escalera_brecha", "robustez_brecha", "robustez_retorno", "brecha_cuantiles", "oaxaca", "til1_entidad", "retorno_entidad",

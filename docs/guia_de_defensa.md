@@ -80,7 +80,7 @@ Persistencia políglota por **patrón de acceso**: análisis (agregaciones ponde
 Los indicadores se leen siempre junto con la entidad (una lectura, sin JOIN). Las 190 mil personas no caben en un documento (límite de 16 MB) ni se leen con la entidad: colección aparte relacionada por `cve_ent`.
 
 **24. ¿Cargaron a un servidor MongoDB real?**
-No: en la máquina de desarrollo no hay servidor ni `pymongo`. Se exportaron los documentos (NDJSON listos para `mongoimport`) y se **verificó que la agregación de Mongo reproduce la vista SQL** (diferencia 0.005 pp). Con `pip install pymongo` y un servidor, `python scripts/run_mongo.py --uri …` los carga (documentado en `docs/modelo_de_datos_nosql.md`).
+No: en la máquina de desarrollo no hay un servidor MongoDB. Se exportaron los documentos (NDJSON listos para `mongoimport`), la carga completa se probó contra **mongomock** (un simulador en memoria; imita la API pero no es MongoDB) y se **verificó que la agregación ejecutada en el motor reproduce la vista SQL** (diferencia 0.005 pp). Con un servidor, `python scripts/run_mongo.py --uri …` hace la carga y las mismas verificaciones (ver `docs/modelo_de_datos_nosql.md`).
 
 **25. ¿Cómo garantizan la reproducibilidad?**
 Una sola semilla (20251231), versiones y huellas SHA-256 en `etl_meta.json`, ETL idempotente, pruebas automáticas (`python -m unittest discover -s tests`) y el cuaderno se reconstruye desde `results/` con aserciones que avisan si una conclusión deja de ser cierta.

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import pandas as pd
-from docx.shared import Cm
 
 from informe_datos import f1, n_es, pval
 from informe_lib import Informe
@@ -35,7 +34,7 @@ def seccion8(inf: Informe, D) -> None:
     inf.h2("8.2 Evaluación de las métricas de éxito")
     inf.tabla([["M1", "Brecha salarial de género (%) por nivel de instrucción, con IC 95 % y prueba de hipótesis", "Tabla de la sección 7.4: brecha por hora y mensual en los cuatro niveles, con IC por bootstrap de Rao-Wu y valores p ajustados con Holm; también pruebas de Welch y Mann-Whitney y *d* de Cohen.", "Cumplida"],
                ["M2", "Correlación escolaridad-ingreso (Spearman) en las 32 entidades, con IC por bootstrap y un ranking defendible", "Spearman ponderado para las 32 entidades con IC y con el intervalo del lugar de cada entidad (sección 7.3 y Anexo C). Se declara explícitamente que el ranking solo distingue los extremos.", "Cumplida"],
-               ["M3", "Tablero con al menos cuatro visualizaciones interpretables, alimentado por un pipeline que carga a MongoDB consultable por entidad", "Tablero interactivo de un solo archivo con seis visualizaciones y la ficha de cada entidad (`tablero/tablero_enoe.html`); pipeline que construye y exporta los documentos y verifica que la agregación documental reproduce la vista SQL.", "Cumplida, con una salvedad: la carga a un servidor MongoDB real no se ejecutó"]],
+               ["M3", "Tablero con al menos cuatro visualizaciones interpretables, alimentado por un pipeline que carga a MongoDB consultable por entidad", "Tablero interactivo de un solo archivo con seis visualizaciones y la ficha de cada entidad (`tablero/tablero_enoe.html`); pipeline que construye y exporta los documentos y verifica que la agregación documental reproduce la vista SQL.", "Cumplida, con una salvedad: la carga a un servidor MongoDB real no se ejecutó (se probó con un simulador, mongomock)"]],
               ["Métrica", "Exigencia del protocolo", "Evidencia", "Estado"], [1.7, 4.5, 6.9, 3.4], pie="Cumplimiento de las métricas de éxito del protocolo.", alinear=["centro", "izq", "izq", "izq"], fuente=9)
 
     inf.h2("8.3 Interpretación integrada")
@@ -79,7 +78,7 @@ def seccion9(inf: Informe, D) -> None:
                   f"**Brecha salarial de género:** {f1(tot['brecha_hora_pct'])} % por hora y {f1(tot['brecha_mens_pct'])} % por mes. Es estadísticamente significativa en los cuatro niveles de instrucción, aunque pequeña en tamaño del efecto; la diferencia mensual es sobre todo de horas trabajadas ({f1(tot['menos_horas_mujeres_pct'])} % menos); entre personas comparables es de {D.g5['brecha_pct']:.1f} %.",
                   f"**Informalidad:** {f1(D.nac['est'])} % de los ocupados, de {D.mn_til['til1_est']:.0f} % a {D.mx_til['til1_est']:.0f} % según la entidad, y estrechamente asociada con la escolaridad ({R['til1']['por_nivel']['1']:.0f} % → {R['til1']['por_nivel']['4']:.0f} %).",
                   f"**Calidad de los datos:** el «ingreso cero» de la ENOE esconde información incompleta ({D.B_t:.0f} % solo da un rango de salarios mínimos y {D.D_t:.0f} % no especifica); la no respuesta es selectiva, y por eso las conclusiones se contrastaron con imputación, ponderación inversa y solo asalariados.",
-                  "**Ingeniería de datos:** el proceso es reproducible de principio a fin (una semilla, una orden, 34 pruebas, 30 archivos de resultados idénticos en dos corridas), y la arquitectura relacional (SQLite) y documental (MongoDB) responde a patrones de acceso distintos.",
+                  f"**Ingeniería de datos:** el proceso es reproducible de principio a fin (una semilla, una orden, {D.n_pruebas} pruebas, 30 archivos de resultados idénticos en dos corridas), y la arquitectura relacional (SQLite) y documental (MongoDB) responde a patrones de acceso distintos.",
                   "**Alcance:** los resultados son asociaciones de un trimestre; su lectura causal requeriría otros diseños de investigación."])
     inf.recuadro("Mensaje final", ["Estudiar se asocia con un mayor ingreso y con menos informalidad en todo el país; la desigualdad de género en el ingreso mensual es, sobre todo, una desigualdad de horas, y la de pago por hora se concentra en quienes menos ganan."])
 
@@ -171,8 +170,8 @@ def preguntas_defensa(D) -> list:
         ("E. Ingeniería de datos y NoSQL", [
             ("¿Por qué SQLite y MongoDB?", "Persistencia políglota por **patrón de acceso**: análisis (agregaciones ponderadas, `JOIN`, integridad) en una base relacional; servir la ficha de una entidad (un documento por clave, esquema flexible) en una documental. SQLite es la fuente de verdad; MongoDB es una vista de lectura que se regenera."),
             ("¿Por qué embeben los indicadores en `entidades` pero no las personas?", "Los indicadores se leen siempre junto con la entidad (una lectura, sin `JOIN`). Las 190 mil personas no caben en un documento (límite de 16 MB de BSON) ni se leen con la entidad: son una colección aparte relacionada por `cve_ent`."),
-            ("¿Cargaron a un servidor MongoDB real?", "No: en la máquina de desarrollo no hay servidor ni `pymongo`. Se exportaron los documentos (NDJSON listos para `mongoimport`) y se **verificó que la agregación de MongoDB reproduce la vista SQL** (diferencia máxima 0.005 puntos porcentuales). Con `pip install pymongo` y un servidor, `python scripts/run_mongo.py --uri …` los carga."),
-            ("¿Cómo garantizan la reproducibilidad?", "Una sola semilla (20251231), versiones y huellas SHA-256 en `etl_meta.json`, ETL idempotente, 34 pruebas automáticas y un cuaderno que se reconstruye desde `results/` con aserciones que avisan si una conclusión deja de ser cierta.")]),
+            ("¿Cargaron a un servidor MongoDB real?", "No: en la máquina de desarrollo no hay un servidor MongoDB. Los documentos se exportaron (NDJSON listos para `mongoimport`) y la carga completa se probó contra **mongomock**, un simulador de MongoDB en memoria: 190,187 documentos de persona, 32 de entidad y uno de metadatos, siete índices, documentos BSON válidos y una recarga que no duplica nada. Además se **verificó que la agregación ejecutada en el motor reproduce la vista SQL** (diferencia máxima 0.005 puntos porcentuales). mongomock imita la API pero no es MongoDB; con un servidor, `python scripts/run_mongo.py --uri …` hace la carga y las mismas verificaciones."),
+            ("¿Cómo garantizan la reproducibilidad?", f"Una sola semilla (20251231), versiones y huellas SHA-256 en `etl_meta.json`, ETL idempotente, {D.n_pruebas} pruebas automáticas y un cuaderno que se reconstruye desde `results/` con aserciones que avisan si una conclusión deja de ser cierta.")]),
         ("F. Preguntas incómodas", [
             ("¿Qué limitaciones tiene su trabajo?", "Un trimestre; ingreso autorreportado con redondeo; ingreso por hora a partir de las horas de *una* semana; selección en el empleo; no causalidad; entre 1,900 y 5,900 observaciones por estado; y la redacción literal de los códigos de `p6c` se infirió de su correspondencia con `ing7c` (conviene confirmarla con el cuestionario)."),
             ("¿Qué harían con más tiempo?", "Usar varios trimestres (panel rotativo), modelar la participación laboral (corrección de Heckman), hacer un mapa geográfico real con el Marco Geoestadístico y estimaciones para áreas pequeñas."),
@@ -180,19 +179,27 @@ def preguntas_defensa(D) -> list:
 
 
 def anexos(inf: Informe, D) -> None:
-    R, tot = D.R, D.tot
-    re = D.retorno_entidad.set_index("cve_ent")
-    # ------------------------------------------------------------------ A. Glosario
-    inf.h1("Anexo A. Glosario")
-    inf.tabla([[t, d] for t, d in GLOSARIO], ["Término", "Significado"], [4.6, 11.9], pie="Glosario de términos.", alinear=["izq", "izq"], fuente=9, negrita_col0=True)
+    """Todos los anexos en el orden del informe en Word (la tesina web los pide por separado: ver build_tesina.py)."""
+    anexo_glosario(inf, D)
+    anexo_guia(inf, D)
+    anexo_entidades(inf, D)
+    anexo_defensa(inf, D)
+    anexo_guion(inf, D)
+    anexo_referencias(inf)
 
-    # ------------------------------------------------------------------ B. Guía de ejecución
+
+def anexo_glosario(inf: Informe, D) -> None:
+    inf.h1("Anexo A. Glosario")
+    inf.glosario(GLOSARIO)
+
+
+def anexo_guia(inf: Informe, D) -> None:
     inf.h1("Anexo B. Guía para reproducir el proyecto")
     inf.h2("B.1 Requisitos")
     inf.vinetas(["**Python 3.12**, la versión con la que se desarrolló y verificó el proyecto (los paquetes fijados en `requirements.txt` requieren una versión reciente de Python).",
-                 "Los paquetes de `requirements.txt`: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `plotly` (solo para incrustar `plotly.js` en el tablero), `nbformat`, `nbconvert`, `ipykernel`, `jinja2`, `python-pptx` (presentaciones), `python-docx` y `pillow` (este informe).",
+                 "Los paquetes de `requirements.txt`: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `plotly` (solo para incrustar `plotly.js` en el tablero), `nbformat`, `nbconvert`, `ipykernel`, `jinja2`, `python-pptx` (presentaciones), `python-docx` y `pillow` (informe en Word), además de `pymongo` y `mongomock` (capa documental).",
                  "Los **microdatos del INEGI** (≈ 300 MB), que no se incluyen en el proyecto: https://www.inegi.org.mx/programas/enoe/15ymas/ → Microdatos → CSV → 4.º trimestre de 2025. Se necesitan `ENOE_SDEMT425.csv` y `ENOE_COE2T425.csv`.",
-                 "Opcional: un servidor MongoDB y `pymongo` para la carga real de los documentos."])
+                 "Opcional: un servidor MongoDB para la carga real de los documentos (sin servidor, `--simulado` usa mongomock)."])
     inf.h2("B.2 Instalación y datos")
     inf.codigo("""pip install -r requirements.txt
 # Opción 1: copiar los CSV a la carpeta data\\raw
@@ -200,7 +207,7 @@ def anexos(inf: Informe, D) -> None:
 $env:ENOE_RAW_DIR = "C:\\ruta\\a\\enoe_2025_trim4_csv"
 """)
     inf.h2("B.3 Ejecución")
-    inf.codigo("""python scripts/run_all.py            # todo el proyecto, ~10 minutos
+    inf.codigo(f"""python scripts/run_all.py            # todo el proyecto, ~10 minutos
 python scripts/run_all.py --rapido   # 100 réplicas, sin cuaderno, presentaciones ni informe
 
 # o paso a paso:
@@ -208,13 +215,14 @@ python scripts/run_etl.py            # 10 s    limpia, valida y crea la base SQL
 python scripts/run_analysis.py       # ~5 min  1,000 réplicas Rao-Wu; escribe results/
 python scripts/make_figures.py       # 17 figuras de datos + 8 diagramas en figures/
 python scripts/run_mongo.py --exportar   # documentos NoSQL + verificación contra SQL
+python scripts/run_mongo.py --simulado --limite 20000   # carga y pipeline contra mongomock (sin servidor)
 python scripts/build_dashboard.py    # tablero/tablero_enoe.html
 python scripts/build_notebook.py     # cuaderno ejecutado (.ipynb y .html)
 python scripts/build_deck.py         # presentación corta (24 diapositivas)
 python scripts/build_deck_completa.py  # presentación completa explicada
-python scripts/build_informe.py      # este informe (Word)
-powershell -File scripts\\exportar_informe.ps1   # (Windows con Word) índice y PDF del informe
-python -m unittest discover -s tests # 34 pruebas automáticas""")
+python scripts/build_informe.py      # informe técnico (Word)
+powershell -File scripts\\exportar_informe.ps1   # (Windows con Word) índice y PDF del informe en Word
+python -m unittest discover -s tests # {D.n_pruebas} pruebas automáticas""")
     inf.h2("B.4 Qué produce cada paso")
     inf.tabla([["`run_etl.py`", "`data/processed/enoe_2025t4.sqlite`; `results/etl_*.csv`; `results/etl_meta.json`"],
                ["`run_analysis.py`", "30 tablas en `results/*.csv`, `results/resumen.json` y tablas `res_*` en la base"],
@@ -232,7 +240,9 @@ python -m unittest discover -s tests # 34 pruebas automáticas""")
                  "**Para una verificación rápida del análisis:** `python scripts/run_analysis.py --B 100`.",
                  "**Los resultados cambian de una corrida a otra:** no debería ocurrir (semilla fija). Revise que `etl_meta.json` registre la semilla 20251231 y las mismas versiones de las bibliotecas."])
 
-    # ------------------------------------------------------------------ C. Resultados por entidad
+
+def anexo_entidades(inf: Informe, D) -> None:
+    re = D.retorno_entidad.set_index("cve_ent")
     inf.h1("Anexo C. Resultados por entidad federativa")
     inf.p("Las tablas siguientes reúnen, para las 32 entidades, los indicadores que alimentan las métricas M2 y M3 y el tablero. Los intervalos son del bootstrap de Rao-Wu al 95 %; el lugar es el que ocupa la entidad en el ranking (1 = mayor valor) y su intervalo, en las 1,000 réplicas.", alinear="justificado")
     til = D.til1_entidad.set_index("cve_ent")
@@ -251,17 +261,24 @@ python -m unittest discover -s tests # 34 pruebas automáticas""")
     inf.tabla(filas, ["Entidad", "ρ", "IC 95 %", "Lugar (IC)", "Rend. %", "IC 95 %", "Brecha %", "IC 95 %"], [3.2, 1.2, 2.3, 2.1, 1.4, 2.3, 1.6, 2.4],
               pie="Correlación de Spearman, rendimiento por año de escolaridad y brecha por hora en cada entidad.", alinear=["izq", "der", "centro", "centro", "der", "centro", "der", "centro"], fuente=8)
 
-    # ------------------------------------------------------------------ D. Defensa
+
+def anexo_defensa(inf: Informe, D) -> None:
     inf.h1("Anexo D. Preguntas frecuentes de la defensa")
-    inf.p("Respuestas cortas a las preguntas más probables. **Entiendan la lógica de cada respuesta; no las memoricen.** Las cifras proceden de `results/resumen.json`.", alinear="justificado")
-    qa = preguntas_defensa(D)
-    for bloque, preguntas in qa:
+    if inf.web:
+        inf.p("Respuestas breves a las preguntas más probables sobre los datos, el método y los resultados. Las cifras proceden de `results/resumen.json`.", alinear="justificado")
+    else:
+        inf.p("Respuestas cortas a las preguntas más probables. **Entiendan la lógica de cada respuesta; no las memoricen.** Las cifras proceden de `results/resumen.json`.", alinear="justificado")
+    for bloque, preguntas in preguntas_defensa(D):
+        if inf.web:                                             # en la tesina no va la pregunta dirigida al equipo y el último bloque se llama «Alcance y límites»
+            preguntas = [(q, a) for q, a in preguntas if not q.startswith("¿Qué parte hiciste")]
+            bloque = bloque.replace("Preguntas incómodas", "Alcance y límites")
         inf.h3(bloque)
         for q, a in preguntas:
-            inf.p(f"**{q}**", despues=1, keep=True)
-            inf.p(a, alinear="justificado", despues=6)
+            inf.pregunta(q, a)
 
-    # ------------------------------------------------------------------ E. Guion
+
+def anexo_guion(inf: Informe, D) -> None:
+    tot = D.tot
     inf.h1("Anexo E. Guion de exposición")
     inf.p("Propuesta de reparto de la exposición entre los tres integrantes del equipo. Hay dos versiones: la **presentación completa** (`Presentacion_Completa_Proyecto_ENOE.pptx`, 48 diapositivas que explican cada concepto y cada decisión; unos 50 minutos) y la **ruta corta** "
           "(las 18 diapositivas principales señaladas con ★ en la presentación completa, que también existen como presentación independiente de 24 diapositivas; unos 18 minutos). "
@@ -287,8 +304,9 @@ python -m unittest discover -s tests # 34 pruebas automáticas""")
                  "Tener abiertos el tablero y el cuaderno HTML para mostrar cualquier detalle a la audiencia.",
                  "Reconocer las limitaciones (anexo y sección 8.5) antes de que las pregunten: transmite rigor."])
 
-    # ------------------------------------------------------------------ F. Referencias
-    inf.h1("Anexo F. Referencias", salto=False)
+
+def anexo_referencias(inf: Informe, titulo: str = "Anexo F. Referencias") -> None:
+    inf.h1(titulo, salto=False)
     refs = ["Blau, F. D., y Kahn, L. M. (2017). The gender wage gap: Extent, trends, and explanations. *Journal of Economic Literature*, 55(3), 789-865.",
             "Blinder, A. S. (1973). Wage discrimination: Reduced form and structural estimates. *Journal of Human Resources*, 8(4), 436-455.",
             "Cohen, J. (1988). *Statistical Power Analysis for the Behavioral Sciences* (2.ª ed.). Lawrence Erlbaum.",
@@ -308,6 +326,4 @@ python -m unittest discover -s tests # 34 pruebas automáticas""")
             "Rao, J. N. K., Wu, C. F. J., y Yue, K. (1992). Some recent work on resampling methods for complex surveys. *Survey Methodology*, 18(2), 209-217.",
             "Spearman, C. (1904). The proof and measurement of association between two things. *American Journal of Psychology*, 15(1), 72-101."]
     for r_ in refs:
-        par = inf.p(r_, size=10, despues=4)
-        par.paragraph_format.left_indent = Cm(1.0)
-        par.paragraph_format.first_line_indent = Cm(-1.0)
+        inf.referencia(r_)

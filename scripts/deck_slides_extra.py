@@ -291,7 +291,7 @@ def s_sql_mongo(d):
     s = d.nueva("La misma pregunta en SQL y en MongoDB", (
         "Para mostrar por qué usamos dos modelos, la misma pregunta en los dos lenguajes: la tasa de informalidad ponderada por entidad. En SQL es una agregación con JOIN y GROUP BY; la ponderación se expresa directamente con la suma de fac_tri por informal. "
         "En MongoDB es un pipeline de agregación con group y project. Verificamos que el resultado de MongoDB, calculado con la misma lógica sobre los documentos exportados, reproduce la vista SQL con una diferencia máxima de cero punto cero cero cinco puntos porcentuales, el redondeo del SQL. "
-        "Donde el modelo documental brilla es en servir la ficha completa de una entidad: una sola lectura por clave, sin JOIN. Aclaración honesta: no cargamos a un servidor MongoDB real porque no hay uno instalado; los documentos están listos para mongoimport."))
+        "Donde el modelo documental brilla es en servir la ficha completa de una entidad: una sola lectura por clave, sin JOIN. Aclaración honesta: no cargamos a un servidor MongoDB real porque no hay uno instalado; la carga completa se probó con mongomock, un simulador, y los documentos están listos para mongoimport."))
     panel_codigo(s, M, 1.65, 5.95, 3.55, "Código SQL", [
         "SELECT e.entidad,",
         "  ROUND(100.0 *",
@@ -317,7 +317,7 @@ def s_sql_mongo(d):
 
 
 def s_reproducibilidad(d):
-    s = d.nueva("Reproducibilidad: una orden, una semilla, 34 pruebas", (
+    s = d.nueva(f"Reproducibilidad: una orden, una semilla, {sum(C.contar_pruebas().values())} pruebas", (
         "Un resultado científico solo vale si otra persona puede obtenerlo. Todo el proyecto se reproduce con una sola orden, run_all, que encadena diez pasos: el ETL, el análisis, las figuras, la base documental, el tablero, el cuaderno, las dos presentaciones, el informe en Word y las pruebas. Toma entre seis y diez minutos. "
         "Hay una única semilla, veinte millones doscientos cincuenta y un mil doscientos treinta y uno, para todo lo aleatorio; ejecutamos dos veces y los treinta archivos de resultados son idénticos. "
         "La base se recrea desde cero, así que correr el proceso dos veces no duplica datos. La tabla etl_run guarda las versiones de las bibliotecas, los parámetros y la huella SHA-256 de cada archivo de origen. "
@@ -329,7 +329,7 @@ def s_reproducibilidad(d):
         x = M + i * (ancho + 0.08)
         sh = tarjeta(s, x, 2.5, ancho, 0.8, f"Paso {i + 1}", fondo=TC.TEXT_2, forma=MSO_SHAPE.PENTAGON)
         texto_en_forma(sh, [[(p, {"size": 12, "bold": True, "spec": TC.BACKGROUND_1})]], alinear=PP_ALIGN.LEFT, margen=0.08, espacio=0)
-    datos = [("20251231", "semilla única para todo lo aleatorio"), ("30 de 30", "archivos de resultados idénticos en dos corridas"), ("34", "pruebas automáticas (limpieza, encuestas, modelos, integración)"), ("SHA-256", "huella de cada archivo de origen (tabla etl_run)")]
+    datos = [("20251231", "semilla única para todo lo aleatorio"), ("30 de 30", "archivos de resultados idénticos en dos corridas"), (str(sum(C.contar_pruebas().values())), "pruebas automáticas (limpieza, encuestas, modelos, capa documental, integración)"), ("SHA-256", "huella de cada archivo de origen (tabla etl_run)")]
     for i, (v, l) in enumerate(datos):
         estadistica(s, M + i * 3.07, 3.55, 2.93, 1.75, v, l, f"Dato {i + 1}", vsize=30, lsize=13)
     lectura(s, M, 5.5, 12.13, 1.3, "Garantías", [[("Idempotente: ", {"size": 15, "bold": True, "spec": TC.TEXT_2}), ("la base se recrea desde cero.  ", {"size": 15}), ("Auditable: ", {"size": 15, "bold": True, "spec": TC.TEXT_2}), ("bitácora de cada regla.  ", {"size": 15}), ("Transparente: ", {"size": 15, "bold": True, "spec": TC.TEXT_2}), ("todas las decisiones viven en config.py.", {"size": 15})]], size=15)
@@ -353,7 +353,7 @@ def s_mapa_codigo(d):
         _, tf = caja(s, x + 0.2, y + 0.1, 3.55, 1.38, f"Módulo {i + 1} texto", MSO_ANCHOR.MIDDLE)
         parrafos(tf, [[(nom, {"size": 14, "bold": True, "spec": TC.TEXT_2, "fuente": MONO})], [(desc, {"size": 13})]], espacio=3)
     _, tf = caja(s, M, 6.85, 12.13, 0.3, "Nota módulos")
-    parrafos(tf, [[("Paquete src/enoe/ (16 módulos) + scripts/ (ejecutables) + tests/ (34 pruebas).", {"size": 12, "spec": RGB["muted"]})]], espacio=0)
+    parrafos(tf, [[(f"Paquete src/enoe/ (16 módulos) + scripts/ (ejecutables) + tests/ ({sum(C.contar_pruebas().values())} pruebas).", {"size": 12, "spec": RGB["muted"]})]], espacio=0)
 
 
 # =========================================================================== #
@@ -492,13 +492,13 @@ def s_metricas(d):
         "Regresamos a las tres métricas que fijó el protocolo. M1: la brecha salarial por nivel de instrucción con intervalo de confianza y prueba de hipótesis; la tabla de resultados tiene la brecha por hora y por mes en los cuatro niveles, con intervalos de Rao-Wu y valores p ajustados con Holm. "
         "M2: la correlación de Spearman de las 32 entidades con intervalo por bootstrap y un ranking defendible; reportamos el intervalo del lugar de cada entidad y declaramos que el ranking solo distingue los extremos. "
         "M3: un tablero con al menos cuatro visualizaciones interpretables, alimentado por un pipeline que carga a una base NoSQL; el tablero tiene seis visualizaciones y la ficha de cada entidad. "
-        "La salvedad honesta de M3: la carga a un servidor MongoDB real no se ejecutó; los documentos y la agregación equivalente sí están verificados."))
+        "La salvedad honesta de M3: la carga a un servidor MongoDB real no se ejecutó; la carga completa se probó con un simulador (mongomock) y la agregación equivalente está verificada."))
     filas = [["M1", "Brecha salarial por nivel de instrucción, con IC 95 % y prueba de hipótesis", "Brecha por hora y por mes en los 4 niveles; IC de Rao-Wu; p con Holm; Welch, Mann-Whitney y d de Cohen", "Cumplida"],
              ["M2", "Spearman en las 32 entidades, con IC por bootstrap y ranking defendible", "ρ de 32 entidades con IC y con el intervalo del lugar; el ranking solo distingue los extremos", "Cumplida"],
              ["M3", "Tablero con ≥ 4 visualizaciones, alimentado por un pipeline a una base NoSQL consultable por entidad", "Tablero HTML con 6 visualizaciones y ficha por entidad; documentos MongoDB y agregación verificada contra SQL", "Cumplida*"]]
     tabla_nativa(s, M, 1.7, [0.8, 4.4, 5.4, 1.53], ["", "Qué pedía el protocolo", "Evidencia", "Estado"], filas, "Métricas de éxito", size=14, alto_fila=1.2, alto_enc=0.5,
                  alinear=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER], negrita_col0=True)
-    lectura(s, M, 5.85, 12.13, 0.95, "Salvedad", [[("* Salvedad: ", {"size": 15, "bold": True, "spec": TC.TEXT_2}), ("la carga a un servidor MongoDB real no se ejecutó (no hay servidor instalado); los documentos están listos para mongoimport y la agregación equivalente está verificada.", {"size": 14})]], size=14, fondo=ambar)
+    lectura(s, M, 5.85, 12.13, 0.95, "Salvedad", [[("* Salvedad: ", {"size": 15, "bold": True, "spec": TC.TEXT_2}), ("la carga a un servidor MongoDB real no se ejecutó (no hay servidor instalado); se probó con mongomock (simulador), los documentos están listos para mongoimport y la agregación equivalente está verificada.", {"size": 14})]], size=14, fondo=ambar)
 
 
 def s_glosario_1(d):
@@ -547,7 +547,7 @@ def s_preguntas(d):
           ("¿Por qué ponderan y usan Rao–Wu?", f"fac_tri representa personas y la encuesta es por conglomerados: los errores «normales» serían demasiado pequeños (efecto de diseño {deff.loc['TIL1 nacional', 'deff']:.1f})."),
           ("¿Hay brecha de género?", f"Sí, depende de qué se mida: {tot['brecha_hora_pct']:.1f} % por hora, {tot['brecha_mens_pct']:.1f} % por mes (horas: −{tot['menos_horas_mujeres_pct']:.0f} %) y {g5['brecha_pct']:.1f} % entre personas comparables."),
           ("¿Por qué no interpretan el modelo con horas?", "Sesgo de división: un error en las horas crea una relación negativa mecánica y la brecha «sube» a 16 %."),
-          ("¿Cargaron a un MongoDB real?", "No. Exportamos los documentos y verificamos que la agregación reproduce la vista SQL (0.005 pp); con pymongo y un servidor se cargan."),
+          ("¿Cargaron a un MongoDB real?", "No hay servidor. La carga completa se probó con mongomock (simulador) y la agregación reproduce la vista SQL (0.005 pp); con un servidor, run_mongo.py --uri la repite."),
           ("¿Qué limita los resultados?", "Un trimestre, ingreso autorreportado y con redondeo, selección en el empleo y entre 1,900 y 5,900 observaciones por estado.")]
     for i, (q, a) in enumerate(qa):
         col, fila = i % 2, i // 2

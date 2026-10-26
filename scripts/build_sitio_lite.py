@@ -1,6 +1,6 @@
-"""Página interactiva y ligera del proyecto (sitio/index.html): pocas láminas, una gráfica interactiva por mensaje y casi sin texto.
+"""Presentación interactiva del proyecto (sitio/presentacion.html): pocas láminas, una gráfica interactiva por mensaje y casi sin texto.
 
-    python scripts/build_sitio_lite.py                    # sitio/index.html
+    python scripts/build_sitio_lite.py                    # sitio/presentacion.html
     python scripts/build_sitio_lite.py --fragmento RUTA   # además, la versión sin envoltura de documento (para publicarla como artefacto)
 
 Sigue el punto 1 de la guía de la maestra (INEGI: radiografía socioeconómica de México): las tres preguntas de investigación, las tres métricas de éxito,
@@ -243,14 +243,15 @@ def construir(d: dict) -> str:
          "Hay cuatro roles: coordinación, ingeniería de datos, análisis estadístico y visualización y comunicación. Rotan entre los tres integrantes y cada quien presenta un bloque."),
     ]
     acordeon = '<div class="acordeon">' + "".join(f"<details{' open' if i == 0 else ''}><summary>{e(q)}</summary><p>{e(a)}</p></details>" for i, (q, a) in enumerate(reflexion)) + "</div>"
-    productos = [("NB", "Cuaderno (Notebook)", "Pipeline y análisis ejecutados, con las mismas cifras", "cuaderno.html", ""), ("GH", "Repositorio en GitHub", "Código, pruebas y datos derivados", REPO, " target=\"_blank\" rel=\"noopener\""),
-                 ("TB", "Tablero interactivo", "Ficha de cada entidad, mapa y ranking", "tablero.html", ""), ("PDF", "Informe técnico", "66 páginas: método, resultados y límites", "descargas/Informe_Final_Proyecto_ENOE.pdf", ""),
+    productos = [("WEB", "Tesina web", "El documento completo, con figuras interactivas", "index.html", ""), ("NB", "Cuaderno (Notebook)", "Pipeline y análisis ejecutados, con las mismas cifras", "cuaderno.html", ""),
+                 ("GH", "Repositorio en GitHub", "Código, pruebas y datos derivados", REPO, " target=\"_blank\" rel=\"noopener\""),
+                 ("TB", "Tablero interactivo", "Ficha de cada entidad, mapa y ranking", "tablero.html", ""), ("PDF", "Informe técnico", "67 páginas: método, resultados y límites", "descargas/Informe_Final_Proyecto_ENOE.pdf", ""),
                  ("PPT", "Presentación completa", "48 diapositivas con guion", "descargas/Presentacion_Completa_Proyecto_ENOE.pdf", "")]
     prods = '<div class="productos">' + "".join(f'<a class="producto" href="{h}"{x}><i>{s}</i><b>{t}</b><span>{dd}</span></a>' for s, t, dd, h, x in productos) + "</div>"
     sec.append(escena("e-cierre", "Cierre", etiqueta("reflexión final y productos", "Cierre") + '<h2 class="titular">Lo que entregamos y lo que aprendimos</h2>'
-        f'<div class="cierre"><div><p class="etq">Reflexión final del equipo</p>{acordeon}</div><div><p class="etq">Productos importantes (el informe visual es esta página)</p>{prods}</div></div>'
+        f'<div class="cierre"><div><p class="etq">Reflexión final del equipo</p>{acordeon}</div><div><p class="etq">Productos importantes (esta presentación resume la tesina web)</p>{prods}</div></div>'
         f'<p class="pie">Datos: INEGI, ENOE 2025-T4 (microdatos públicos). Estimaciones ponderadas con el factor de expansión; IC 95 % por bootstrap de Rao-Wu con {n_es(k["B"])} réplicas. '
-        f'Equipo 1 · UNE Plantel Centro · <a href="estudio.html">Guía de estudio ampliada ▸</a></p>', "Juan Evelio",
+        f'Equipo 1 · UNE Plantel Centro · <a href="index.html">Tesina completa ▸</a> · <a href="estudio.html">Guía de estudio ▸</a></p>', "Juan Evelio",
         "Respondemos las tres preguntas de reflexión y mostramos los productos: el cuaderno, el repositorio, el tablero, el informe y la presentación. Ajusten estas respuestas con su reparto real del trabajo."))
 
     return "\n".join(sec)
@@ -260,12 +261,13 @@ def pagina(cuerpo: str, datos_json: str, css: str, js: str, fragmento: bool) -> 
     barra = (f'<header class="barra"><a class="marca" href="#e-portada" data-ir="e-portada">{e(TITULO)}<small>Equipo 1 · ENOE 2025-T4</small></a><nav class="puntos" id="puntos" aria-label="Láminas"></nav>'
              '<div class="controles"><span class="estado-chip" id="chip-estado"><span></span><button type="button" aria-label="Quitar la entidad elegida">×</button></span>'
              '<select class="sel" id="sel-estado" aria-label="Resaltar una entidad en todas las gráficas"></select>'
+             '<a class="btn solo-ancho" href="index.html" title="Documento completo">Tesina</a>'
              '<button type="button" class="btn solo-ancho" id="btn-notas" aria-pressed="false" title="Notas del orador (N)">Notas</button>'
              '<button type="button" class="btn solo-ancho" id="btn-pantalla" title="Pantalla completa (F)">Pantalla completa</button>'
              '<button type="button" class="btn" id="btn-tema" aria-label="Cambiar entre tema claro y oscuro">Tema</button></div></header>')
     nav = ('<div class="nav"><button type="button" id="ant" aria-label="Lámina anterior">↑</button><span class="pos" id="pos">1 / 11</span><button type="button" id="sig" aria-label="Lámina siguiente">↓</button></div>'
            '<aside class="guion" id="guion" hidden aria-label="Notas del orador"><h4></h4><p></p></aside>')
-    aviso = '<noscript><p style="padding:5rem 1.5rem 1rem">Esta página dibuja sus gráficas con JavaScript. Actívalo o abre la <a href="estudio.html">guía de estudio</a>.</p></noscript>'
+    aviso = '<noscript><p style="padding:5rem 1.5rem 1rem">Esta página dibuja sus gráficas con JavaScript. Actívalo o abre la <a href="index.html">tesina</a>.</p></noscript>'
     app = f"{barra}<main>{aviso}{cuerpo}</main>{nav}"
     datos = f'<script type="application/json" id="datos">{datos_json}</script>'
     if fragmento:
@@ -277,13 +279,14 @@ def pagina(cuerpo: str, datos_json: str, css: str, js: str, fragmento: bool) -> 
 
 def main() -> Path:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--salida", default=str(RAIZ / "sitio" / "index.html"))
+    ap.add_argument("--salida", default=str(RAIZ / "sitio" / "presentacion.html"))
     ap.add_argument("--fragmento", default=None, help="ruta donde escribir la versión sin envoltura de documento")
     a = ap.parse_args()
     d = datos_web()
     datos_json = json.dumps(d, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    css = (ASSETS / "lite.css").read_text(encoding="utf-8-sig")        # utf-8-sig: ignora una marca BOM al inicio, que invalidaría el primer bloque de variables
-    js = (ASSETS / "lite.js").read_text(encoding="utf-8-sig")
+    leer = lambda nombre: (ASSETS / nombre).read_text(encoding="utf-8-sig")          # utf-8-sig: ignora una marca BOM al inicio, que invalidaría el primer bloque de variables
+    css = leer("charts.css") + "\n" + leer("lite.css")
+    js = "(function () {\n  'use strict';\n" + leer("charts.js") + "\n" + leer("lite.js") + "\n})();"
     cuerpo = construir(d)
     destino = Path(a.salida)
     destino.parent.mkdir(parents=True, exist_ok=True)

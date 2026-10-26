@@ -165,7 +165,7 @@ def s_arquitectura(d):
     s = d.nueva("Arquitectura: SQLite para analizar, MongoDB para servir", (
         "Aquí está la ingeniería de datos y la justificación del modelo. Los microdatos entran a un pipeline en Python que extrae, limpia, transforma y valida, y carga a SQLite con esquema en estrella, con llaves primarias, foráneas y restricciones CHECK. "
         "Los datos de la ENOE son tabulares, así que para analizar el modelo relacional es el adecuado. Pero para servir la ficha de una entidad a un tablero conviene un modelo documental: un documento por entidad con los indicadores anidados, sin joins, con esquema flexible. "
-        "SQLite es la fuente de verdad y MongoDB es una vista de lectura que se regenera. Aclaración honesta: verificamos que la agregación de Mongo reproduce la vista SQL, pero no cargamos a un servidor real porque no hay uno instalado; los documentos están listos para mongoimport."))
+        "SQLite es la fuente de verdad y MongoDB es una vista de lectura que se regenera. Aclaración honesta: verificamos que la agregación de Mongo reproduce la vista SQL, pero no cargamos a un servidor real porque no hay uno instalado; la carga completa se probó con mongomock, un simulador, y los documentos están listos para mongoimport."))
     cajas = [("Microdatos INEGI", "SDEMT · COE2T", 0.6, 1.75, 2.3), ("Pipeline ETL (Python)", "extract · clean · transform · validate", 3.5, 1.75, 3.0),
              ("SQLite · esquema en estrella", "PK · FK · CHECK · vistas · auditoría", 7.1, 1.75, 2.7), ("Análisis estadístico", "Rao-Wu · modelos · Oaxaca-Blinder", 10.4, 1.75, 2.33),
              ("MongoDB · documentos", "entidades · personas · metadatos", 7.1, 3.55, 2.7), ("Tablero interactivo", "HTML · 6 gráficas · ficha por entidad", 10.4, 3.55, 2.33)]
@@ -411,7 +411,7 @@ def s_limitaciones(d):
     s = d.nueva("Qué no podemos afirmar, y qué haríamos después", (
         "Es importante ser honestos con los límites. Son asociaciones y no causalidad: el rendimiento de estudiar mezcla el efecto de la escolaridad con habilidad no observada. Solo vemos el ingreso de quien trabaja y lo declara, así que hay selección; la mitigamos con ponderación por no respuesta e imputación por rangos, pero no la eliminamos. "
         "El ingreso por hora se calcula con las horas de una sola semana. Es un solo trimestre. Y por estado tenemos entre mil novecientas y cinco mil novecientas observaciones, por eso reportamos intervalos. "
-        "Dos aclaraciones técnicas: no cargamos los documentos a un servidor MongoDB real porque no hay uno instalado, y el significado literal de los códigos de rangos de salarios mínimos lo inferimos de su correspondencia exacta con otra variable. "
+        "Dos aclaraciones técnicas: no cargamos los documentos a un servidor MongoDB real porque no hay uno instalado (se probó con un simulador, mongomock), y el significado literal de los códigos de rangos de salarios mínimos lo inferimos de su correspondencia exacta con otra variable. "
         "Con más tiempo: varios trimestres con el panel rotativo, corrección por selección de Heckman, un mapa geográfico real y estimaciones para áreas pequeñas."))
     tarjeta(s, M, 1.65, 6.0, 5.05, "Límites")
     _, tf = caja(s, M + 0.25, 1.8, 5.5, 4.8, "Límites texto")
@@ -420,7 +420,7 @@ def s_limitaciones(d):
                   "Solo vemos el ingreso de quien trabaja y lo declara (selección)",
                   "Ingreso autorreportado, con redondeo; horas de una sola semana",
                   "Un trimestre; 1,900–5,900 observaciones por estado",
-                  "MongoDB: documentos verificados, carga a servidor real pendiente"], size=18, espacio=10, vinetas=False)
+                  "MongoDB: probado con mongomock; carga a servidor real pendiente"], size=18, espacio=10, vinetas=False)
     tarjeta(s, 6.85, 1.65, 5.88, 5.05, "Próximos pasos")
     _, tf = caja(s, 7.1, 1.8, 5.4, 4.8, "Próximos pasos texto")
     parrafos(tf, [[("Con más tiempo", {"size": 20, "bold": True, "spec": TC.TEXT_2})],

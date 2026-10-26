@@ -7,15 +7,16 @@
 
 Ciclo KDD completo sobre 419,038 registros reales: selección y validación contra cifras oficiales, limpieza documentada, pipeline de ingeniería de datos
 (SQLite + MongoDB), estadística con **diseño muestral complejo** (bootstrap de Rao-Wu), 17 visualizaciones y 8 diagramas explicativos, cuaderno narrado,
-tablero interactivo, **informe técnico en Word** (66 páginas, explica todo en palabras sencillas), **dos presentaciones** (completa de 48 diapositivas y corta de 24)
-y un **sitio web** que ordena todo como lo pide la guía de la maestra, para estudiar y para exponer.
+tablero interactivo, **informe técnico en Word** (67 páginas, explica todo en palabras sencillas), **dos presentaciones** (completa de 48 diapositivas y corta de 24)
+y un **sitio web** con la **tesina en formato web** (el documento completo, con figuras interactivas), una presentación de 11 láminas para exponer y una guía de estudio.
 
 ## Entregables
 
 | Qué | Dónde |
 |---|---|
-| **Página para presentar** (11 láminas, casi sin texto): responde las 3 preguntas de investigación con gráficas interactivas, muestra las 3 métricas de éxito, las 6 competencias y las 3 preguntas de reflexión; elegir un estado resalta todas las gráficas; cada gráfica tiene su tabla y su justificación; `N` abre el guion | `sitio/index.html` (doble clic; la carpeta `sitio/` es autocontenida) |
-| **Guía de estudio** (la versión larga): informe visual con storytelling, ciclo KDD, semanas 1-7, protocolo, 17 gráficos con su justificación, glosario, preguntas de defensa y autoevaluación | `sitio/estudio.html` |
+| **Tesina web** (el documento principal): portada, resumen en español e inglés, hallazgos clave, ficha técnica, índice con figuras y tablas, 9 capítulos, bibliografía y 4 anexos; 14 figuras interactivas, tablas ordenables, búsqueda, tema claro y oscuro y ficha de la entidad elegida | `sitio/index.html` (doble clic; la carpeta `sitio/` es autocontenida) |
+| **Presentación web** (11 láminas, casi sin texto): responde las 3 preguntas de investigación con gráficas interactivas, las 3 métricas de éxito, las competencias y la reflexión; `N` abre el guion | `sitio/presentacion.html` |
+| **Guía de estudio** (versión larga con modo presentación): storytelling, ciclo KDD, semanas 1-7, protocolo, glosario, preguntas de defensa y autoevaluación | `sitio/estudio.html` |
 | **Informe técnico** (Word y PDF): marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión, glosario, guía de ejecución, preguntas de defensa y guion | `documento/Informe_Final_Proyecto_ENOE.docx` · `.pdf` |
 | **Presentación completa** (48 diapositivas con guion en las notas; ★ = ruta corta de 18 diapositivas) | `presentacion/Presentacion_Completa_Proyecto_ENOE.pptx` · `.pdf` |
 | Presentación corta (18 principales + 5 de respaldo) | `presentacion/Proyecto_Integrador_ENOE.pptx` |
@@ -47,15 +48,16 @@ Proyecto_ENOE/
 │   ├── estimadores.py · modelos.py · analisis.py   análisis estadístico
 │   └── viz.py · viz_diagramas.py · figuras.py   gráficas con paleta validada para daltonismo y diagramas explicativos
 ├── scripts/               run_all · run_etl · run_analysis · make_figures · run_mongo · build_dashboard · build_notebook
-│                          build_deck (corta) · build_deck_completa · build_informe · build_sitio (estudio.html) · build_sitio_lite (index.html)
+│                          build_deck (corta) · build_deck_completa · build_informe · build_sitio (estudio.html) · build_sitio_lite (presentacion.html) · build_tesina (index.html)
 │                          exportar_informe.ps1 · exportar_presentacion.ps1
 │                          bibliotecas: deck_lib · deck_slides_base · deck_slides_extra · informe_lib · informe_datos · informe_s1…s4
 │                                       sitio_lib · sitio_textos · sitio_contenido_a/b · sitio_estudio · sitio_assets/ (estilo.css, app.js)
-│                                       web_datos (cifras del sitio ligero) · web_assets/ (lite.css, lite.js)
+│                                       informe_html (el informe en HTML) · web_datos (cifras de las páginas interactivas)
+│                                       web_assets/ (charts.css/js compartidos · tesina.css/js · lite.css/js)
 ├── notebooks/             Proyecto_Integrador_ENOE.ipynb  (ejecutado)  y .html
 ├── tablero/               tablero_enoe.html  (un solo archivo, funciona sin internet)
-├── sitio/                 index.html (para presentar) · estudio.html (guía de estudio) · img/ · cuaderno.html · tablero.html · descargas/*.pdf  (autocontenido)
-├── documento/             Informe_Final_Proyecto_ENOE.docx y .pdf  (informe técnico, 66 páginas)
+├── sitio/                 index.html (tesina) · presentacion.html · estudio.html · img/ · cuaderno.html · tablero.html · descargas/*.pdf  (autocontenido)
+├── documento/             Informe_Final_Proyecto_ENOE.docx y .pdf  (informe técnico, 67 páginas)
 ├── presentacion/          Presentacion_Completa_Proyecto_ENOE.pptx (48 diapositivas) · Proyecto_Integrador_ENOE.pptx (24), con notas del orador
 ├── docs/                  diccionario_de_datos · metodologia · modelo_de_datos_nosql · guia_de_defensa
 ├── results/               tablas CSV, resumen.json (cifras clave), bitácoras del ETL
@@ -84,20 +86,21 @@ python scripts/build_informe.py              # informe técnico (.docx)
 powershell -File scripts\exportar_informe.ps1   # (Windows con Word) actualiza el índice y exporta el PDF del informe
 powershell -File scripts\exportar_presentacion.ps1   # (Windows con PowerPoint) exporta el PDF de la presentación completa
 python scripts/build_sitio.py                # guía de estudio: sitio/estudio.html (usa results/, figures/, el guion de la presentación completa y los PDF)
-python scripts/build_sitio_lite.py           # página para presentar: sitio/index.html (usa results/, SQLite y los documentos NoSQL)
+python scripts/build_sitio_lite.py           # presentación de 11 láminas: sitio/presentacion.html (usa results/, SQLite y los documentos NoSQL)
+python scripts/build_tesina.py               # tesina web: sitio/index.html (mismo texto que el informe en Word; usa results/, SQLite y las figuras de sitio/img)
 python -m unittest discover -s tests         # pruebas
 ```
 **Todo de una vez:** `python scripts/run_all.py` (≈ 10 min; `--rapido` usa 100 réplicas y omite cuaderno, presentaciones, informe y sitio).
 Para una prueba rápida del análisis: `python scripts/run_analysis.py --B 100`.
 Para cargar en un servidor MongoDB: `python scripts/run_mongo.py --uri mongodb://localhost:27017` (necesita `pymongo`; carga las colecciones y repite la verificación con el motor del servidor; ver `docs/modelo_de_datos_nosql.md`).
 
-**Página para presentar.** Abra `sitio/index.html` con doble clic (necesita internet solo para las tipografías; sin ellas se ve igual con las del sistema). Es HTML, CSS y JavaScript sin dependencias.
-Son 11 láminas que siguen solo el Proyecto 1 (INEGI) de la guía de la maestra: portada con las cifras clave, datos y limpieza, las tres preguntas de investigación (cada una con gráficas que se pueden cambiar de vista), las tres métricas de éxito, el pipeline (SQL y NoSQL), las seis competencias y las tres preguntas de reflexión.
-Teclas: `↑ ↓` / `← →` / `Espacio` cambian de lámina, `N` abre el guion de quien expone, `F` pantalla completa, `Esc` cierra el guion. Al elegir un estado en el selector (o tocando un punto o un mosaico) se resalta en todas las gráficas. Cada gráfica tiene «Ver tabla» y «¿Por qué este gráfico?».
-**Guía de estudio.** `sitio/estudio.html` conserva la versión larga (con modo presentación, `#presentar`, guion y reloj). Las cifras salen de `results/`, de la base SQLite y de los documentos NoSQL, así que si se vuelve a correr el análisis basta con `python scripts/build_sitio.py` y `python scripts/build_sitio_lite.py` para actualizar ambas.
+**Tesina web.** Abra `sitio/index.html` con doble clic (necesita internet solo para las tipografías; sin ellas se ve igual con las del sistema). Es HTML, CSS y JavaScript sin dependencias.
+El texto, las tablas y las figuras salen de las mismas funciones que arman el informe en Word (`informe_s1.py` a `informe_s4.py`) mediante `informe_html.py`, así que una frase o una cifra se corrige en un solo lugar. Las figuras de datos se dibujan en el navegador a partir de los resultados; cada una conserva su imagen (botón «Imagen») y su tabla («Ver tabla»).
+Funciones: índice lateral con la sección actual, búsqueda (tecla `/` o `Ctrl+K`), selector de entidad que resalta una entidad en todas las figuras y abre su ficha, definiciones al pasar el cursor por los términos del glosario, tablas ordenables y con filtro, tema claro u oscuro, calculadora del rendimiento de estudiar y un ejemplo de la misma consulta en SQL y en MongoDB. Al imprimir desde el navegador (guardar como PDF) se usa una hoja de estilo propia.
+**Presentación y guía de estudio.** `sitio/presentacion.html` son 11 láminas del Proyecto 1 para exponer (`↑ ↓ ← →` o `Espacio` cambian de lámina, `N` abre el guion, `F` pantalla completa); `sitio/estudio.html` es la versión larga con modo presentación (`#presentar`), guion y reloj. Las cifras salen de `results/`, de la base SQLite y de los documentos NoSQL: si se vuelve a correr el análisis basta con `python scripts/build_sitio.py`, `python scripts/build_sitio_lite.py` y `python scripts/build_tesina.py`.
 
 **Publicación en GitHub Pages.** Se sirve la rama `main` desde la raíz (Settings → Pages → Deploy from a branch → `main` / `(root)`): el `index.html` de la raíz redirige a `sitio/` y `.nojekyll` evita que Jekyll procese los archivos.
-Para actualizar la página: regenerar con `python scripts/build_sitio.py` y `python scripts/build_sitio_lite.py` y luego `git add -A`, `git commit` y `git push`; GitHub tarda uno o dos minutos en reflejarlo.
+Para actualizar la página: regenerar con `python scripts/build_sitio.py`, `python scripts/build_sitio_lite.py` y `python scripts/build_tesina.py` y luego `git add -A`, `git commit` y `git push`; GitHub tarda uno o dos minutos en reflejarlo.
 
 ## Qué se verificó y qué no
 

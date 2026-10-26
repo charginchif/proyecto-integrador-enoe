@@ -321,6 +321,23 @@ class Informe:
             r.font.color.rgb = RGBColor(0x2B, 0x2F, 0x3A)
         self.doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
+    # ----- bloques con versión propia en la tesina web (informe_html.InformeHTML): referencias, glosario y preguntas frecuentes -----
+    web = False
+
+    def referencia(self, texto: str) -> None:
+        """Una referencia bibliográfica con sangría francesa."""
+        par = self.p(texto, size=10, despues=4)
+        par.paragraph_format.left_indent = Cm(1.0)
+        par.paragraph_format.first_line_indent = Cm(-1.0)
+
+    def glosario(self, items: list[tuple[str, str]]) -> None:
+        self.tabla([[t, d] for t, d in items], ["Término", "Significado"], [4.6, 11.9], pie="Glosario de términos.", alinear=["izq", "izq"], fuente=9, negrita_col0=True)
+
+    def pregunta(self, q: str, a: str) -> None:
+        """Una pregunta frecuente y su respuesta."""
+        self.p(f"**{q}**", despues=1, keep=True)
+        self.p(a, alinear="justificado", despues=6)
+
     # ----- tablas y figuras -----
     def tabla(self, filas: list[list], encabezados: list[str], anchos_cm: list[float], pie: str | None = None, fuente: float = 9.5,
               alinear: list[str] | None = None, negrita_col0: bool = False, resaltar_fila: set[int] | None = None, mantener: bool | None = None) -> None:

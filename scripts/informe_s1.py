@@ -59,7 +59,7 @@ def resumen(inf: Informe, D) -> None:
     R, bn, tot, rt = D.R, D.bn, D.tot, D.rt
     inf.titulo_preliminar("Resumen")
     inf.p(
-        f"Este informe documenta el Proyecto Integrador de Ciencia de Datos del Equipo 1: un ciclo completo de descubrimiento de conocimiento en bases de datos (KDD) "
+        f"Este trabajo documenta el Proyecto Integrador de Ciencia de Datos del Equipo 1: un ciclo completo de descubrimiento de conocimiento en bases de datos (KDD) "
         f"aplicado a la Encuesta Nacional de Ocupación y Empleo (ENOE) del INEGI, 4.º trimestre de 2025 (419,038 registros). La pregunta de investigación es cuánto aumenta el "
         f"ingreso laboral por cada año adicional de escolaridad en México, cómo cambia esa relación entre las 32 entidades federativas y si existe una brecha salarial "
         f"significativa entre hombres y mujeres con la misma escolaridad.", alinear="justificado")
@@ -108,11 +108,14 @@ def seccion1(inf: Informe, D) -> None:
           "año más *cause* un aumento de 5 %, porque quienes estudian más pueden diferir en habilidades, redes o contexto familiar). Se analiza un solo trimestre (4.º de 2025) y a las personas ocupadas de 15 años y más "
           "(15 a 65 años para el análisis salarial).", alinear="justificado")
     inf.h2("1.6 Cómo leer este documento")
-    inf.p("El informe está pensado para que cualquier integrante del equipo —o cualquier persona con conocimientos básicos de estadística— entienda **qué se hizo, por qué y qué significa cada resultado**:", despues=2, keep=True)
+    inf.p("Este trabajo está pensado para que cualquier persona con conocimientos básicos de estadística —y no solo quien lo hizo— entienda **qué se hizo, por qué y qué significa cada resultado**:", despues=2, keep=True)
     inf.vinetas(["Los recuadros **«En palabras sencillas»** explican cada concepto sin tecnicismos.",
                  "La **sección 2** explica los conceptos (la encuesta, el diseño muestral, los métodos estadísticos, las bases de datos); las **secciones 3 a 6** explican qué se hizo; la **7** muestra qué se encontró; la **8** lo interpreta.",
-                 "Los **anexos** incluyen un glosario, la guía para reproducir todo, preguntas frecuentes para la defensa y un guion de exposición.",
-                 "Todas las cifras de este documento se leen automáticamente de los archivos de resultados del proyecto (`results/`), por lo que coinciden con el cuaderno, el tablero y la presentación."])
+                 ("Los **anexos** incluyen un glosario, la guía para reproducir todo, los resultados de cada entidad y las preguntas frecuentes sobre el método." if inf.web else "Los **anexos** incluyen un glosario, la guía para reproducir todo, preguntas frecuentes para la defensa y un guion de exposición."),
+                 "Todas las cifras de este documento se leen automáticamente de los archivos de resultados del proyecto (`results/`), por lo que coinciden con el cuaderno, el tablero y la presentación."]
+                + (["**En la versión web**, las figuras marcadas como *interactivas* muestran sus datos al pasar el cursor; «Ver tabla» da los valores y «Imagen» la versión estática. "
+                    "Al elegir una entidad en la barra superior (o con un clic en una figura) se resalta en todas las figuras y en las tablas; los términos con subrayado punteado muestran su definición; la tecla **/** abre el buscador."]
+                   if inf.web else []))
 
 
 def seccion2(inf: Informe, D) -> None:
@@ -144,7 +147,7 @@ def seccion2(inf: Informe, D) -> None:
     inf.h3("El factor de expansión: por qué cada persona pesa distinto")
     inf.p("Cada persona de la base trae un número, `fac_tri`, que indica **a cuántas personas de la población representa**. Las personas de algunas zonas se entrevistan con mayor o menor probabilidad, y el factor corrige eso: "
           "la suma de `fac_tri` en toda la base es 131.0 millones de personas (la población del país) y la de las personas ocupadas de 15 años y más es 59.8 millones. Por eso **todos los promedios, porcentajes y totales de este "
-          "informe están ponderados**: un promedio sin ponderar describiría a la muestra, no al país.", alinear="justificado")
+          "trabajo están ponderados**: un promedio sin ponderar describiría a la muestra, no al país.", alinear="justificado")
     inf.h3("Efecto de diseño: la muestra «vale» menos de lo que parece")
     inf.p(f"Las personas de una misma UPM se parecen entre sí (viven en la misma zona, tienen empleos similares), así que aportan menos información que personas elegidas al azar en todo el país. "
           f"El **efecto de diseño** (*deff*) mide cuánto más grande es la varianza real que la de una muestra aleatoria simple: para la tasa de informalidad es de {D.deff.loc['TIL1 nacional', 'deff']:.1f}, "
@@ -281,4 +284,4 @@ def seccion3(inf: Informe, D) -> None:
     ef = D.meta["efecto_base_menores_15"]
     inf.p(f"**Las siete comparaciones coinciden** al redondear a la precisión publicada. Un hallazgo de la validación: si se incluyeran los {ef['menores_de_15_ocupados_en_muestra']:,} menores de 15 años que aparecen como ocupados en la muestra, "
           f"el TIL1 subiría de {ef['til1_base_15_y_mas']:.2f} % a {ef['til1_con_menores_de_15']:.2f} % y dejaría de coincidir con el oficial; por eso toda la población de estudio se restringe a 15 años y más.", alinear="justificado")
-    inf.recuadro("Nota de transparencia", ["Las cifras oficiales de referencia se obtuvieron de los boletines del INEGI para el 4T-2025 mediante una búsqueda web; conviene contrastarlas con el PDF oficial antes de exponer."], fondo="FFF7E6", borde="EDA100")
+    inf.recuadro("Nota de transparencia", ["Las cifras oficiales de referencia se obtuvieron de los boletines del INEGI para el 4T-2025 mediante una búsqueda web; conviene contrastarlas con el PDF oficial antes de citarlas."], fondo="FFF7E6", borde="EDA100")

@@ -84,7 +84,7 @@ def fig_arquitectura():
     ax.text(2.0, 1.6, "SQLite = fuente de verdad\n(análisis, integridad)", ha="left", va="center", fontsize=8.8, color=TXT2, linespacing=1.3)
     ax.text(2.0, 1.15, "MongoDB = vista de lectura\n(ficha por entidad)", ha="left", va="center", fontsize=8.8, color=TXT2, linespacing=1.3)
     ax.add_patch(FancyBboxPatch((0.15, 0.1), 9.3, 0.55, boxstyle="round,pad=0,rounding_size=0.08", fc="#FFFFFF", ec=LINEA, lw=1.0, zorder=2))
-    ax.text(4.8, 0.375, "Garantías: 15 pruebas de datos  ·  34 pruebas de código  ·  una sola semilla  ·  SHA-256 de cada archivo  ·  ETL idempotente",
+    ax.text(4.8, 0.375, f"Garantías: 15 pruebas de datos  ·  {sum(C.contar_pruebas().values())} pruebas de código  ·  una sola semilla  ·  SHA-256 de cada archivo  ·  ETL idempotente",
             ha="center", va="center", fontsize=8.8, color=TXT2, zorder=3)
     return fig
 

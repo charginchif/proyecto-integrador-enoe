@@ -15,6 +15,12 @@ from pathlib import Path
 # Rutas
 # --------------------------------------------------------------------------- #
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def contar_pruebas() -> dict[str, int]:
+    """Pruebas automáticas por archivo de tests/ (se cuentan las funciones ``test_``): los documentos citan esta cifra sin escribirla a mano."""
+    import re
+    return {p.name: len(re.findall(r"^\s+def test_", p.read_text(encoding="utf-8"), re.M)) for p in sorted((ROOT / "tests").glob("test_*.py"))}
 DATA_PROCESSED = ROOT / "data" / "processed"
 RESULTS = ROOT / "results"
 FIGURES = ROOT / "figures"

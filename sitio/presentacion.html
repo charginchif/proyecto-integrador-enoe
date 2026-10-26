@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Radiografía socioeconómica de México</title>
+<meta name="description" content="Proyecto Integrador de Ciencia de Datos con la ENOE 2025-T4 del INEGI: cuánto rinde estudiar, brechas de género e informalidad.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+html{padding:0}body{margin:0}
+/* Gráficas (SVG), globo de datos y mosaico de entidades: estilos compartidos por la presentación y la tesina.
+   La página debe definir: --bg --surface --surface-2 --ink --ink-2 --muted --line --grid --axis --accent --brand --brand-solid --on-brand --f-body --f-mono.
+   Colores de las gráficas: paleta validada para daltonismo (categorías: azul, naranja, verde, ámbar; magnitud ordenada: rampa azul de un solo tono). */
+:root{
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --rojo:#e34948;
+  --q1:#86b6ef; --q2:#3987e5; --q3:#1c5cab; --q4:#0d366b;
+  --ramp-lo:#d6e5fb; --ramp-hi:#0b2c66; --on-lo:#141a30; --on-hi:#ffffff;
+  --ok:#12805c; --ok-soft:#dff3ea; --warn:#7a4f00; --warn-soft:#fff2d3; --bad:#b83231;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --rojo:#e66767;
+  --q1:#184f95; --q2:#2a78d6; --q3:#6da7ec; --q4:#b7d3f6;
+  --ramp-lo:#17224f; --ramp-hi:#a9c9fa; --on-lo:#ffffff; --on-hi:#0b1030;
+  --ok:#4cd0a0; --ok-soft:#12342a; --warn:#f3c260; --warn-soft:#3a2d0c; --bad:#ff8785
+}}
+:root[data-theme="dark"]{
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --rojo:#e66767;
+  --q1:#184f95; --q2:#2a78d6; --q3:#6da7ec; --q4:#b7d3f6;
+  --ramp-lo:#17224f; --ramp-hi:#a9c9fa; --on-lo:#ffffff; --on-hi:#0b1030;
+  --ok:#4cd0a0; --ok-soft:#12342a; --warn:#f3c260; --warn-soft:#3a2d0c; --bad:#ff8785
+}
+
+/* ---------- elementos de las gráficas (SVG) ---------- */
+.eje text,.t-eje{font:500 12.5px var(--f-body);fill:var(--muted);font-variant-numeric:tabular-nums}
+.t-cat{font:500 13px var(--f-body);fill:var(--ink-2)}
+.t-cat.sel{font-weight:700;fill:var(--ink)}
+.t-val{font:600 12.5px var(--f-body);fill:var(--ink)}
+.t-dir{font:600 12.5px var(--f-body);fill:var(--ink-2)}
+.t-ref{font:500 12px var(--f-body);fill:var(--muted)}
+.t-dentro{font:600 12.5px var(--f-body)}
+.rej{stroke:var(--grid);stroke-width:1;shape-rendering:crispEdges}
+.base{stroke:var(--axis);stroke-width:1;shape-rendering:crispEdges}
+.ref{stroke:var(--muted);stroke-width:1;stroke-dasharray:none;opacity:.7}
+.m-s1{fill:var(--s1)}.m-s2{fill:var(--s2)}.m-s3{fill:var(--s3)}.m-s4{fill:var(--s4)}.m-rojo{fill:var(--rojo)}
+.sw-s1{background:var(--s1)}.sw-s2{background:var(--s2)}.sw-s3{background:var(--s3)}.sw-s4{background:var(--s4)}.sw-rojo{background:var(--rojo)}
+.sw-q1{background:var(--q1)}.sw-q2{background:var(--q2)}.sw-q3{background:var(--q3)}.sw-q4{background:var(--q4)}
+.t-halo{paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.t-mini{font:500 11.5px var(--f-body);fill:var(--muted)}
+.t-mini--v{font-weight:600;fill:var(--ink-2)}
+.m-q1{fill:var(--q1)}.m-q2{fill:var(--q2)}.m-q3{fill:var(--q3)}.m-q4{fill:var(--q4)}
+.l-s1{stroke:var(--s1)}.l-s2{stroke:var(--s2)}.l-q1{stroke:var(--q1)}.l-q2{stroke:var(--q2)}.l-q3{stroke:var(--q3)}.l-q4{stroke:var(--q4)}
+.linea{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.ic{stroke-width:2;stroke-linecap:round;fill:none;opacity:.9}
+.ic-gris{stroke:var(--ink-2);opacity:.75}
+.punto-m{stroke:var(--surface);stroke-width:2}
+.atenuado{opacity:.35}
+.destaca{stroke:var(--ink);stroke-width:2}
+.banda{fill:var(--s1);opacity:.1}
+.fila-hit{fill:transparent;cursor:pointer}
+.fila-sel{fill:color-mix(in srgb,var(--accent) 35%,transparent)}
+.cruz{stroke:var(--muted);stroke-width:1;shape-rendering:crispEdges}
+.m-hover{filter:brightness(1.12)}
+.neutro{fill:var(--axis)}
+.m-gris{fill:var(--muted);opacity:.55}
+.m-mark{fill:var(--accent);stroke:var(--ink);stroke-width:1.5}
+.m-hueco{fill:var(--surface);stroke:var(--s1);stroke-width:2.2}
+.t-cab{font:700 12.5px var(--f-body);fill:var(--ink)}
+
+.leyenda{display:flex;flex-wrap:wrap;gap:.3rem .9rem;margin-top:.3rem;font-size:.8rem;color:var(--ink-2)}
+.leyenda button,.leyenda span{display:inline-flex;align-items:center;gap:.4rem;border:0;background:transparent;padding:.15rem .25rem;border-radius:4px;color:inherit;font:inherit;cursor:default}
+.leyenda button{cursor:pointer}
+.leyenda button:hover{background:var(--surface-2)}
+.leyenda i{width:.85rem;height:.55rem;border-radius:2px;display:inline-block}
+.leyenda i.l{height:2px;width:1rem;border-radius:0}
+.leyenda .on{background:var(--surface-2);font-weight:600}
+[data-foco] .seg-a,[data-foco] .seg-b,[data-foco] .seg-c,[data-foco] .seg-d{opacity:.28}
+[data-foco="A"] .seg-a,[data-foco="B"] .seg-b,[data-foco="C"] .seg-c,[data-foco="D"] .seg-d{opacity:1}
+
+/* ---------- globo de ayuda ---------- */
+.globo{position:fixed;z-index:90;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:8px;padding:.5rem .65rem;font-size:.82rem;line-height:1.35;max-width:17rem;box-shadow:0 6px 24px rgba(0,0,0,.28);opacity:0;transition:opacity .08s}
+.globo.on{opacity:1}
+.globo b{display:block;font-size:.88rem;margin-bottom:.2rem}
+.globo .f{display:flex;align-items:center;gap:.4rem;justify-content:space-between}
+.globo .f strong{font-weight:700}
+.globo .k{display:inline-block;width:.9rem;height:3px;border-radius:2px;margin-right:.35rem;vertical-align:middle}
+.globo small{display:block;opacity:.8;margin-top:.15rem}
+
+/* ---------- mosaico de entidades (cartograma) ---------- */
+.mosaico-marco{max-width:36rem;margin-inline:auto;width:100%}
+.mosaico{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(6,auto);gap:3px;container-type:inline-size}
+.tile{aspect-ratio:1;border:0;border-radius:4px;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;overflow:hidden;
+  background:color-mix(in oklab,var(--ramp-lo),var(--ramp-hi) calc(var(--t) * 100%));color:var(--on-lo);font:600 clamp(.5rem,2.15cqw,.8rem)/1.1 var(--f-body);transition:transform .12s}
+.tile.alto{color:var(--on-hi)}
+.tile small{font-weight:500;font-size:.92em;opacity:.95}
+.tile:hover,.tile:focus-visible{transform:scale(1.14);z-index:2;outline:2px solid var(--ink);outline-offset:0}
+.tile.sel{outline:3px solid var(--accent);outline-offset:1px;z-index:3;transform:scale(1.1)}
+.escala{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font:500 .74rem var(--f-body);color:var(--muted)}
+.escala i{flex:1;height:.5rem;border-radius:3px;background:linear-gradient(90deg,var(--ramp-lo),var(--ramp-hi))}
+.mosaico-info{min-height:2.4rem;margin-top:.5rem;font-size:.92rem;color:var(--ink)}
+.mosaico-info b{font-weight:700}
+
+/* Radiografía socioeconómica de México · versión ligera e interactiva.
+   Concepto: una lámina por mensaje. Cada lámina tiene un titular que es la conclusión, una sola gráfica interactiva y, al lado, la cifra que contesta la pregunta.
+   Colores de las gráficas: paleta validada para daltonismo (hombres azul, mujeres naranja; magnitud en un solo tono azul; niveles ordenados en rampa ordinal). */
+:root{
+  --bg:#f4f6fb; --surface:#fcfcfb; --surface-2:#eef1f8; --ink:#141a30; --ink-2:#434b69; --muted:#5b6382; --line:#dde1ee; --grid:#e6e9f2; --axis:#c3c8da;
+  --brand:#1e2a6b; --brand-solid:#1e2a6b; --on-brand:#ffffff; --accent:#ffd166; --accent-ink:#241a00;
+  --hero-bg:#0e1647; --hero-ink:#f2f5ff; --hero-soft:#b3c0ec; --hero-line:rgba(165,185,255,.13);
+  --sombra:0 1px 2px rgba(20,26,48,.06),0 10px 30px rgba(20,26,48,.07);
+  --f-display:"Archivo","Segoe UI",system-ui,sans-serif; --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --top:3.3rem; --lado:max(18px,env(safe-area-inset-left,0px)); --lado-der:max(18px,env(safe-area-inset-right,0px));
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b0f22; --surface:#121833; --surface-2:#1a2145; --ink:#e8ecfb; --ink-2:#b9c1de; --muted:#98a1c4; --line:#2a3262; --grid:#232b55; --axis:#39427a;
+  --brand:#bccdff; --brand-solid:#2b3b96; --accent:#ffd166;
+  --hero-bg:#070b24; --hero-line:rgba(165,185,255,.1);
+  --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0f22; --surface:#121833; --surface-2:#1a2145; --ink:#e8ecfb; --ink-2:#b9c1de; --muted:#98a1c4; --line:#2a3262; --grid:#232b55; --axis:#39427a;
+  --brand:#bccdff; --brand-solid:#2b3b96; --accent:#ffd166;
+  --hero-bg:#070b24; --hero-line:rgba(165,185,255,.1);
+  --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px}
+@media (min-width:900px) and (min-height:640px){html{scroll-snap-type:y mandatory}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--f-body)}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--brand);text-underline-offset:.18em}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+p{margin:0}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+
+/* ---------- barra superior ---------- */
+.barra{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:50;height:var(--top);display:flex;align-items:center;gap:.8rem;
+  padding:0 var(--lado-der) 0 var(--lado);background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.marca{font:700 .92rem/1.1 var(--f-display);font-stretch:112%;color:var(--brand);text-decoration:none;white-space:nowrap}
+.marca small{display:block;font:500 .62rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:.12rem}
+.puntos{flex:1;display:flex;justify-content:center;gap:.28rem;min-width:0}
+.punto{width:.62rem;height:.62rem;border-radius:50%;border:0;padding:0;background:var(--axis);cursor:pointer;position:relative;transition:transform .15s,background .15s}
+.punto::after{content:"";position:absolute;inset:-.55rem -.2rem}                 /* área de toque más grande que el punto */
+.punto:hover{transform:scale(1.35)}
+.punto[aria-current="true"]{background:var(--brand-solid);transform:scale(1.5)}
+.controles{display:flex;align-items:center;gap:.4rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:.4rem .7rem;font:600 .82rem/1 var(--f-body);cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--brand)}
+.btn[aria-pressed="true"]{background:var(--brand-solid);color:var(--on-brand);border-color:var(--brand-solid)}
+.btn--sol{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn--sol:hover{filter:brightness(1.05);border-color:var(--accent)}
+.sel{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:.38rem .5rem;font:500 .82rem var(--f-body);max-width:11rem}
+.estado-chip{display:none;align-items:center;gap:.3rem;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:.18rem .3rem .18rem .65rem;font:600 .78rem var(--f-body)}
+.estado-chip.on{display:inline-flex}
+.estado-chip button{border:0;background:rgba(0,0,0,.14);color:inherit;border-radius:50%;width:1.25rem;height:1.25rem;line-height:1;cursor:pointer;padding:0}
+
+/* ---------- láminas ---------- */
+.escena{min-height:min(100svh,72rem);scroll-snap-align:start;display:flex;align-items:center;padding:calc(var(--top) + 1.1rem) var(--lado-der) 4.2rem var(--lado)}
+.escena>.cont{width:100%;max-width:86rem;margin-inline:auto;display:grid;gap:1rem;align-content:center}
+.etq{font:600 .72rem var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.etq b{color:var(--brand);font-weight:600}
+.titular{font:800 clamp(1.65rem,3vw,2.75rem)/1.07 var(--f-display);font-stretch:112%;letter-spacing:-.012em;margin:.2rem 0 0;text-wrap:balance;max-width:36ch}
+.titular--ancho{max-width:44ch}
+.cuerpo{display:grid;grid-template-columns:minmax(0,1fr) 20rem;gap:1.1rem;align-items:start}
+.cuerpo>*{min-width:0}
+@media (max-width:1000px){.cuerpo{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- tarjeta con gráfica ---------- */
+.tarjeta{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sombra);padding:.85rem 1rem .7rem}
+.tarjeta__cab{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .9rem;margin-bottom:.45rem}
+.tarjeta__tit{display:grid;gap:.05rem}
+.tarjeta__tit b{font:700 .98rem/1.2 var(--f-body)}
+.tarjeta__tit span{font-size:.82rem;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface-2)}
+.seg button{border:0;background:transparent;padding:.38rem .75rem;font:600 .8rem/1.1 var(--f-body);color:var(--ink-2);cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:color-mix(in srgb,var(--brand-solid) 10%,transparent)}
+.seg button[aria-pressed="true"]{background:var(--brand-solid);color:var(--on-brand)}
+.viz{position:relative;width:100%}
+.viz svg{display:block;width:100%;height:auto;overflow:visible}
+.viz[hidden]{display:none}
+.tarjeta__pie{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.4rem .9rem;margin-top:.45rem;font-size:.76rem;color:var(--muted)}
+.pista{color:var(--ink-2)}
+.porque{margin-top:.35rem;font-size:.8rem;color:var(--ink-2)}
+.porque summary{cursor:pointer;color:var(--brand);font-weight:600;width:max-content;max-width:100%;list-style:none}
+.porque summary::-webkit-details-marker{display:none}
+.porque summary::before{content:"ⓘ ";}
+.porque p{margin:.3rem 0 0;max-width:75ch;line-height:1.4}
+.ver-tabla{border:0;background:transparent;color:var(--brand);font:600 .76rem var(--f-body);cursor:pointer;text-decoration:underline;text-underline-offset:.18em;padding:.2rem .1rem}
+.tabla-vista{overflow:auto;max-height:22rem}
+.tabla-vista table{border-collapse:collapse;width:100%;font-size:.84rem}
+.tabla-vista th{position:sticky;top:0;background:var(--brand-solid);color:var(--on-brand);text-align:left;padding:.35rem .6rem;font-weight:600}
+.tabla-vista td{padding:.3rem .6rem;border-top:1px solid var(--line)}
+.tabla-vista td.n,.tabla-vista th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tarjeta.con-tabla .vista{height:0;overflow:hidden;visibility:hidden;margin:0}           /* sigue midiendo su ancho: las gráficas se dibujan aunque se vea la tabla */
+.tabla-val-marco{overflow-x:auto}
+@media (max-width:600px){.tabla-val{font-size:.84rem}.tabla-val th,.tabla-val td{padding:.4rem .35rem}.tabla-val .est-txt{display:none}}
+.tabla-val{border-collapse:collapse;width:100%;font-size:.95rem}
+.tabla-val th{text-align:left;font:600 .74rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:.4rem .6rem;border-bottom:1px solid var(--axis)}
+.tabla-val td{padding:.5rem .6rem;border-bottom:1px solid var(--line)}
+.tabla-val .n,.tabla-val th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tabla-val .ok{color:var(--ok);font-weight:600}
+.tabla-val .mal{color:var(--bad);font-weight:600}
+
+
+
+/* ---------- columna de lectura: cifra + datos ---------- */
+.lectura{display:grid;gap:.7rem;align-content:start}
+.cifra{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;box-shadow:var(--sombra)}
+.cifra b{display:block;font:600 clamp(2.4rem,4.4vw,3.6rem)/1 var(--f-body);letter-spacing:-.02em;color:var(--brand)}
+.cifra span{display:block;margin-top:.35rem;font-size:.9rem;color:var(--ink-2);line-height:1.35}
+.cifra small{display:block;margin-top:.3rem;font:500 .74rem var(--f-mono);color:var(--muted)}
+.cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.6rem,1fr));gap:.6rem}
+.cifras .cifra b{font-size:1.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;list-style:none;margin:0;padding:0}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:99px;padding:.22rem .7rem;font-size:.8rem;line-height:1.3}
+.chip b{color:var(--ink)}
+.chip--ok{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.chip--aviso{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.mini{font-size:.82rem;color:var(--ink-2)}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;display:grid;gap:.45rem}
+.calc label{font:600 .84rem var(--f-body)}
+.calc input[type=range]{width:100%;accent-color:var(--brand-solid)}
+.calc output{font:600 1.5rem/1.1 var(--f-body);color:var(--brand)}
+.calc small{color:var(--muted);font-size:.74rem}
+
+/* ---------- portada ---------- */
+.portada{background:var(--hero-bg);color:var(--hero-ink);position:relative;overflow:hidden}
+.portada::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--hero-line) 1px,transparent 1px),linear-gradient(90deg,var(--hero-line) 1px,transparent 1px);background-size:28px 28px;
+  -webkit-mask-image:linear-gradient(180deg,#000 35%,transparent 100%);mask-image:linear-gradient(180deg,#000 35%,transparent 100%)}
+.portada>.cont{position:relative}
+.portada .etq{color:var(--hero-soft)}
+.portada h1{font:800 clamp(2.2rem,5vw,4.3rem)/1.02 var(--f-display);font-stretch:114%;letter-spacing:-.015em;margin:.25rem 0 .6rem;text-wrap:balance}
+.portada .sub{font-size:clamp(1.05rem,1.7vw,1.4rem);color:var(--hero-soft);max-width:34ch}
+.portada .equipo{font-size:.86rem;color:var(--hero-soft);margin-top:.8rem;max-width:44ch}
+.portada-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(1rem,4vw,3.4rem);align-items:center}
+@media (max-width:1000px){.portada-grid{grid-template-columns:minmax(0,1fr)}}
+.portada .btn{border-color:var(--hero-soft);background:transparent;color:var(--hero-ink)}
+.portada .btn--sol{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:1.1rem}
+@media (max-width:700px){.kpis{grid-template-columns:minmax(0,1fr)}}
+.kpi{text-align:left;border:1px solid var(--hero-line);background:rgba(255,255,255,.06);border-radius:10px;padding:.7rem .85rem;color:var(--hero-ink);cursor:pointer;text-decoration:none;display:block;transition:background .15s,transform .15s}
+.kpi:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.kpi b{display:block;font:600 clamp(1.7rem,2.9vw,2.5rem)/1 var(--f-body);letter-spacing:-.015em}
+.kpi span{display:block;margin-top:.3rem;font-size:.84rem;color:var(--hero-soft);line-height:1.3}
+.kpi em{display:block;margin-top:.35rem;font:500 .68rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--accent);font-style:normal}
+.mosaico-tit{font:600 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--hero-soft);margin-bottom:.5rem}
+.portada .tile:hover,.portada .tile:focus-visible{outline-color:#fff}
+.portada .escala{color:var(--hero-soft)}
+.portada .mosaico-info{color:var(--hero-ink)}
+
+.portada{--ramp-lo:#26397f;--ramp-hi:#aecbfb;--on-lo:#ffffff;--on-hi:#0b1030}      /* sobre el fondo azul noche, más es más claro */
+.par{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.par{grid-template-columns:minmax(0,1fr)}}
+.herr-mapa{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;font-size:.84rem;color:var(--ink-2)}
+.sub-tit{font:600 .72rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 .3rem}
+.fuente{color:var(--muted)}
+
+/* ---------- ruta KDD ---------- */
+.kdd{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem}
+@media (max-width:900px){.kdd{grid-template-columns:minmax(0,1fr)}}
+.fase{position:relative;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.7rem .8rem .8rem;cursor:pointer;display:grid;gap:.15rem;align-content:start;transition:background .15s,border-color .15s,transform .15s}
+.fase:hover{border-color:var(--brand);transform:translateY(-2px)}
+.fase small{font:600 .68rem var(--f-mono);letter-spacing:.07em;color:var(--muted);text-transform:uppercase}
+.fase b{font:700 1.02rem/1.15 var(--f-body)}
+.fase span{font-size:.8rem;color:var(--ink-2)}
+.fase[aria-pressed="true"]{background:var(--brand-solid);color:var(--on-brand);border-color:var(--brand-solid)}
+.fase[aria-pressed="true"] small,.fase[aria-pressed="true"] span{color:color-mix(in srgb,var(--on-brand) 82%,transparent)}
+.fase-detalle{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sombra);padding:1rem 1.1rem;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1rem;align-items:center;min-height:6.3rem}
+@media (max-width:700px){.fase-detalle{grid-template-columns:minmax(0,1fr)}}
+.fase-detalle .num{font:600 clamp(2rem,3.4vw,3rem)/1 var(--f-body);color:var(--brand);letter-spacing:-.02em}
+.fase-detalle .num small{display:block;font:500 .78rem var(--f-body);color:var(--ink-2);letter-spacing:0;margin-top:.2rem}
+.fase-detalle ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:.4rem}
+.comp{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.5rem}
+@media (max-width:1180px){.comp{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:560px){.comp{grid-template-columns:repeat(2,minmax(0,1fr))}.comp a:last-child:nth-child(odd){grid-column:1/-1}}
+.comp a{display:grid;gap:.1rem;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;transition:border-color .15s,transform .15s}
+.comp a:hover{border-color:var(--brand);transform:translateY(-2px)}
+.comp a b{font:700 .9rem var(--f-body)}
+.comp a b::before{content:"✓ ";color:var(--ok)}
+.comp a span{font-size:.76rem;color:var(--ink-2)}
+.comp a small{font:500 .66rem var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- ingeniería: arquitectura y ficha ---------- */
+.arq{display:flex;flex-wrap:wrap;align-items:stretch;gap:.35rem}
+.nodo{flex:1 1 7.5rem;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.6rem .7rem;cursor:pointer;display:grid;gap:.1rem;align-content:start}
+.nodo:hover{border-color:var(--brand)}
+.nodo b{font:700 .92rem/1.15 var(--f-body)}
+.nodo span{font-size:.76rem;color:var(--ink-2)}
+.nodo[aria-pressed="true"]{background:var(--brand-solid);color:var(--on-brand);border-color:var(--brand-solid)}
+.nodo[aria-pressed="true"] span{color:color-mix(in srgb,var(--on-brand) 82%,transparent)}
+.flecha{align-self:center;color:var(--muted);font-size:1.1rem}
+.ficha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:.8rem}
+@media (max-width:900px){.ficha{grid-template-columns:minmax(0,1fr)}}
+.codigo{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:.6rem .75rem;overflow:auto;font:500 .78rem/1.45 var(--f-mono);color:var(--ink);white-space:pre;max-height:16rem}
+.codigo .k{color:var(--brand);font-weight:600}
+.codigo .s{color:var(--ok)}
+.codigo .n{color:var(--s2)}
+.caja-tit{font:600 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;display:flex;justify-content:space-between;gap:.5rem}
+.res-sql{margin-top:.4rem;border:1px solid var(--line);border-radius:8px;padding:.45rem .7rem;font:500 .84rem var(--f-body);background:var(--surface)}
+.res-sql b{color:var(--brand)}
+
+/* ---------- respuestas, reflexión y productos ---------- */
+.resp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+@media (max-width:1000px){.resp{grid-template-columns:minmax(0,1fr)}}
+.resp a{display:grid;gap:.3rem;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sombra);padding:.8rem 1rem;transition:transform .15s,border-color .15s}
+.resp a:hover{transform:translateY(-2px);border-color:var(--brand)}
+.resp small{font:600 .68rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.resp .q{font:700 .95rem/1.25 var(--f-body)}
+.resp .a{font:600 2rem/1 var(--f-body);color:var(--brand);letter-spacing:-.02em}
+.resp .a span{font:500 .86rem var(--f-body);color:var(--ink-2);letter-spacing:0;display:block;margin-top:.2rem;line-height:1.3}
+.resp svg{width:100%;height:auto;display:block;margin-top:.2rem}
+.metricas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+@media (max-width:1000px){.metricas{grid-template-columns:minmax(0,1fr)}}
+.metrica{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .6rem;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;text-decoration:none;color:var(--ink)}
+.metrica:hover{border-color:var(--brand)}
+.metrica i{grid-row:span 2;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;font-style:normal;font-weight:700;font-size:.9rem}
+.metrica b{font:700 .88rem/1.25 var(--f-body)}
+.metrica span{font-size:.78rem;color:var(--ink-2);line-height:1.3}
+.cierre{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.1rem;align-items:start}
+@media (max-width:1000px){.cierre{grid-template-columns:minmax(0,1fr)}}
+.acordeon{display:grid;gap:.5rem}
+.acordeon details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.15rem .9rem}
+.acordeon summary{cursor:pointer;font:700 .95rem/1.3 var(--f-body);padding:.6rem 0;list-style:none;display:flex;gap:.6rem;align-items:flex-start}
+.acordeon summary::-webkit-details-marker{display:none}
+.acordeon summary::before{content:"▸";color:var(--brand);transition:transform .15s}
+.acordeon details[open] summary::before{transform:rotate(90deg)}
+.acordeon p{padding:0 0 .75rem 1.3rem;font-size:.92rem;color:var(--ink-2)}
+.productos{display:grid;gap:.5rem}
+.producto{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.1rem .7rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .8rem;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.producto:hover{border-color:var(--brand);transform:translateX(2px)}
+.producto i{grid-row:span 2;width:2.2rem;height:2.2rem;border-radius:8px;background:var(--brand-solid);color:var(--on-brand);display:grid;place-items:center;font:700 .74rem var(--f-mono);font-style:normal}
+.producto b{font:700 .95rem/1.2 var(--f-body)}
+.producto span{font-size:.78rem;color:var(--ink-2)}
+.pie{font-size:.74rem;color:var(--muted);margin-top:.6rem}
+.pie a{color:inherit}
+
+/* ---------- navegación, notas ---------- */
+.nav{position:fixed;right:var(--lado-der);bottom:calc(.9rem + env(safe-area-inset-bottom,0px));z-index:50;display:flex;gap:.35rem;align-items:center}
+.nav button{width:2.5rem;height:2.5rem;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:1.05rem;box-shadow:var(--sombra)}
+.nav button:hover{border-color:var(--brand)}
+.nav .pos{font:600 .78rem var(--f-mono);color:var(--muted);background:color-mix(in srgb,var(--bg) 85%,transparent);padding:.15rem .5rem;border-radius:99px}
+.guion{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--surface);color:var(--ink);border-top:3px solid var(--accent);box-shadow:0 -8px 24px rgba(0,0,0,.22);
+  padding:.8rem var(--lado-der) calc(.9rem + env(safe-area-inset-bottom,0px)) var(--lado);max-height:40vh;overflow:auto}
+.guion h4{margin:0 0 .3rem;font:600 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.guion p{font-size:1.02rem;max-width:80ch}
+.sin-js .escena{min-height:auto}
+
+.marca{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media (max-height:780px) and (min-width:900px){                                  /* pantallas bajas (laptops de 768 px): láminas más compactas */
+  .titular{font-size:clamp(1.45rem,2.5vw,2.1rem)}
+  .escena{padding-bottom:3.1rem;padding-top:calc(var(--top) + .7rem)}.escena>.cont{gap:.7rem}
+  .cifra b{font-size:2.5rem}.cifra{padding:.6rem .9rem}.tarjeta{padding:.65rem .85rem .55rem}
+  .titular,.titular--ancho{max-width:none}                                          /* un titular corto cabe en una línea y deja más alto a la gráfica */
+  .tile{aspect-ratio:1/.88}.mosaico-info{min-height:1.9rem;margin-top:.35rem}
+}
+@media (max-height:700px) and (min-width:900px){                                   /* ventanas muy bajas (laptop de 768 px con la barra del navegador): aún más compactas */
+  .escena{padding-top:calc(var(--top) + .4rem)}.escena>.cont{gap:.5rem}
+  .tile{aspect-ratio:1/.8}.mosaico-marco{max-width:31rem}
+  .tarjeta__cab{margin-bottom:.25rem}.tarjeta__pie{margin-top:.3rem}
+}
+@media (max-width:760px){
+  .puntos{display:none}.marca small{display:none}.marca{flex:1}
+  .barra{gap:.5rem}.sel{max-width:7.6rem}
+  .escena{padding-top:calc(var(--top) + .7rem)}
+  .btn.solo-ancho{display:none}
+}
+
+</style>
+</head>
+<body>
+<header class="barra"><a class="marca" href="#e-portada" data-ir="e-portada">Radiografía socioeconómica de México<small>Equipo 1 · ENOE 2025-T4</small></a><nav class="puntos" id="puntos" aria-label="Láminas"></nav><div class="controles"><span class="estado-chip" id="chip-estado"><span></span><button type="button" aria-label="Quitar la entidad elegida">×</button></span><select class="sel" id="sel-estado" aria-label="Resaltar una entidad en todas las gráficas"></select><a class="btn solo-ancho" href="index.html" title="Documento completo">Tesina</a><button type="button" class="btn solo-ancho" id="btn-notas" aria-pressed="false" title="Notas del orador (N)">Notas</button><button type="button" class="btn solo-ancho" id="btn-pantalla" title="Pantalla completa (F)">Pantalla completa</button><button type="button" class="btn" id="btn-tema" aria-label="Cambiar entre tema claro y oscuro">Tema</button></div></header><main><noscript><p style="padding:5rem 1.5rem 1rem">Esta página dibuja sus gráficas con JavaScript. Actívalo o abre la <a href="index.html">tesina</a>.</p></noscript><section class="escena portada" id="e-portada" data-titulo="Portada" data-quien="Juan Evelio" data-guion="Presentamos la radiografía socioeconómica de México con la ENOE del cuarto trimestre de 2025: 190,187 personas ocupadas. Tres preguntas: cuánto rinde estudiar y si cambia entre estados, si hay brecha de género con la misma escolaridad y dónde hay más informalidad. Cada tarjeta lleva a su respuesta."><div class="cont">
+<div class="portada-grid">
+ <div>
+  <p class="etq">Proyecto Integrador · Ciencia de Datos · Equipo 1</p>
+  <h1>Radiografía socioeconómica de México</h1>
+  <p class="sub">¿Cuánto rinde estudiar, cambia entre estados y qué brechas hay?</p>
+  <p class="equipo">Juan Evelio Culin Grajeda · Angel Yireh Garcia Jara · Luis Andre Gutierrez Zuñia<br>UNE Plantel Centro · Datos: ENOE 2025-T4, INEGI</p>
+ </div>
+ <div><p class="mosaico-tit">Informalidad laboral por entidad (%)</p><div class="viz" data-chart="mosaicoPortada"></div></div>
+</div>
+<div class="kpis">
+ <a class="kpi" href="#e-q1" data-ir="e-q1"><b>+5.1 %</b><span>ingreso por hora por cada año de estudio</span><em>Pregunta 1 ▸</em></a>
+ <a class="kpi" href="#e-q2" data-ir="e-q2"><b>7.7 %</b><span>menos por hora ganan las mujeres con la misma escolaridad (26.9 % por mes)</span><em>Pregunta 2 ▸</em></a>
+ <a class="kpi" href="#e-q3" data-ir="e-q3"><b>55 %</b><span>de las personas ocupadas está en empleo informal</span><em>Pregunta 3 ▸</em></a>
+</div></div></section>
+<section class="escena " id="e-ruta" data-titulo="Ruta del proyecto" data-quien="Juan Evelio" data-guion="El proyecto sigue el ciclo KDD y cubre las siete competencias del curso. Toquen cada fase para ver su evidencia: datos validados, limpieza con pruebas de calidad, base SQLite y MongoDB, análisis con Rao-Wu y las respuestas."><div class="cont"><p class="etq"><b>Marco metodológico</b> · ciclo KDD</p><h2 class="titular titular--ancho">Del dato crudo al hallazgo: cinco pasos y las siete competencias del curso</h2><div class="kdd" role="group" aria-label="Fases del ciclo KDD"><button type="button" class="fase" aria-pressed="false"><small>01 · Sem. 1</small><b>Selección</b><span>Fuente y validación</span></button><button type="button" class="fase" aria-pressed="false"><small>02 · Sem. 4</small><b>Preprocesamiento</b><span>Limpieza documentada</span></button><button type="button" class="fase" aria-pressed="false"><small>03 · Sem. 4 · 6</small><b>Transformación</b><span>Variables y base de datos</span></button><button type="button" class="fase" aria-pressed="false"><small>04 · Sem. 2 · 3 · 5</small><b>Minería y análisis</b><span>Estadística y gráficas</span></button><button type="button" class="fase" aria-pressed="false"><small>05 · Sem. 5</small><b>Interpretación</b><span>Comunicar y recomendar</span></button></div><div class="fase-detalle" id="fase-detalle" aria-live="polite"></div><p class="etq">El proyecto evidencia las competencias que pide la guía</p><div class="comp"><a href="#e-datos" data-ir="e-datos"><small>Sem. 1</small><b>Selección</b><span>7 de 7 cifras oficiales</span></a><a href="#e-q1" data-ir="e-q1"><small>Sem. 2 · 3</small><b>Estadística</b><span>Rao-Wu, Spearman, Holm</span></a><a href="#e-limpieza" data-ir="e-limpieza"><small>Sem. 4</small><b>Limpieza</b><span>15 pruebas de calidad</span></a><a href="#e-ingenieria" data-ir="e-ingenieria"><small>Sem. 4</small><b>Transformación</b><span>13 variables derivadas</span></a><a href="#e-estados" data-ir="e-estados"><small>Sem. 5</small><b>Visualización</b><span>Más de 10 gráficas</span></a><a href="#e-ingenieria" data-ir="e-ingenieria"><small>Sem. 6</small><b>Ingeniería</b><span>ETL a SQLite</span></a><a href="#e-ingenieria" data-ir="e-ingenieria"><small>Sem. 7</small><b>NoSQL</b><span>MongoDB por entidad</span></a></div></div></section>
+<section class="escena " id="e-datos" data-titulo="Datos reales y validados" data-quien="Juan Evelio" data-guion="Partimos de 419,038 registros reales. Cada paso del embudo elimina filas solo cuando está justificado. Como control externo reprodujimos las siete cifras que publicó el INEGI."><div class="cont"><p class="etq"><b>Selección · Sem. 1</b> · dataset real, grande y verificable</p><h2 class="titular">419 mil registros reales; reproducimos 7 de 7 cifras oficiales del INEGI</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>De los registros crudos a la muestra de análisis</b><span>cada regla elimina filas solo cuando está justificada</span></div><div class="seg" role="group" aria-label="Vista de la gráfica"><button type="button" data-vista="embudo" aria-pressed="true">Embudo de datos</button><button type="button" data-vista="inegi" aria-pressed="false">Cifras del INEGI</button></div></header><div class="vista" data-vista="embudo" data-pista="Barras desde cero · en azul intenso, las tres cifras clave · INEGI, ENOE 2025-T4 · IC 95 % por bootstrap de Rao-Wu"><div class="viz" data-chart="embudo"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Barras horizontales porque comparan cantidades del mismo tipo (registros) y los nombres largos caben mejor. El eje parte de cero, así que la longitud de cada barra es proporcional a la cantidad.</p></details></div><div class="vista" data-vista="inegi" hidden data-pista="Mismos microdatos públicos, calculados con el factor de expansión"><div class="viz" data-chart="validacion"></div></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Barras desde cero · en azul intenso, las tres cifras clave · INEGI, ENOE 2025-T4 · IC 95 % por bootstrap de Rao-Wu</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>7 de 7</b><span>cifras oficiales del INEGI reproducidas con los microdatos</span><small>PEA, participación, informalidad y tres estados</small></div><ul class="chips"><li class="chip"><b>419,038</b> → <b>111,958</b> observaciones salariales</li><li class="chip chip--ok">Huella SHA-256 de cada archivo</li><li class="chip chip--ok">Diccionario de datos documentado</li></ul></div></div></div></section>
+<section class="escena " id="e-limpieza" data-titulo="Limpieza" data-quien="Angel Yireh" data-guion="El ingreso cero engaña: solo 4 % no recibe ingresos; 22 % da un rango de salarios mínimos y 13 % no especifica. Quien más estudia declara menos el monto exacto, por eso contrastamos los resultados con imputación y con ponderación por no respuesta."><div class="cont"><p class="etq"><b>Preprocesamiento · Sem. 4</b> · limpieza documentada</p><h2 class="titular">«Ingreso 0» no significa «no gana»: solo 4 % no recibe ingresos</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>Cómo declaran su ingreso las personas ocupadas</b><span>porcentaje por grupo; pasa el cursor sobre una categoría de la leyenda</span></div></header><div class="vista" data-vista="cal" data-pista="Quien más estudió declara menos el monto exacto"><div class="viz" data-chart="calidad"></div><div class="leyenda" role="group" aria-label="Categorías de declaración del ingreso"><button type="button" data-k="A"><i class="sw-s1"></i>A · Monto exacto</button><button type="button" data-k="B"><i class="sw-s2"></i>B · Solo un rango de salarios mínimos</button><button type="button" data-k="C"><i class="sw-s3"></i>C · No recibe ingresos</button><button type="button" data-k="D"><i class="sw-s4"></i>D · No especificó</button></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Los cuatro grupos suman 100 %, así que se muestran como partes de un todo en barras apiladas. Cada barra es una población y todas llevan el porcentaje escrito; los colores se distinguen también en escala de grises.</p></details></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Quien más estudió declara menos el monto exacto</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>4 %</b><span>de las personas ocupadas no recibe ingresos; el resto del «cero» es información incompleta</span><small>22 % da un rango · 13 % no especifica</small></div><ul class="chips"><li class="chip">99 años de escolaridad pasan a faltante</li><li class="chip">0 horas pasan a faltante</li><li class="chip">Atípicos: P0.5 a P99.5 por entidad</li><li class="chip chip--ok"><b>15 de 15</b> pruebas de calidad</li></ul></div></div></div></section>
+<section class="escena " id="e-ingenieria" data-titulo="Ingeniería y NoSQL" data-quien="Angel Yireh" data-guion="Dos bases para dos usos. SQLite, en esquema de estrella, sirve para analizar con JOIN y agregaciones ponderadas. MongoDB sirve la ficha de cada entidad con una sola lectura. Elijan un estado y vean la misma pregunta en SQL y en MongoDB. La carga la probamos con un simulador; falta probarla en un servidor real."><div class="cont"><p class="etq"><b>Sem. 4 · 6 · 7</b> · transformación e ingeniería de datos</p><h2 class="titular">SQLite para analizar, MongoDB para servir: dos bases, dos usos</h2><div class="arq" role="group" aria-label="Arquitectura de datos"><button type="button" class="nodo" aria-pressed="false"><b>Microdatos INEGI</b><span>CSV · SDEMT y COE2T</span></button><span class="flecha" aria-hidden="true">→</span><button type="button" class="nodo" aria-pressed="false"><b>Pipeline ETL</b><span>Python · reproducible</span></button><span class="flecha" aria-hidden="true">→</span><button type="button" class="nodo" aria-pressed="false"><b>SQLite</b><span>esquema en estrella</span></button><span class="flecha" aria-hidden="true">→</span><button type="button" class="nodo" aria-pressed="false"><b>MongoDB</b><span>un documento por entidad</span></button><span class="flecha" aria-hidden="true">→</span><button type="button" class="nodo" aria-pressed="false"><b>Tablero y página</b><span>HTML interactivo</span></button></div><p class="mini" id="nodo-detalle" aria-live="polite"></p><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>La misma pregunta en las dos bases</b><span>elige una entidad: una consulta con JOIN frente a una lectura por clave</span></div><select class="sel" id="sel-ficha" aria-label="Entidad de la consulta"></select></header><div class="ficha"><div><div class="caja-tit"><span>SQL · SQLite</span><span>para analizar</span></div><pre class="codigo" id="ficha-sql"></pre><div class="res-sql" id="ficha-res"></div></div><div><div class="caja-tit"><span>MongoDB</span><span>para servir</span></div><pre class="codigo" id="ficha-mongo"></pre></div></div><footer class="tarjeta__pie"><span class="pista">Extracto del documento (valores redondeados)</span><span>Carga probada con mongomock (simulador); falta un servidor real</span></footer></figure><ul class="chips"><li class="chip"><b>190,187</b> filas × <b>36</b> columnas</li><li class="chip">10 dimensiones · 5 índices · 4 vistas</li><li class="chip">32 documentos: uno por entidad</li><li class="chip chip--ok">Esquema de estrella con llaves y restricciones</li></ul></div></section>
+<section class="escena " id="e-q1" data-titulo="Pregunta 1: ¿cuánto rinde estudiar?" data-quien="Luis Andre" data-guion="Cada año de estudio se asocia con 5.1 % más ingreso por hora y la licenciatura casi duplica el ingreso frente a no terminar la primaria. Es una asociación, no un efecto causal. Con el control deslizante se ve el efecto acumulado de varios años."><div class="cont"><p class="etq"><b>Pregunta 1 · Estadística y visualización</b> · escolaridad e ingreso</p><h2 class="titular">Cada año de estudio sube el ingreso por hora 5.1 %; la licenciatura casi lo duplica</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>¿Cuánto más gana quien estudia más?</b><span>ingreso por hora, personas ocupadas de 15 a 65 años</span></div><div class="seg" role="group" aria-label="Vista de la gráfica"><button type="button" data-vista="anios" aria-pressed="true">Por años de estudio</button><button type="button" data-vista="nivel" aria-pressed="false">Por nivel de estudios</button></div></header><div class="vista" data-vista="anios" data-pista="Mediana ponderada · escala logarítmica · pasa el cursor sobre la curva"><div class="viz" data-chart="curva"></div><div class="leyenda"><span><i class="l sw-s1"></i>Hombres</span><span><i class="l sw-s2"></i>Mujeres</span></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>La escolaridad es una variable ordenada, así que se usa una línea. El eje del ingreso es logarítmico (y está rotulado así) porque el ingreso cambia en proporciones; solo se grafican celdas con al menos 60 observaciones y los colores son aptos para daltonismo.</p></details></div><div class="vista" data-vista="nivel" hidden data-pista="Frente a no terminar la primaria · barras desde 0 · línea = IC 95 %"><div class="viz" data-chart="premio"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Las barras parten de cero porque el premio es una magnitud, y los niveles de estudio son una escala ordenada (de claro a oscuro). Cada barra lleva su intervalo de confianza.</p></details></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Mediana ponderada · escala logarítmica · pasa el cursor sobre la curva</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>+5.1 %</b><span>por cada año de escolaridad (IC 95 %: 5.0 a 5.3)</span><small>modelo de Mincer con edad, sexo, entidad y localidad</small></div><div class="calc"><label for="calc-rango">Si estudiara más años…</label><input type="range" id="calc-rango" min="1" max="8" value="4"><output id="calc-res" for="calc-rango"></output><small id="calc-ic"></small></div><ul class="chips"><li class="chip">Correlación de Spearman <b>0.34</b> (moderada)</li><li class="chip">Mujeres <b>5.9 %</b> · Hombres <b>4.6 %</b> por año</li></ul></div></div></div></section>
+<section class="escena " id="e-estados" data-titulo="Pregunta 1: estados ricos y pobres" data-quien="Luis Andre" data-guion="La relación entre escolaridad e ingreso es parecida en estados ricos y pobres: la diferencia entre el cuarto más rico y el más pobre es prácticamente cero. El ranking de correlación solo distingue los extremos; los lugares centrales tienen intervalos muy amplios."><div class="cont"><p class="etq"><b>Pregunta 1 · Estadística</b> · ¿varía entre estados ricos y pobres?</p><h2 class="titular">Estudiar rinde parecido en estados ricos y pobres</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>Aumento del ingreso por año de estudio en cada estado</b><span>cada punto es una entidad; toca uno para resaltarlo en todas las gráficas</span></div><div class="seg" role="group" aria-label="Vista de la gráfica"><button type="button" data-vista="disp" aria-pressed="true">Frente al ingreso del estado</button><button type="button" data-vista="rank" aria-pressed="false">Ranking de correlación</button></div></header><div class="vista" data-vista="disp" data-pista="Línea vertical = IC 95 % · color = cuartil de ingreso del estado"><div class="viz" data-chart="dispEstados"></div><div class="leyenda"><span>Cuartil de ingreso del estado (rendimiento medio):</span><span><i class="sw-q1"></i>Q1 · más bajo: 5.4 %</span><span><i class="sw-q2"></i>Q2: 5.5 %</span><span><i class="sw-q3"></i>Q3: 5.0 %</span><span><i class="sw-q4"></i>Q4 · más alto: 5.4 %</span></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Una dispersión muestra a la vez el ingreso del estado y el aumento por año de estudio; cada punto lleva su intervalo para que la incertidumbre sea parte del mensaje. Solo se rotulan los extremos. Es una relación entre estados, no un efecto individual.</p></details></div><div class="vista" data-vista="rank" hidden data-pista="Línea horizontal = IC 95 % · a la derecha, el lugar con su intervalo"><div class="viz" data-chart="rankRho"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Un punto con intervalo por entidad, ordenadas de mayor a menor. A la derecha se escribe el lugar de cada entidad con su propio intervalo, para que se vea que solo los extremos se distinguen.</p></details></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Línea vertical = IC 95 % · color = cuartil de ingreso del estado</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>≈ 0</b><span>diferencia entre el cuarto de estados más rico y el más pobre (p = 0.91)</span><small>Q4 − Q1 en log-puntos del rendimiento</small></div><ul class="chips"><li class="chip">De <b>3.7 %</b> (Nayarit) a <b>9.1 %</b> (Ciudad de México)</li><li class="chip">Correlación ρ de <b>0.21</b> (Baja California Sur) a <b>0.49</b> (Ciudad de México)</li><li class="chip chip--aviso">Ranking defendible: solo los extremos se distinguen</li></ul></div></div></div></section>
+<section class="escena " id="e-q2" data-titulo="Pregunta 2: brecha de género" data-quien="Angel Yireh" data-guion="Con la misma escolaridad las mujeres ganan 7.7 % menos por hora. Por mes la brecha es de 26.9 % porque trabajan 24 % menos horas pagadas. La brecha se concentra en los percentiles bajos. La parte no explicada de la descomposición no prueba discriminación: incluye todo lo que no se mide."><div class="cont"><p class="etq"><b>Pregunta 2 · Estadística</b> · brecha de género</p><h2 class="titular">A igual escolaridad, las mujeres ganan 7.7 % menos por hora</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>Brecha salarial: % menos que ganan las mujeres</b><span>ingreso por hora, comparado con el de los hombres</span></div><div class="seg" role="group" aria-label="Vista de la gráfica"><button type="button" data-vista="esc" aria-pressed="true">Con controles</button><button type="button" data-vista="niv" aria-pressed="false">Por nivel de estudios</button><button type="button" data-vista="cuan" aria-pressed="false">Dónde se concentra</button><button type="button" data-vista="oax" aria-pressed="false">Qué la explica</button></div></header><div class="vista" data-vista="esc" data-pista="Línea horizontal = IC 95 % · en gris, un modelo que no se interpreta (sesgo de división)"><div class="viz" data-chart="escalera"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Muestra cómo cambia la estimación al agregar controles uno por uno: un punto con intervalo por modelo, todos en la misma escala. El último modelo (con horas) va en gris porque no se interpreta.</p></details></div><div class="vista" data-vista="niv" hidden data-pista="Barras desde 0 · línea = IC 95 % · medias geométricas"><div class="viz" data-chart="brechaNivel"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Las barras parten de cero porque la brecha es una magnitud. Llevan su intervalo de confianza y los dos paneles (por hora y por mes) usan escalas rotuladas, así que no hay ejes duales ni trucos de escala.</p></details></div><div class="vista" data-vista="cuan" hidden data-pista="Banda = IC 95 % · P10 = quien menos gana"><div class="viz" data-chart="cuantiles"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Los percentiles son una secuencia ordenada, así que se usa una línea con una banda para el intervalo de confianza y una referencia en cero. Se ve de inmediato dónde la banda cruza el cero y la brecha deja de ser demostrable.</p></details></div><div class="vista" data-vista="oax" hidden data-pista="Puntos logarítmicos ≈ % del ingreso por hora · línea = IC 95 %"><div class="viz" data-chart="oaxaca"></div><div class="leyenda"><span><i class="sw-rojo"></i>Aumenta la brecha (desventaja de las mujeres)</span><span><i class="sw-s1"></i>Reduce la brecha (ventaja de las mujeres)</span></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Barras divergentes que parten de cero: las rojas aumentan la brecha y las azules la reducen. Cada una trae su intervalo de confianza y la leyenda dice qué significa cada color.</p></details></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Línea horizontal = IC 95 % · en gris, un modelo que no se interpreta (sesgo de división)</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>7.7 %</b><span>menos por hora con la misma escolaridad (IC 95 %: 6.6 a 8.8; p &lt; 0.001)</span><small>prueba de hipótesis con α = 0.05</small></div><ul class="chips"><li class="chip">Por mes: <b>26.9 %</b></li><li class="chip">Las mujeres trabajan <b>24 %</b> menos horas pagadas</li><li class="chip">Sin controles: <b>3.7 %</b> · con todos: <b>8.2 %</b></li><li class="chip chip--aviso">La parte no explicada no prueba discriminación</li></ul></div></div></div></section>
+<section class="escena " id="e-q3" data-titulo="Pregunta 3: informalidad" data-quien="Luis Andre" data-guion="Oaxaca, Guerrero y Chiapas superan el 74 % de informalidad; Coahuila tiene 33 %. A mayor escolaridad, menos informalidad: de 87 % sin primaria completa a 38 % con media superior o más. Entre estados la correlación es −0.86, pero no debe leerse como efecto individual."><div class="cont"><p class="etq"><b>Pregunta 3 · Visualización</b> · informalidad y escolaridad</p><h2 class="titular titular--ancho">Oaxaca, Guerrero y Chiapas superan 74 % de informalidad; a más estudio, menos informalidad</h2><div class="cuerpo"><figure class="tarjeta"><header class="tarjeta__cab"><div class="tarjeta__tit"><b>Informalidad laboral por entidad</b><span>cada estado ocupa la misma área; toca uno para ver su ficha</span></div><div class="seg" role="group" aria-label="Vista de la gráfica"><button type="button" data-vista="mapa" aria-pressed="true">Mapa y niveles</button><button type="button" data-vista="disp" aria-pressed="false">Frente a la escolaridad</button></div></header><div class="vista" data-vista="mapa" data-pista="Mosaico: cada estado ocupa la misma área · barras desde 0, línea = IC 95 %"><div class="herr-mapa"><label for="sel-metrica">Indicador:</label> <select class="sel" id="sel-metrica"><option value="til">Informalidad (TIL1)</option><option value="esc">Años de escolaridad promedio</option><option value="ret">Aumento por año de estudio</option><option value="mln">Ingreso mediano por hora</option><option value="bh">Brecha por hora</option></select></div><div class="par"><div class="viz" data-chart="mosaicoQ3"></div><div><p class="mosaico-tit sub-tit">Informalidad por nivel de estudios (todo el país)</p><div class="viz" data-chart="tilNivel"></div></div></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Un cartograma de mosaicos: cada estado ocupa la misma área, para que los estados grandes no dominen la vista. La escala es de un solo tono con el número escrito en cada mosaico. Las barras por nivel parten de cero y llevan su intervalo.</p></details></div><div class="vista" data-vista="disp" hidden data-pista="Cada punto es una entidad · línea vertical = IC 95 % · línea gris = tendencia"><div class="viz" data-chart="dispTil"></div><details class="porque"><summary>¿Por qué este gráfico?</summary><p>Dispersión con línea de tendencia: cada punto es una entidad. Sirve para ver la relación entre estados y se acompaña de la advertencia de que no es un efecto individual.</p></details></div><div class="tabla-vista" hidden></div><footer class="tarjeta__pie"><span class="pista">Mosaico: cada estado ocupa la misma área · barras desde 0, línea = IC 95 %</span><span><button type="button" class="ver-tabla" aria-pressed="false">Ver tabla</button></span></footer></figure><div class="lectura"><div class="cifra"><b>87 → 38 %</b><span>informalidad con primaria incompleta frente a media superior o más</span></div><ul class="chips"><li class="chip">Norte <b>38 %</b> · Sur <b>69 %</b></li><li class="chip">Entre estados, ρ = <b>−0.86</b></li><li class="chip chip--aviso">Es una relación entre estados, no un efecto individual</li></ul></div></div></div></section>
+<section class="escena " id="e-respuestas" data-titulo="Respuestas y métricas" data-quien="Juan Evelio" data-guion="Resumimos: tres preguntas contestadas y tres métricas cumplidas: la brecha con su intervalo, un ranking defendible y este tablero con más de cuatro visualizaciones. Reconocemos los límites: son asociaciones de un solo trimestre."><div class="cont"><p class="etq"><b>Interpretación · Sem. 5</b> · respuestas y métricas de éxito</p><h2 class="titular titular--ancho">Tres preguntas, tres respuestas, tres métricas cumplidas</h2><div class="resp"><a href="#e-q1" data-ir="e-q1"><small>Pregunta 1</small><span class="q">¿Cuánto rinde estudiar y varía entre estados?</span><span class="a">+5.1 %<span>por año de estudio, igual en estados ricos y pobres (p = 0.91)</span></span><div class="viz" data-chart="miniPremio"></div></a><a href="#e-q2" data-ir="e-q2"><small>Pregunta 2</small><span class="q">¿Hay brecha de género con la misma escolaridad?</span><span class="a">7.7 % menos<span>por hora, significativa (p &lt; 0.001); por mes, 26.9 %</span></span><div class="viz" data-chart="miniEscalera"></div></a><a href="#e-q3" data-ir="e-q3"><small>Pregunta 3</small><span class="q">¿Dónde hay más informalidad y cómo se relaciona con la escuela?</span><span class="a">55 % informal<span>de 87 % sin primaria a 38 % con media superior o más</span></span><div class="viz" data-chart="miniTil"></div></a></div><div class="metricas"><a class="metrica" href="#e-q2" data-ir="e-q2"><i>✓</i><b>M1 · Brecha de género en % con su intervalo</b><span>7.7 % (IC 95 %: 6.6 a 8.8) controlando por escolaridad</span></a><a class="metrica" href="#e-estados" data-ir="e-estados"><i>✓</i><b>M2 · Correlación por estado y ranking defendible</b><span>32 estados con intervalo; el ranking distingue solo los extremos</span></a><a class="metrica" href="#e-q3" data-ir="e-q3"><i>✓</i><b>M3 · Tablero con 4 o más visualizaciones</b><span>Esta página y el tablero: más de 10 gráficas interactivas</span></a></div><ul class="chips"><li class="chip chip--aviso">Son asociaciones, no efectos causales</li><li class="chip chip--aviso">Un solo trimestre (2025-T4)</li><li class="chip chip--aviso">MongoDB probado con un simulador</li></ul></div></section>
+<section class="escena " id="e-cierre" data-titulo="Cierre" data-quien="Juan Evelio" data-guion="Respondemos las tres preguntas de reflexión y mostramos los productos: el cuaderno, el repositorio, el tablero, el informe y la presentación. Ajusten estas respuestas con su reparto real del trabajo."><div class="cont"><p class="etq"><b>Cierre</b> · reflexión final y productos</p><h2 class="titular">Lo que entregamos y lo que aprendimos</h2><div class="cierre"><div><p class="etq">Reflexión final del equipo</p><div class="acordeon"><details open><summary>¿Por qué le importa a alguien más allá de la calificación? ¿Quién usaría los hallazgos?</summary><p>Porque orienta decisiones públicas: becas y cobertura educativa, formalización del empleo e igualdad de género. Lo usarían las secretarías de educación y del trabajo, organizaciones civiles y cualquier estudiante que se pregunte si estudiar rinde.</p></details><details><summary>¿Cuál fue el mayor reto técnico y en qué semana aprendimos a enfrentarlo?</summary><p>Calcular errores correctos con el diseño muestral complejo de la encuesta (bootstrap de Rao-Wu, semanas 2 y 3) y limpiar códigos e «ingreso 0» (semana 4).</p></details><details><summary>¿Cómo se repartió el trabajo para que todos practicaran las siete competencias?</summary><p>Hay cuatro roles: coordinación, ingeniería de datos, análisis estadístico y visualización y comunicación. Rotan entre los tres integrantes y cada quien presenta un bloque.</p></details></div></div><div><p class="etq">Productos importantes (esta presentación resume la tesina web)</p><div class="productos"><a class="producto" href="index.html"><i>WEB</i><b>Tesina web</b><span>El documento completo, con figuras interactivas</span></a><a class="producto" href="cuaderno.html"><i>NB</i><b>Cuaderno (Notebook)</b><span>Pipeline y análisis ejecutados, con las mismas cifras</span></a><a class="producto" href="https://github.com/charginchif/proyecto-integrador-enoe" target="_blank" rel="noopener"><i>GH</i><b>Repositorio en GitHub</b><span>Código, pruebas y datos derivados</span></a><a class="producto" href="tablero.html"><i>TB</i><b>Tablero interactivo</b><span>Ficha de cada entidad, mapa y ranking</span></a><a class="producto" href="descargas/Informe_Final_Proyecto_ENOE.pdf"><i>PDF</i><b>Informe técnico</b><span>67 páginas: método, resultados y límites</span></a><a class="producto" href="descargas/Presentacion_Completa_Proyecto_ENOE.pdf"><i>PPT</i><b>Presentación completa</b><span>48 diapositivas con guion</span></a></div></div></div><p class="pie">Datos: INEGI, ENOE 2025-T4 (microdatos públicos). Estimaciones ponderadas con el factor de expansión; IC 95 % por bootstrap de Rao-Wu con 1,000 réplicas. Equipo 1 · UNE Plantel Centro · <a href="index.html">Tesina completa ▸</a> · <a href="estudio.html">Guía de estudio ▸</a></p></div></section></main><div class="nav"><button type="button" id="ant" aria-label="Lámina anterior">↑</button><span class="pos" id="pos">1 / 11</span><button type="button" id="sig" aria-label="Lámina siguiente">↓</button></div><aside class="guion" id="guion" hidden aria-label="Notas del orador"><h4></h4><p></p></aside>
+<script type="application/json" id="datos">{"k":{"ret":[5.1,5.0,5.3],"ret_h":4.6,"ret_m":5.9,"rho_nac":[0.34,0.33,0.35],"dq":[0.0,-0.008,0.003,0.91],"rho_max":["Ciudad de México",0.49],"rho_min":["Baja California Sur",0.21],"bh":[3.7,2.3,5.0,0.0],"bm":[26.9,25.7,28.0],"menos_horas":24.1,"horas_h":45.7,"horas_m":37.5,"g1":[7.7,6.6,8.8],"g5":[8.2,7.1,9.2],"til":[55.0,54.5,55.5],"rho_til":-0.86,"pend_til":-14.4,"deff":4.8,"n_efectivo":39704,"B":1000,"ocupados_millones":59.8},"n":{"registros":419038,"universo":190187,"ventana":181198,"salarial":111958,"salarial_ext":145529,"filas_fact":190187,"cols_fact":36,"pruebas_datos":15,"variables_derivadas":13},"estados":[{"id":1,"n":"Aguascalientes","a":"AGS","r":"Centro-Norte","col":3,"fila":2,"til":[42.6,40.7,44.6,26,25,27],"esc":[11.35,11.15,11.55],"ocu":670177,"ret":[6.8,6.04,7.58],"rho":[0.4,0.355,0.44,3,2,6],"mln":[50.9,50.0,52.1,15],"q":3,"bh":[4.1,-0.4,8.6,0.074],"bm":[26.1,22.4,29.9],"nsal":2460},{"id":2,"n":"Baja California","a":"BC","r":"Norte","col":0,"fila":0,"til":[37.6,35.9,39.3,29,28,30],"esc":[11.07,10.94,11.21],"ocu":1749729,"ret":[3.99,3.47,4.49],"rho":[0.28,0.243,0.317,21,12,27],"mln":[69.8,67.7,70.4,2],"q":4,"bh":[3.2,0.1,6.1,0.04],"bm":[19.5,16.1,22.5],"nsal":3867},{"id":3,"n":"Baja California Sur","a":"BCS","r":"Centro-Norte","col":0,"fila":1,"til":[38.6,36.5,40.6,28,27,30],"esc":[11.28,11.03,11.53],"ocu":473673,"ret":[3.93,2.89,5.08],"rho":[0.213,0.155,0.268,32,23,32],"mln":[72.7,68.9,77.5,1],"q":4,"bh":[6.2,1.5,11.1,0.013],"bm":[26.4,22.7,30.0],"nsal":2896},{"id":4,"n":"Campeche","a":"CAM","r":"Sur","col":9,"fila":4,"til":[61.1,58.9,63.2,11,11,13],"esc":[10.64,10.43,10.83],"ocu":423300,"ret":[6.52,5.79,7.26],"rho":[0.375,0.332,0.419,4,2,10],"mln":[44.6,43.5,46.5,22],"q":2,"bh":[6.3,2.0,10.4,0.006],"bm":[33.2,26.8,40.3],"nsal":5228},{"id":5,"n":"Coahuila","a":"COA","r":"Norte","col":3,"fila":0,"til":[33.3,31.5,35.3,32,31,32],"esc":[11.37,11.2,11.54],"ocu":1600412,"ret":[5.82,5.01,6.6],"rho":[0.309,0.261,0.355,16,6,24],"mln":[55.6,53.6,57.1,11],"q":3,"bh":[2.8,-0.7,6.3,0.118],"bm":[21.2,17.7,24.5],"nsal":5190},{"id":6,"n":"Colima","a":"COL","r":"Centro-Norte","col":2,"fila":3,"til":[48.6,46.7,50.4,20,19,22],"esc":[11.07,10.9,11.24],"ocu":392566,"ret":[5.1,4.53,5.73],"rho":[0.336,0.301,0.372,7,5,16],"mln":[60.6,58.3,62.5,5],"q":4,"bh":[6.3,2.3,10.0,0.003],"bm":[30.0,26.4,33.2],"nsal":3756},{"id":7,"n":"Chiapas","a":"CHIS","r":"Sur","col":8,"fila":5,"til":[74.9,73.2,76.8,3,2,4],"esc":[9.03,8.77,9.28],"ocu":2173811,"ret":[8.17,7.12,9.21],"rho":[0.427,0.379,0.478,2,1,4],"mln":[34.9,33.3,37.5,32],"q":1,"bh":[-13.3,-26.5,-1.6,0.029],"bm":[3.4,-9.7,14.0],"nsal":5832},{"id":8,"n":"Chihuahua","a":"CHIH","r":"Norte","col":2,"fila":0,"til":[36.2,34.3,37.8,30,29,31],"esc":[11.0,10.8,11.2],"ocu":1856084,"ret":[3.79,2.96,4.75],"rho":[0.257,0.212,0.302,26,16,31],"mln":[64.4,62.5,66.7,3],"q":4,"bh":[4.0,0.2,7.4,0.029],"bm":[20.5,17.0,23.8],"nsal":4041},{"id":9,"n":"Ciudad de México","a":"CDMX","r":"Centro","col":5,"fila":3,"til":[45.7,43.9,47.6,23,21,25],"esc":[12.5,12.35,12.64],"ocu":4897820,"ret":[9.14,8.15,10.12],"rho":[0.486,0.442,0.526,1,1,2],"mln":[60.0,58.1,62.5,6],"q":4,"bh":[5.7,-1.7,12.0,0.117],"bm":[27.3,21.3,32.2],"nsal":1907},{"id":10,"n":"Durango","a":"DGO","r":"Centro-Norte","col":2,"fila":1,"til":[54.4,51.6,57.1,17,14,18],"esc":[10.87,10.7,11.07],"ocu":881249,"ret":[4.88,4.16,5.56],"rho":[0.268,0.225,0.304,24,15,30],"mln":[48.8,46.9,50.0,18],"q":2,"bh":[-3.7,-8.4,0.8,0.114],"bm":[27.0,23.1,30.5],"nsal":4050},{"id":11,"n":"Guanajuato","a":"GTO","r":"Centro-Norte","col":4,"fila":2,"til":[53.8,50.8,56.7,18,14,18],"esc":[10.23,10.03,10.4],"ocu":2860356,"ret":[5.62,4.92,6.27],"rho":[0.311,0.26,0.358,14,6,24],"mln":[46.9,45.8,48.8,20],"q":2,"bh":[4.7,0.4,8.8,0.032],"bm":[31.9,26.8,37.1],"nsal":4249},{"id":12,"n":"Guerrero","a":"GRO","r":"Sur","col":4,"fila":4,"til":[75.7,73.8,77.6,2,2,3],"esc":[9.35,9.07,9.62],"ocu":1578835,"ret":[5.23,4.2,6.42],"rho":[0.248,0.199,0.304,27,16,31],"mln":[42.5,40.7,44.4,26],"q":1,"bh":[11.6,4.0,19.4,0.005],"bm":[37.1,30.4,42.9],"nsal":2915},{"id":13,"n":"Hidalgo","a":"HGO","r":"Centro","col":6,"fila":2,"til":[71.3,67.8,74.9,5,3,8],"esc":[9.93,9.69,10.16],"ocu":1475306,"ret":[5.84,4.79,6.87],"rho":[0.313,0.257,0.366,13,5,25],"mln":[43.7,41.7,46.5,24],"q":2,"bh":[15.2,9.0,21.4,0.0],"bm":[38.1,32.6,43.3],"nsal":3106},{"id":14,"n":"Jalisco","a":"JAL","r":"Centro-Norte","col":2,"fila":2,"til":[49.0,47.0,50.8,19,19,21],"esc":[10.69,10.52,10.87],"ocu":3910391,"ret":[4.34,3.78,4.98],"rho":[0.277,0.234,0.326,22,11,28],"mln":[53.6,52.1,55.6,13],"q":3,"bh":[10.0,5.8,14.0,0.0],"bm":[28.3,24.7,32.1],"nsal":2923},{"id":15,"n":"Estado de México","a":"MEX","r":"Centro","col":4,"fila":3,"til":[54.5,52.4,56.5,16,15,18],"esc":[11.21,11.05,11.39],"ocu":8109477,"ret":[5.98,5.17,6.81],"rho":[0.35,0.298,0.406,6,3,17],"mln":[43.8,42.6,46.3,23],"q":2,"bh":[2.5,-2.2,6.8,0.301],"bm":[23.7,19.0,28.0],"nsal":3403},{"id":16,"n":"Michoacán","a":"MICH","r":"Centro-Norte","col":3,"fila":3,"til":[68.5,65.9,70.9,8,5,9],"esc":[9.66,9.38,9.95],"ocu":2227842,"ret":[4.12,3.43,4.84],"rho":[0.216,0.162,0.272,30,22,32],"mln":[45.2,43.7,48.4,21],"q":2,"bh":[7.6,3.0,11.8,0.002],"bm":[31.6,27.5,36.0],"nsal":3223},{"id":17,"n":"Morelos","a":"MOR","r":"Centro","col":5,"fila":4,"til":[64.7,62.7,66.8,10,9,10],"esc":[10.71,10.53,10.9],"ocu":902926,"ret":[4.09,3.09,5.06],"rho":[0.261,0.196,0.32,25,12,31],"mln":[40.0,37.5,41.2,28],"q":1,"bh":[6.6,0.0,11.7,0.031],"bm":[28.6,23.2,33.2],"nsal":1909},{"id":18,"n":"Nayarit","a":"NAY","r":"Centro-Norte","col":1,"fila":2,"til":[56.2,53.4,59.0,15,14,18],"esc":[10.75,10.55,10.95],"ocu":644799,"ret":[3.69,2.87,4.48],"rho":[0.214,0.163,0.262,31,24,32],"mln":[55.6,52.1,58.1,11],"q":3,"bh":[7.6,4.1,11.1,0.0],"bm":[28.0,24.0,31.5],"nsal":4553},{"id":19,"n":"Nuevo León","a":"NL","r":"Norte","col":4,"fila":0,"til":[35.4,33.7,37.1,31,29,32],"esc":[11.56,11.41,11.7],"ocu":3005979,"ret":[6.99,6.15,7.85],"rho":[0.359,0.313,0.398,5,3,13],"mln":[63.4,62.5,66.7,4],"q":4,"bh":[8.1,3.9,12.0,0.0],"bm":[28.2,25.0,31.3],"nsal":3684},{"id":20,"n":"Oaxaca","a":"OAX","r":"Sur","col":7,"fila":4,"til":[80.1,78.1,81.9,1,1,1],"esc":[9.07,8.82,9.33],"ocu":1806311,"ret":[6.18,5.21,7.17],"rho":[0.282,0.229,0.33,20,10,29],"mln":[41.3,40.0,42.0,27],"q":1,"bh":[16.5,7.3,25.0,0.001],"bm":[40.7,33.4,47.8],"nsal":3216},{"id":21,"n":"Puebla","a":"PUE","r":"Centro","col":7,"fila":3,"til":[72.1,70.0,74.1,4,4,6],"esc":[9.99,9.74,10.24],"ocu":3101352,"ret":[5.46,4.78,6.17],"rho":[0.324,0.284,0.362,10,5,20],"mln":[37.9,37.5,39.5,31],"q":1,"bh":[5.7,1.8,9.7,0.007],"bm":[30.4,25.8,34.7],"nsal":3733},{"id":22,"n":"Querétaro","a":"QRO","r":"Centro-Norte","col":5,"fila":2,"til":[40.7,38.2,43.3,27,26,28],"esc":[11.28,11.12,11.44],"ocu":1219563,"ret":[5.37,4.59,6.17],"rho":[0.321,0.272,0.368,11,5,22],"mln":[52.1,50.0,54.5,14],"q":3,"bh":[9.1,5.1,12.9,0.0],"bm":[27.9,24.0,31.9],"nsal":2569},{"id":23,"n":"Quintana Roo","a":"QROO","r":"Sur","col":10,"fila":4,"til":[44.7,42.4,47.0,25,22,26],"esc":[10.99,10.82,11.18],"ocu":981364,"ret":[3.84,3.08,4.61],"rho":[0.221,0.177,0.267,29,23,32],"mln":[56.8,53.6,58.3,10],"q":3,"bh":[7.0,2.5,11.2,0.003],"bm":[30.2,25.4,34.6],"nsal":3052},{"id":24,"n":"San Luis Potosí","a":"SLP","r":"Centro-Norte","col":4,"fila":1,"til":[56.4,53.8,58.9,14,14,17],"esc":[10.6,10.39,10.8],"ocu":1264804,"ret":[5.77,4.86,6.73],"rho":[0.31,0.262,0.361,15,6,24],"mln":[48.6,46.5,50.0,19],"q":2,"bh":[4.2,-2.1,9.8,0.19],"bm":[30.5,24.8,36.1],"nsal":2322},{"id":25,"n":"Sinaloa","a":"SIN","r":"Centro-Norte","col":1,"fila":1,"til":[47.6,45.2,50.1,21,19,24],"esc":[11.68,11.46,11.88],"ocu":1434276,"ret":[4.76,3.96,5.66],"rho":[0.317,0.259,0.378,12,4,25],"mln":[59.5,58.1,62.0,7],"q":4,"bh":[1.0,-5.1,7.1,0.744],"bm":[25.8,20.9,30.1],"nsal":3158},{"id":26,"n":"Sonora","a":"SON","r":"Norte","col":1,"fila":0,"til":[45.6,43.3,48.2,24,20,25],"esc":[11.38,11.21,11.55],"ocu":1470027,"ret":[5.94,5.19,6.71],"rho":[0.334,0.292,0.375,9,4,19],"mln":[58.1,55.6,60.4,8],"q":4,"bh":[-0.1,-6.1,4.7,0.967],"bm":[25.4,21.0,29.9],"nsal":3059},{"id":27,"n":"Tabasco","a":"TAB","r":"Sur","col":8,"fila":4,"til":[67.0,64.9,69.3,9,7,10],"esc":[10.61,10.32,10.89],"ocu":1098025,"ret":[4.12,3.33,4.99],"rho":[0.243,0.189,0.297,28,17,32],"mln":[43.1,41.7,45.5,25],"q":1,"bh":[0.1,-6.0,6.3,0.983],"bm":[32.0,26.5,37.3],"nsal":3235},{"id":28,"n":"Tamaulipas","a":"TAMPS","r":"Norte","col":5,"fila":0,"til":[45.9,43.6,47.8,22,21,25],"esc":[11.21,11.06,11.36],"ocu":1669573,"ret":[4.25,3.68,4.84],"rho":[0.287,0.244,0.33,18,10,27],"mln":[57.5,55.6,58.3,9],"q":3,"bh":[8.2,4.6,11.6,0.0],"bm":[25.1,21.7,28.6],"nsal":4284},{"id":29,"n":"Tlaxcala","a":"TLAX","r":"Centro","col":6,"fila":3,"til":[70.3,68.2,72.5,6,4,8],"esc":[10.63,10.47,10.82],"ocu":679526,"ret":[5.69,5.0,6.39],"rho":[0.304,0.268,0.341,17,8,23],"mln":[39.9,38.5,40.0,30],"q":1,"bh":[10.8,6.9,14.6,0.0],"bm":[36.9,33.5,40.1],"nsal":3313},{"id":30,"n":"Veracruz","a":"VER","r":"Sur","col":7,"fila":2,"til":[69.0,66.9,71.2,7,5,9],"esc":[9.75,9.46,10.01],"ocu":3270790,"ret":[4.36,3.5,5.16],"rho":[0.285,0.222,0.347,19,8,29],"mln":[40.0,38.1,41.7,28],"q":1,"bh":[-0.1,-6.8,5.8,0.967],"bm":[29.0,24.2,33.8],"nsal":4182},{"id":31,"n":"Yucatán","a":"YUC","r":"Sur","col":10,"fila":3,"til":[59.9,58.2,61.7,13,11,13],"esc":[10.51,10.32,10.69],"ocu":1249997,"ret":[5.98,5.32,6.65],"rho":[0.336,0.296,0.376,8,4,17],"mln":[50.0,50.0,51.1,16],"q":3,"bh":[6.9,2.6,11.3,0.002],"bm":[36.0,32.4,39.4],"nsal":3802},{"id":32,"n":"Zacatecas","a":"ZAC","r":"Centro-Norte","col":3,"fila":1,"til":[60.6,58.3,63.1,12,11,13],"esc":[10.38,10.19,10.58],"ocu":705514,"ret":[5.35,4.52,6.16],"rho":[0.271,0.22,0.322,23,12,30],"mln":[48.9,46.5,50.0,17],"q":2,"bh":[3.6,-1.9,8.8,0.198],"bm":[23.7,18.7,28.1],"nsal":2841}],"mongo":{"1":{"_id":1,"cve_ent":1,"entidad":"Aguascalientes","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":42.63,"ic95":[40.74,44.62],"lugar":26,"lugar_ic95":[25,27]},"rendimiento_escolaridad":{"pct_por_anio":6.8,"ic95":[6.04,7.58]},"brecha_genero":{"hora_pct":4.15,"hora_ic95":[-0.41,8.62],"mensual_pct":26.07,"mensual_ic95":[22.41,29.9]}},"2":{"_id":2,"cve_ent":2,"entidad":"Baja California","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":37.61,"ic95":[35.93,39.26],"lugar":29,"lugar_ic95":[28,30]},"rendimiento_escolaridad":{"pct_por_anio":3.99,"ic95":[3.47,4.49]},"brecha_genero":{"hora_pct":3.23,"hora_ic95":[0.14,6.07],"mensual_pct":19.49,"mensual_ic95":[16.06,22.49]}},"3":{"_id":3,"cve_ent":3,"entidad":"Baja California Sur","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":38.58,"ic95":[36.53,40.58],"lugar":28,"lugar_ic95":[27,30]},"rendimiento_escolaridad":{"pct_por_anio":3.93,"ic95":[2.89,5.08]},"brecha_genero":{"hora_pct":6.25,"hora_ic95":[1.55,11.08],"mensual_pct":26.41,"mensual_ic95":[22.7,29.98]}},"4":{"_id":4,"cve_ent":4,"entidad":"Campeche","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":61.1,"ic95":[58.93,63.16],"lugar":11,"lugar_ic95":[11,13]},"rendimiento_escolaridad":{"pct_por_anio":6.52,"ic95":[5.79,7.26]},"brecha_genero":{"hora_pct":6.31,"hora_ic95":[2.03,10.37],"mensual_pct":33.21,"mensual_ic95":[26.85,40.32]}},"5":{"_id":5,"cve_ent":5,"entidad":"Coahuila","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":33.33,"ic95":[31.46,35.26],"lugar":32,"lugar_ic95":[31,32]},"rendimiento_escolaridad":{"pct_por_anio":5.82,"ic95":[5.01,6.6]},"brecha_genero":{"hora_pct":2.84,"hora_ic95":[-0.67,6.34],"mensual_pct":21.2,"mensual_ic95":[17.73,24.48]}},"6":{"_id":6,"cve_ent":6,"entidad":"Colima","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":48.61,"ic95":[46.72,50.39],"lugar":20,"lugar_ic95":[19,22]},"rendimiento_escolaridad":{"pct_por_anio":5.1,"ic95":[4.53,5.73]},"brecha_genero":{"hora_pct":6.28,"hora_ic95":[2.33,10.04],"mensual_pct":29.99,"mensual_ic95":[26.4,33.2]}},"7":{"_id":7,"cve_ent":7,"entidad":"Chiapas","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":74.9,"ic95":[73.15,76.78],"lugar":3,"lugar_ic95":[2,4]},"rendimiento_escolaridad":{"pct_por_anio":8.17,"ic95":[7.12,9.21]},"brecha_genero":{"hora_pct":-13.28,"hora_ic95":[-26.49,-1.64],"mensual_pct":3.38,"mensual_ic95":[-9.66,13.97]}},"8":{"_id":8,"cve_ent":8,"entidad":"Chihuahua","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":36.19,"ic95":[34.33,37.81],"lugar":30,"lugar_ic95":[29,31]},"rendimiento_escolaridad":{"pct_por_anio":3.79,"ic95":[2.96,4.75]},"brecha_genero":{"hora_pct":4.03,"hora_ic95":[0.18,7.4],"mensual_pct":20.53,"mensual_ic95":[16.99,23.83]}},"9":{"_id":9,"cve_ent":9,"entidad":"Ciudad de México","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":45.71,"ic95":[43.94,47.57],"lugar":23,"lugar_ic95":[21,25]},"rendimiento_escolaridad":{"pct_por_anio":9.14,"ic95":[8.15,10.12]},"brecha_genero":{"hora_pct":5.74,"hora_ic95":[-1.66,12.01],"mensual_pct":27.29,"mensual_ic95":[21.29,32.21]}},"10":{"_id":10,"cve_ent":10,"entidad":"Durango","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":54.39,"ic95":[51.58,57.07],"lugar":17,"lugar_ic95":[14,18]},"rendimiento_escolaridad":{"pct_por_anio":4.88,"ic95":[4.16,5.56]},"brecha_genero":{"hora_pct":-3.69,"hora_ic95":[-8.42,0.77],"mensual_pct":27.02,"mensual_ic95":[23.14,30.54]}},"11":{"_id":11,"cve_ent":11,"entidad":"Guanajuato","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":53.82,"ic95":[50.8,56.68],"lugar":18,"lugar_ic95":[14,18]},"rendimiento_escolaridad":{"pct_por_anio":5.62,"ic95":[4.92,6.27]},"brecha_genero":{"hora_pct":4.67,"hora_ic95":[0.44,8.77],"mensual_pct":31.94,"mensual_ic95":[26.77,37.07]}},"12":{"_id":12,"cve_ent":12,"entidad":"Guerrero","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":75.73,"ic95":[73.75,77.61],"lugar":2,"lugar_ic95":[2,3]},"rendimiento_escolaridad":{"pct_por_anio":5.23,"ic95":[4.2,6.42]},"brecha_genero":{"hora_pct":11.62,"hora_ic95":[4.04,19.4],"mensual_pct":37.1,"mensual_ic95":[30.43,42.94]}},"13":{"_id":13,"cve_ent":13,"entidad":"Hidalgo","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":71.25,"ic95":[67.77,74.93],"lugar":5,"lugar_ic95":[3,8]},"rendimiento_escolaridad":{"pct_por_anio":5.84,"ic95":[4.79,6.87]},"brecha_genero":{"hora_pct":15.21,"hora_ic95":[8.96,21.41],"mensual_pct":38.15,"mensual_ic95":[32.58,43.29]}},"14":{"_id":14,"cve_ent":14,"entidad":"Jalisco","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":48.96,"ic95":[47.03,50.78],"lugar":19,"lugar_ic95":[19,21]},"rendimiento_escolaridad":{"pct_por_anio":4.34,"ic95":[3.78,4.98]},"brecha_genero":{"hora_pct":10.0,"hora_ic95":[5.8,13.96],"mensual_pct":28.28,"mensual_ic95":[24.68,32.09]}},"15":{"_id":15,"cve_ent":15,"entidad":"Estado de México","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":54.54,"ic95":[52.42,56.51],"lugar":16,"lugar_ic95":[15,18]},"rendimiento_escolaridad":{"pct_por_anio":5.98,"ic95":[5.17,6.81]},"brecha_genero":{"hora_pct":2.46,"hora_ic95":[-2.18,6.77],"mensual_pct":23.75,"mensual_ic95":[19.02,28.0]}},"16":{"_id":16,"cve_ent":16,"entidad":"Michoacán","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":68.52,"ic95":[65.86,70.86],"lugar":8,"lugar_ic95":[5,9]},"rendimiento_escolaridad":{"pct_por_anio":4.12,"ic95":[3.43,4.84]},"brecha_genero":{"hora_pct":7.56,"hora_ic95":[2.99,11.82],"mensual_pct":31.59,"mensual_ic95":[27.47,35.99]}},"17":{"_id":17,"cve_ent":17,"entidad":"Morelos","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":64.71,"ic95":[62.65,66.8],"lugar":10,"lugar_ic95":[9,10]},"rendimiento_escolaridad":{"pct_por_anio":4.09,"ic95":[3.09,5.06]},"brecha_genero":{"hora_pct":6.57,"hora_ic95":[0.02,11.73],"mensual_pct":28.62,"mensual_ic95":[23.17,33.17]}},"18":{"_id":18,"cve_ent":18,"entidad":"Nayarit","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":56.18,"ic95":[53.43,58.99],"lugar":15,"lugar_ic95":[14,18]},"rendimiento_escolaridad":{"pct_por_anio":3.69,"ic95":[2.87,4.48]},"brecha_genero":{"hora_pct":7.56,"hora_ic95":[4.08,11.09],"mensual_pct":27.98,"mensual_ic95":[24.04,31.53]}},"19":{"_id":19,"cve_ent":19,"entidad":"Nuevo León","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":35.4,"ic95":[33.75,37.05],"lugar":31,"lugar_ic95":[29,32]},"rendimiento_escolaridad":{"pct_por_anio":6.99,"ic95":[6.15,7.85]},"brecha_genero":{"hora_pct":8.06,"hora_ic95":[3.86,12.03],"mensual_pct":28.24,"mensual_ic95":[24.98,31.25]}},"20":{"_id":20,"cve_ent":20,"entidad":"Oaxaca","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":80.06,"ic95":[78.11,81.88],"lugar":1,"lugar_ic95":[1,1]},"rendimiento_escolaridad":{"pct_por_anio":6.18,"ic95":[5.21,7.17]},"brecha_genero":{"hora_pct":16.52,"hora_ic95":[7.26,25.01],"mensual_pct":40.69,"mensual_ic95":[33.41,47.82]}},"21":{"_id":21,"cve_ent":21,"entidad":"Puebla","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":72.11,"ic95":[70.0,74.07],"lugar":4,"lugar_ic95":[4,6]},"rendimiento_escolaridad":{"pct_por_anio":5.46,"ic95":[4.78,6.17]},"brecha_genero":{"hora_pct":5.72,"hora_ic95":[1.81,9.65],"mensual_pct":30.36,"mensual_ic95":[25.8,34.68]}},"22":{"_id":22,"cve_ent":22,"entidad":"Querétaro","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":40.7,"ic95":[38.18,43.3],"lugar":27,"lugar_ic95":[26,28]},"rendimiento_escolaridad":{"pct_por_anio":5.37,"ic95":[4.59,6.17]},"brecha_genero":{"hora_pct":9.14,"hora_ic95":[5.07,12.89],"mensual_pct":27.9,"mensual_ic95":[23.96,31.88]}},"23":{"_id":23,"cve_ent":23,"entidad":"Quintana Roo","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":44.74,"ic95":[42.42,46.99],"lugar":25,"lugar_ic95":[22,26]},"rendimiento_escolaridad":{"pct_por_anio":3.84,"ic95":[3.08,4.61]},"brecha_genero":{"hora_pct":6.99,"hora_ic95":[2.5,11.21],"mensual_pct":30.25,"mensual_ic95":[25.37,34.65]}},"24":{"_id":24,"cve_ent":24,"entidad":"San Luis Potosí","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":56.39,"ic95":[53.76,58.88],"lugar":14,"lugar_ic95":[14,17]},"rendimiento_escolaridad":{"pct_por_anio":5.77,"ic95":[4.86,6.73]},"brecha_genero":{"hora_pct":4.18,"hora_ic95":[-2.12,9.77],"mensual_pct":30.52,"mensual_ic95":[24.77,36.08]}},"25":{"_id":25,"cve_ent":25,"entidad":"Sinaloa","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":47.59,"ic95":[45.19,50.05],"lugar":21,"lugar_ic95":[19,24]},"rendimiento_escolaridad":{"pct_por_anio":4.76,"ic95":[3.96,5.66]},"brecha_genero":{"hora_pct":1.03,"hora_ic95":[-5.11,7.09],"mensual_pct":25.75,"mensual_ic95":[20.85,30.14]}},"26":{"_id":26,"cve_ent":26,"entidad":"Sonora","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":45.58,"ic95":[43.29,48.15],"lugar":24,"lugar_ic95":[20,25]},"rendimiento_escolaridad":{"pct_por_anio":5.94,"ic95":[5.19,6.71]},"brecha_genero":{"hora_pct":-0.11,"hora_ic95":[-6.14,4.74],"mensual_pct":25.38,"mensual_ic95":[21.05,29.87]}},"27":{"_id":27,"cve_ent":27,"entidad":"Tabasco","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":67.03,"ic95":[64.89,69.26],"lugar":9,"lugar_ic95":[7,10]},"rendimiento_escolaridad":{"pct_por_anio":4.12,"ic95":[3.33,4.99]},"brecha_genero":{"hora_pct":0.07,"hora_ic95":[-5.97,6.33],"mensual_pct":32.01,"mensual_ic95":[26.52,37.35]}},"28":{"_id":28,"cve_ent":28,"entidad":"Tamaulipas","region":"Norte","periodo":"2025-T4","informalidad":{"til1_pct":45.86,"ic95":[43.62,47.79],"lugar":22,"lugar_ic95":[21,25]},"rendimiento_escolaridad":{"pct_por_anio":4.25,"ic95":[3.68,4.84]},"brecha_genero":{"hora_pct":8.23,"hora_ic95":[4.58,11.58],"mensual_pct":25.14,"mensual_ic95":[21.7,28.64]}},"29":{"_id":29,"cve_ent":29,"entidad":"Tlaxcala","region":"Centro","periodo":"2025-T4","informalidad":{"til1_pct":70.32,"ic95":[68.18,72.45],"lugar":6,"lugar_ic95":[4,8]},"rendimiento_escolaridad":{"pct_por_anio":5.69,"ic95":[5.0,6.39]},"brecha_genero":{"hora_pct":10.77,"hora_ic95":[6.93,14.58],"mensual_pct":36.9,"mensual_ic95":[33.46,40.1]}},"30":{"_id":30,"cve_ent":30,"entidad":"Veracruz","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":68.98,"ic95":[66.86,71.16],"lugar":7,"lugar_ic95":[5,9]},"rendimiento_escolaridad":{"pct_por_anio":4.36,"ic95":[3.5,5.16]},"brecha_genero":{"hora_pct":-0.14,"hora_ic95":[-6.82,5.84],"mensual_pct":29.05,"mensual_ic95":[24.18,33.75]}},"31":{"_id":31,"cve_ent":31,"entidad":"Yucatán","region":"Sur","periodo":"2025-T4","informalidad":{"til1_pct":59.9,"ic95":[58.23,61.66],"lugar":13,"lugar_ic95":[11,13]},"rendimiento_escolaridad":{"pct_por_anio":5.98,"ic95":[5.32,6.65]},"brecha_genero":{"hora_pct":6.93,"hora_ic95":[2.65,11.28],"mensual_pct":35.98,"mensual_ic95":[32.42,39.4]}},"32":{"_id":32,"cve_ent":32,"entidad":"Zacatecas","region":"Centro-Norte","periodo":"2025-T4","informalidad":{"til1_pct":60.65,"ic95":[58.32,63.1],"lugar":12,"lugar_ic95":[11,13]},"rendimiento_escolaridad":{"pct_por_anio":5.35,"ic95":[4.52,6.16]},"brecha_genero":{"hora_pct":3.57,"hora_ic95":[-1.87,8.83],"mensual_pct":23.74,"mensual_ic95":[18.7,28.13]}}},"curva":[{"a":0,"h":37.5,"nh":1203,"m":33.33,"nm":749},{"a":1,"h":40.65,"nh":230,"m":40.0,"nm":158},{"a":2,"h":41.79,"nh":585,"m":37.5,"nm":318},{"a":3,"h":41.67,"nh":983,"m":40.0,"nm":519},{"a":4,"h":41.61,"nh":534,"m":40.77,"nm":273},{"a":5,"h":45.59,"nh":531,"m":39.38,"nm":256},{"a":6,"h":43.75,"nh":7316,"m":40.0,"nm":4598},{"a":7,"h":43.75,"nh":577,"m":38.76,"nm":248},{"a":8,"h":43.75,"nh":1279,"m":40.63,"nm":612},{"a":9,"h":47.83,"nh":18287,"m":42.86,"nm":12679},{"a":10,"h":50.0,"nh":1393,"m":41.67,"nm":821},{"a":11,"h":50.0,"nh":2362,"m":50.0,"nm":1610},{"a":12,"h":51.68,"nh":14358,"m":46.51,"nm":10874},{"a":13,"h":54.61,"nh":791,"m":52.08,"nm":686},{"a":14,"h":56.85,"nh":1039,"m":51.68,"nm":842},{"a":15,"h":62.5,"nh":1393,"m":57.42,"nm":1272},{"a":16,"h":77.52,"nh":4830,"m":74.42,"nm":5132},{"a":17,"h":83.33,"nh":5252,"m":79.97,"nm":4805},{"a":18,"h":108.53,"nh":801,"m":111.63,"nm":1003},{"a":19,"h":160.12,"nh":195,"m":116.28,"nm":254},{"a":20,"h":155.04,"nh":70,"m":111.01,"nm":105},{"a":21,"h":181.11,"nh":60}],"premio":[{"n":"Primaria completa","v":6.9,"lo":4.1,"hi":9.7,"N":14656},{"n":"Secundaria completa","v":15.8,"lo":12.9,"hi":18.7,"N":38874},{"n":"Media superior (12 a 15 años)","v":28.4,"lo":25.0,"hi":31.9,"N":29507},{"n":"Licenciatura o posgrado (16+ años)","v":92.4,"lo":87.1,"hi":97.9,"N":22582}],"brecha_nivel":[{"n":"Primaria incompleta","h":[8.4,4.1,12.9],"m":[40.6,36.9,44.1],"t":[35.2,32.0,38.2],"ih":39.06,"im":35.77,"hh":43.3,"hm":31.8,"p":0.0004},{"n":"Primaria completa","h":[10.1,7.3,12.9],"m":[33.8,31.5,36.3],"t":[26.4,24.1,28.6],"ih":43.2,"im":38.82,"hh":45.0,"hm":36.5,"p":0.0},{"n":"Secundaria completa","h":[7.6,5.9,9.3],"m":[33.6,32.0,35.1],"t":[28.1,26.7,29.6],"ih":48.96,"im":45.26,"hh":46.5,"hm":37.1,"p":0.0},{"n":"Medio superior y superior","h":[3.9,2.0,5.5],"m":[22.5,20.9,23.8],"t":[19.3,18.1,20.6],"ih":63.88,"im":61.39,"hh":45.8,"hm":38.7,"p":0.0001},{"n":"Total","h":[3.7,2.3,5.0],"m":[26.9,25.7,28.0],"t":[24.1,23.2,25.0],"ih":52.53,"im":50.6,"hh":45.7,"hm":37.5,"p":null}],"escalera":[{"id":"G0","n":"Sin controles","v":3.7,"lo":2.4,"hi":4.9,"r2":0.001},{"id":"G1","n":"+ escolaridad","v":7.7,"lo":6.6,"hi":8.8,"r2":0.13},{"id":"G2","n":"+ edad","v":8.8,"lo":7.6,"hi":9.9,"r2":0.152},{"id":"G3","n":"+ entidad y localidad","v":9.9,"lo":8.9,"hi":10.9,"r2":0.241},{"id":"G4","n":"+ posición e informalidad","v":8.4,"lo":7.3,"hi":9.4,"r2":0.257},{"id":"G5","n":"+ rama de actividad","v":8.2,"lo":7.1,"hi":9.2,"r2":0.3},{"id":"G6","n":"+ horas trabajadas","v":16.3,"lo":15.4,"hi":17.2,"r2":0.413}],"cuantiles":[{"p":10,"h":26.67,"m":24.49,"v":8.2,"lo":3.3,"hi":10.7,"pv":0.0001},{"p":25,"h":37.21,"m":33.33,"v":10.4,"lo":6.6,"hi":11.1,"pv":0.0},{"p":50,"h":50.0,"m":48.94,"v":2.1,"lo":0.0,"hi":4.5,"pv":0.1064},{"p":75,"h":73.33,"m":75.0,"v":-2.3,"lo":-2.9,"hi":0.3,"pv":0.0391},{"p":90,"h":116.28,"m":116.67,"v":-0.3,"lo":-5.3,"hi":0.0,"pv":0.8364}],"oaxaca":[{"n":"Brecha total","v":3.75,"lo":2.35,"hi":5.13},{"n":"Explicada por características","v":-3.15,"lo":-4.05,"hi":-2.29},{"n":"No explicada","v":6.91,"lo":5.97,"hi":7.84}],"calidad":[{"n":"Total","g":"total","A":60.8,"B":22.2,"C":4.2,"D":12.7},{"n":"Hombres","g":"sexo","A":60.3,"B":22.6,"C":3.8,"D":13.3},{"n":"Mujeres","g":"sexo","A":61.7,"B":21.6,"C":4.9,"D":11.9},{"n":"Primaria incompleta","g":"nivel","A":69.0,"B":12.5,"C":11.4,"D":7.2},{"n":"Primaria completa","g":"nivel","A":68.1,"B":16.1,"C":7.1,"D":8.8},{"n":"Secundaria completa","g":"nivel","A":65.6,"B":19.7,"C":4.5,"D":10.2},{"n":"Medio superior y superior","g":"nivel","A":54.7,"B":26.8,"C":2.5,"D":16.1}],"embudo":[{"n":"Registros de la tabla SDEMT","v":419038,"k":1},{"n":"Entrevista completa","v":418146},{"n":"Residente habitual","v":408099},{"n":"Personas de 15 años o más","v":323367},{"n":"Ocupados (universo del estudio)","v":190187,"k":1},{"n":"Ocupados de 15 a 65 años","v":181198},{"n":"… con monto exacto de ingreso","v":115785},{"n":"… con horas trabajadas válidas","v":113338},{"n":"… con escolaridad especificada","v":113088},{"n":"Muestra salarial (sin atípicos)","v":111958,"k":1}],"validacion":[{"n":"PEA (millones)","p":61.3,"o":61.3,"ok":true},{"n":"Tasa de participación (%)","p":59.3,"o":59.3,"ok":true},{"n":"Ocupación informal (millones)","p":32.9,"o":32.9,"ok":true},{"n":"TIL1 nacional (%)","p":55.0,"o":55.0,"ok":true},{"n":"TIL1 Chiapas (%)","p":74.9,"o":74.9,"ok":true},{"n":"TIL1 Chihuahua (%)","p":36.2,"o":36.2,"ok":true},{"n":"TIL1 Ciudad de México (%)","p":45.7,"o":45.7,"ok":true}],"til_nivel":[{"n":"Primaria incompleta","v":86.9,"lo":86.0,"hi":87.8},{"n":"Primaria completa","v":78.7,"lo":77.8,"hi":79.5},{"n":"Secundaria completa","v":62.5,"lo":61.9,"hi":63.3},{"n":"Medio superior y superior","v":37.6,"lo":37.0,"hi":38.2}],"til_region":[{"n":"Norte","v":38.4},{"n":"Centro-Norte","v":52.7},{"n":"Centro","v":57.5},{"n":"Sur","v":69.2}],"retorno_q":[{"q":1,"v":5.4,"lo":5.2,"hi":5.9},{"q":2,"v":5.5,"lo":5.1,"hi":5.8},{"q":3,"v":5.0,"lo":4.7,"hi":5.7},{"q":4,"v":5.4,"lo":4.7,"hi":5.7}]}</script>
+<script>
+(function () {
+  'use strict';
+/* Gráficas compartidas por la presentación (presentacion.html) y la tesina (index.html).
+   Dibujadas con SVG propio (sin librerías) a partir del JSON incrustado en la página (#datos). Reglas de visualización:
+   barras desde cero con extremo redondeado, líneas de 2 px, puntos con anillo del color de la superficie, rejilla hairline, etiquetas selectivas,
+   globo de datos al pasar el cursor o enfocar, una tabla equivalente por gráfica y colores tomados de variables CSS (cambian con el tema).
+   Este archivo no es autónomo: el constructor de cada página lo concatena con su propio script dentro de una sola función. */
+
+  const D = JSON.parse(document.getElementById('datos').textContent);
+  const NS = 'http://www.w3.org/2000/svg';
+  const MENOS = '−';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  /* en la tesina las gráficas tienen una altura fija; en la presentación se adaptan al alto de la pantalla */
+  const FIJO = document.documentElement.hasAttribute('data-alto-fijo');
+  const alto = (fraccion, min, max) => (FIJO ? Math.round((min + max) / 2) : clamp(Math.round(innerHeight * fraccion), min, max));
+
+  /* ---------- formato ---------- */
+  const num = (v, d) => Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }).replace('-', MENOS);
+  const f0 = (v) => num(v, 0), f1 = (v) => num(v, 1), f2 = (v) => num(v, 2);
+  const pc = (v, d) => num(v, d == null ? 1 : d) + ' %';
+  const signo = (v, d) => (v > 0 ? '+' : '') + num(v, d == null ? 1 : d);
+  const pesos = (v) => '$' + num(v, 2);
+  const ic = (a, b, d) => num(a, d == null ? 1 : d) + ' a ' + num(b, d == null ? 1 : d);
+
+  /* ---------- color ---------- */
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function lumin(hex) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex);
+    if (!m) return 0.5;
+    const v = parseInt(m[1], 16);
+    const c = [(v >> 16) & 255, (v >> 8) & 255, v & 255].map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  const contraste = (a, b) => { const la = lumin(a), lb = lumin(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+  const tintaSobre = (fondo) => (contraste(fondo, '#ffffff') >= contraste(fondo, css('--ink')) ? '#ffffff' : css('--ink'));
+
+  /* ---------- SVG y medición de texto ---------- */
+  function sv(tag, attrs, padre) {
+    const e = document.createElementNS(NS, tag);
+    if (attrs) for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+    if (padre) padre.appendChild(e);
+    return e;
+  }
+  function tx(padre, x, y, texto, clase, ancla) {
+    const e = sv('text', { x: x, y: y, dy: '.35em', class: clase || null, 'text-anchor': ancla || 'start' }, padre);
+    e.textContent = texto;
+    return e;
+  }
+  const lienzo = document.createElement('canvas').getContext('2d');
+  const FUENTE = '"IBM Plex Sans","Segoe UI",system-ui,sans-serif';
+  function medir(texto, peso, tam) { lienzo.font = (peso || 500) + ' ' + (tam || 13) + 'px ' + FUENTE; return lienzo.measureText(texto).width; }
+
+  function niceStep(rango, n) { const raw = rango / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag; return (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag; }
+  function marcas(a, b, n) { const st = niceStep(b - a, n || 5), t = []; for (let v = Math.ceil(a / st) * st; v <= b + st * 1e-6; v += st) t.push(+v.toFixed(10)); return t; }
+
+  /* barra con la esquina redondeada solo en el extremo de datos (4 px) y recta en la línea base */
+  function barraRedonda(x0, y, w, h, r) {
+    const dir = w < 0 ? -1 : 1, aw = Math.abs(w);
+    if (aw < 0.5) return '';
+    const rr = Math.min(r, aw / 2, h / 2), xe = x0 + dir * aw;
+    return 'M' + x0 + ',' + y + ' H' + (xe - dir * rr) + ' Q' + xe + ',' + y + ' ' + xe + ',' + (y + rr) + ' V' + (y + h - rr) + ' Q' + xe + ',' + (y + h) + ' ' + (xe - dir * rr) + ',' + (y + h) + ' H' + x0 + ' Z';
+  }
+
+  /* ---------- globo de datos ---------- */
+  const globo = document.createElement('div');
+  globo.className = 'globo';
+  globo.setAttribute('role', 'tooltip');
+  document.body.appendChild(globo);
+  function llenarGlobo(titulo, filas, nota) {
+    globo.textContent = '';
+    if (titulo) { const b = document.createElement('b'); b.textContent = titulo; globo.appendChild(b); }
+    (filas || []).forEach((f) => {
+      const d = document.createElement('div'); d.className = 'f';
+      const a = document.createElement('span');
+      if (f.k) { const k = document.createElement('i'); k.className = 'k'; k.style.background = f.k; a.appendChild(k); }
+      a.appendChild(document.createTextNode(f.l));
+      const v = document.createElement('strong'); v.textContent = f.v;
+      d.appendChild(a); d.appendChild(v); globo.appendChild(d);
+    });
+    if (nota) { const n = document.createElement('small'); n.textContent = nota; globo.appendChild(n); }
+  }
+  function colocarGlobo(x, y) {
+    globo.classList.add('on');
+    const r = globo.getBoundingClientRect();
+    let nx = x + 14, ny = y + 16;
+    if (nx + r.width > innerWidth - 8) nx = x - r.width - 14;
+    if (ny + r.height > innerHeight - 8) ny = y - r.height - 14;
+    globo.style.left = Math.max(8, nx) + 'px';
+    globo.style.top = Math.max(8, ny) + 'px';
+  }
+  function ocultarGlobo() { globo.classList.remove('on'); }
+  /* enlaza un nodo SVG/HTML con su globo: cursor, foco por teclado y salida */
+  function conGlobo(nodo, fnDatos) {
+    nodo.addEventListener('pointermove', (ev) => { const d = fnDatos(); llenarGlobo(d.t, d.f, d.n); colocarGlobo(ev.clientX, ev.clientY); });
+    nodo.addEventListener('pointerleave', ocultarGlobo);
+    nodo.addEventListener('focus', () => { const d = fnDatos(), r = nodo.getBoundingClientRect(); llenarGlobo(d.t, d.f, d.n); colocarGlobo(r.left + r.width / 2, r.top); });
+    nodo.addEventListener('blur', ocultarGlobo);
+  }
+
+  /* ---------- estado global: la entidad elegida resalta en todas las gráficas ---------- */
+  const S = { estado: null };
+  const porId = {};
+  D.estados.forEach((e) => { porId[e.id] = e; });
+  const charts = [];
+  const GRAF = {};
+  const alEstado = [];                          // funciones que cada página agrega para reaccionar a un cambio de entidad (ficha flotante, filas de tablas...)
+  function renderTodo() { charts.forEach((c) => c.render()); }
+  function setEstado(id, forzar) {
+    S.estado = forzar || id !== S.estado ? id : null;
+    const sel = $('#sel-estado'), fic = $('#sel-ficha');
+    $$('select[data-sel-estado]').forEach((s) => { s.value = S.estado == null ? '' : String(S.estado); });
+    if (sel) sel.value = S.estado == null ? '' : String(S.estado);
+    if (fic) fic.value = String(S.estado == null ? 20 : S.estado);
+    const chip = $('#chip-estado');
+    if (chip) { chip.classList.toggle('on', S.estado != null); $('span', chip).textContent = S.estado == null ? '' : porId[S.estado].n; }
+    renderTodo();
+    pintarFicha();
+    alEstado.forEach((f) => f(S.estado));
+  }
+
+  function montar(el) {
+    const f = GRAF[el.dataset.chart];
+    if (!f) return;
+    const inst = {
+      el: el, tab: null, w: 0,
+      render() {
+        if (el.getClientRects().length === 0) return;
+        const w = Math.floor(el.clientWidth);
+        if (w < 40) return;
+        this.w = w;
+        el.textContent = '';
+        this.tab = f(el, w, this) || null;
+      },
+    };
+    charts.push(inst);
+    new ResizeObserver(() => { if (Math.floor(el.clientWidth) !== inst.w) inst.render(); }).observe(el);
+    inst.render();
+  }
+
+  /* ======================================================================================================================================
+     Gráficas
+     ====================================================================================================================================== */
+
+  /* ---- barras horizontales (embudo, premio por nivel, informalidad por nivel, brecha por nivel, Oaxaca-Blinder) ---- */
+  function barrasH(el, W, cfg) {
+    const rows = cfg.rows, rowH = cfg.rowH || 34, barH = Math.min(24, cfg.barH || 22);
+    let lw = 0;
+    rows.forEach((r) => { lw = Math.max(lw, medir(r.label, 500, 13)); });
+    const mL = cfg.sinEtiquetas ? 8 : Math.min(Math.ceil(lw) + 16, Math.max(120, W * 0.44));
+    const mR = cfg.mR == null ? 66 : cfg.mR, mT = 4, mB = cfg.sinEje ? 4 : (cfg.ejeTit ? 48 : 26);
+    const H = mT + rows.length * rowH + mB;
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': cfg.aria || '' }, el);
+    const x0 = mL, x1 = W - mR, d0 = cfg.dom[0], d1 = cfg.dom[1];
+    const sx = (v) => x0 + (v - d0) / (d1 - d0) * (x1 - x0);
+    const base = sx(Math.max(d0, Math.min(0, d1)));
+    const g = sv('g', { class: 'eje' }, svg);
+    (cfg.ticks || marcas(d0, d1, 5)).forEach((t) => {
+      const x = sx(t);
+      sv('line', { x1: x, x2: x, y1: mT, y2: mT + rows.length * rowH, class: 'rej' }, g);
+      if (!cfg.sinEje) tx(g, x, mT + rows.length * rowH + 17, cfg.tickFmt ? cfg.tickFmt(t) : f0(t), null, 'middle');
+    });
+    if (cfg.ejeTit && !cfg.sinEje) tx(svg, (x0 + x1) / 2, mT + rows.length * rowH + 38, cfg.ejeTit, 't-ref', 'middle');
+    sv('line', { x1: base, x2: base, y1: mT, y2: mT + rows.length * rowH, class: 'base' }, svg);
+    if (cfg.ref) {
+      const xr = sx(cfg.ref.v);
+      sv('line', { x1: xr, x2: xr, y1: mT, y2: mT + rows.length * rowH, class: 'ref' }, svg);
+      tx(svg, xr + 4, mT + 8, cfg.ref.label, 't-ref');
+    }
+    rows.forEach((r, i) => {
+      const yc = mT + i * rowH + rowH / 2, y = yc - barH / 2;
+      const gr = sv('g', { 'data-i': i }, svg);
+      if (!cfg.sinEtiquetas) tx(gr, x0 - 10, yc, r.label, 't-cat' + (r.sel ? ' sel' : ''), 'end');
+      const w = sx(r.v) - base;
+      const p = sv('path', { d: barraRedonda(base, y, w, barH, 4), class: r.cls || 'm-s1' }, gr);
+      if (cfg.enfasis && !r.key) p.setAttribute('opacity', '.55');
+      let xFin = base + w;
+      if (r.lo != null) {
+        sv('line', { x1: sx(r.lo), x2: sx(r.hi), y1: yc, y2: yc, class: 'ic ic-gris' }, gr);
+        sv('line', { x1: sx(r.lo), x2: sx(r.lo), y1: yc - 5, y2: yc + 5, class: 'ic ic-gris' }, gr);
+        sv('line', { x1: sx(r.hi), x2: sx(r.hi), y1: yc - 5, y2: yc + 5, class: 'ic ic-gris' }, gr);
+        xFin = r.v >= 0 ? Math.max(xFin, sx(r.hi)) : Math.min(xFin, sx(r.lo));
+      }
+      if (r.lab || cfg.etiquetas) tx(gr, r.v >= 0 ? xFin + 7 : xFin - 7, yc, r.txt || cfg.fmt(r.v), 't-val', r.v >= 0 ? 'start' : 'end');
+      const hit = sv('rect', { x: 0, y: mT + i * rowH, width: W, height: rowH, class: 'fila-hit', tabindex: 0, role: 'img', 'aria-label': r.label + ': ' + (r.txt || cfg.fmt(r.v)) }, gr);
+      conGlobo(hit, () => ({ t: r.label, f: r.tip || [{ l: cfg.medida || 'Valor', v: r.txt || cfg.fmt(r.v), k: null }], n: r.nota }));
+    });
+    return () => ({ cols: cfg.cols, num: cfg.colsNum, rows: cfg.filasTabla ? cfg.filasTabla() : rows.map((r) => [r.label, r.txt || cfg.fmt(r.v)]) });
+  }
+
+  /* ---- 100 % apilado: calidad del ingreso ---- */
+  GRAF.calidad = function (el, W) {
+    const claves = ['A', 'B', 'C', 'D'], nombres = { A: 'Monto exacto', B: 'Solo un rango de salarios mínimos', C: 'No recibe ingresos', D: 'No especificó' };
+    const col = { A: '--s1', B: '--s2', C: '--s3', D: '--s4' }, cls = { A: 'm-s1 seg-a', B: 'm-s2 seg-b', C: 'm-s3 seg-c', D: 'm-s4 seg-d' };
+    const filas = D.calidad, rowH = 36, barH = 24, hueco = 14;
+    let lw = 0; filas.forEach((r) => { lw = Math.max(lw, medir(r.n, 500, 13)); });
+    const mL = Math.min(Math.ceil(lw) + 16, Math.max(120, W * 0.3)), mR = 8, mT = 4, mB = 26;
+    let y = mT; const ys = filas.map((r, i) => { if (i && r.g !== filas[i - 1].g) y += hueco; const v = y; y += rowH; return v; });
+    const H = y + mB - mT + 4;
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Composición del ingreso por grupo de declaración' }, el);
+    const x0 = mL, x1 = W - mR, sx = (v) => x0 + v / 100 * (x1 - x0), g = sv('g', { class: 'eje' }, svg);
+    [0, 25, 50, 75, 100].forEach((t) => { const x = sx(t); sv('line', { x1: x, x2: x, y1: mT, y2: y, class: 'rej' }, g); tx(g, x, H - 9, t + ' %', null, 'middle'); });
+    filas.forEach((r, i) => {
+      const yc = ys[i] + rowH / 2, yb = yc - barH / 2, gr = sv('g', null, svg);
+      tx(gr, x0 - 10, yc, r.n, 't-cat', 'end');
+      let acum = 0;
+      claves.forEach((k) => {
+        const a = sx(acum), b = sx(acum + r[k]);
+        const xa = a + (acum > 0 ? 1 : 0), xb = b - (acum + r[k] < 99.9 ? 1 : 0);          // 2 px de superficie entre segmentos
+        const seg = sv('rect', { x: xa, y: yb, width: Math.max(0, xb - xa), height: barH, class: cls[k], tabindex: 0, role: 'img', 'aria-label': r.n + ', ' + nombres[k] + ': ' + pc(r[k]) }, gr);
+        if (xb - xa >= medir(pc(r[k], 0), 600, 12.5) + 12) tx(gr, (xa + xb) / 2, yc, pc(r[k], 0), 't-dentro ' + cls[k].split(' ')[1], 'middle').setAttribute('fill', tintaSobre(css(col[k])));
+        conGlobo(seg, () => ({ t: r.n, f: claves.map((q) => ({ l: q + ' · ' + nombres[q], v: pc(r[q]), k: 'var(' + col[q] + ')' })) }));
+        acum += r[k];
+      });
+    });
+    return () => ({ cols: ['Población', 'A · Monto exacto', 'B · Solo rango', 'C · No recibe ingresos', 'D · No especificó'], num: [1, 2, 3, 4], rows: filas.map((r) => [r.n, pc(r.A), pc(r.B), pc(r.C), pc(r.D)]) });
+  };
+
+  /* ---- embudo de datos ---- */
+  GRAF.embudo = function (el, W) {
+    const rows = D.embudo.map((e) => ({ label: e.n, v: e.v, key: !!e.k, lab: !!e.k, txt: f0(e.v), tip: [{ l: 'Registros', v: f0(e.v) }, { l: 'Del total', v: pc(e.v / D.embudo[0].v * 100) }] }));
+    return barrasH(el, W, {
+      rows: rows, dom: [0, 450000], ticks: [0, 100000, 200000, 300000, 400000], tickFmt: (t) => (t ? f0(t / 1000) + ' mil' : '0'), fmt: f0, rowH: 31, barH: 20, enfasis: true, mR: 90,
+      ejeTit: FIJO ? 'Número de registros' : null,
+      aria: 'Embudo de datos', cols: ['Etapa', 'Registros'], colsNum: [1], filasTabla: () => D.embudo.map((e) => [e.n, f0(e.v)]),
+    });
+  };
+
+  /* ---- validación con cifras del INEGI (tabla con estado) ---- */
+  GRAF.validacion = function (el) {
+    const marco = document.createElement('div'); marco.className = 'tabla-val-marco';
+    const t = document.createElement('table'); t.className = 'tabla-val';
+    const cab = t.createTHead().insertRow();
+    ['Indicador', 'Proyecto', 'INEGI', 'Estado'].forEach((h, i) => { const c = document.createElement('th'); c.textContent = h; if (i === 1 || i === 2) c.className = 'n'; cab.appendChild(c); });
+    const cu = t.createTBody();
+    D.validacion.forEach((v) => {
+      const r = cu.insertRow();
+      [v.n, f1(v.p), f1(v.o)].forEach((s, i) => { const c = r.insertCell(); c.textContent = s; if (i > 0) c.className = 'n'; });
+      const est = r.insertCell(); est.className = v.ok ? 'ok' : 'mal'; est.textContent = v.ok ? '✓' : '✗';
+      const palabra = document.createElement('span'); palabra.className = 'est-txt'; palabra.textContent = v.ok ? ' Coincide' : ' No coincide'; est.appendChild(palabra);   // en pantallas angostas solo queda la marca
+    });
+    marco.appendChild(t); el.appendChild(marco);
+    return () => ({ cols: ['Indicador', 'Proyecto', 'INEGI', 'Estado'], num: [1, 2], rows: D.validacion.map((v) => [v.n, f1(v.p), f1(v.o), v.ok ? 'Coincide' : 'No coincide']) });
+  };
+
+  /* ---- curva del ingreso por hora según la escolaridad (hombres y mujeres, escala logarítmica) ---- */
+  GRAF.curva = function (el, W) {
+    const datos = D.curva, H = alto(0.42, 270, 460);
+    const mL = FIJO ? 68 : 54, mR = 82, mT = 10, mB = 44, x0 = mL, x1 = W - mR, y0 = mT, y1 = H - mB;
+    const sx = (a) => x0 + a / 21 * (x1 - x0), ly = Math.log;
+    const sy = (v) => y1 - (ly(v) - ly(20)) / (ly(200) - ly(20)) * (y1 - y0);
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Mediana del ingreso por hora según años de escolaridad, hombres y mujeres' }, el);
+    const g = sv('g', { class: 'eje' }, svg);
+    [20, 30, 40, 60, 80, 120, 180].forEach((t) => { sv('line', { x1: x0, x2: x1, y1: sy(t), y2: sy(t), class: 'rej' }, g); tx(g, x0 - 8, sy(t), '$' + t, null, 'end'); });
+    [0, 3, 6, 9, 12, 16, 18, 21].forEach((t) => tx(g, sx(t), y1 + 16, String(t), null, 'middle'));
+    tx(g, (x0 + x1) / 2, H - 8, 'Años de escolaridad', 't-ref', 'middle');
+    if (FIJO) { const yt = tx(g, 12, (y0 + y1) / 2, 'Mediana del ingreso por hora (escala logarítmica)', 't-ref', 'middle'); yt.setAttribute('transform', 'rotate(-90 12 ' + (y0 + y1) / 2 + ')'); }
+    sv('line', { x1: x0, x2: x1, y1: y1, y2: y1, class: 'base' }, svg);
+    if (W >= 620) [[6, 'primaria'], [9, 'secundaria'], [12, 'media sup.'], [16, 'licenciatura']].forEach((n) => tx(svg, sx(n[0]), y1 - 9, n[1], 't-ref', 'middle'));
+    [['h', 'l-s1', 'm-s1', 'Hombres'], ['m', 'l-s2', 'm-s2', 'Mujeres']].forEach((s) => {
+      const pts = datos.filter((d) => d[s[0]] != null);
+      sv('path', { d: pts.map((d, i) => (i ? 'L' : 'M') + sx(d.a) + ',' + sy(d[s[0]])).join(' '), class: 'linea ' + s[1] }, svg);
+      pts.forEach((d) => sv('circle', { cx: sx(d.a), cy: sy(d[s[0]]), r: 4, class: 'punto-m ' + s[2] }, svg));
+      const u = pts[pts.length - 1];
+      tx(svg, sx(u.a) + 9, sy(u[s[0]]), s[3], 't-dir', 'start');
+    });
+    const cruz = sv('line', { y1: y0, y2: y1, class: 'cruz', visibility: 'hidden' }, svg);
+    const cap = sv('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, fill: 'transparent', tabindex: 0, role: 'img', 'aria-label': 'Curva; use la tabla para leer los valores' }, svg);
+    const mover = (ev) => {
+      const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width), a = clamp(Math.round((px - x0) / (x1 - x0) * 21), 0, 21);
+      let d = datos.filter((q) => q.a === a)[0]; if (!d) return;
+      cruz.setAttribute('x1', sx(a)); cruz.setAttribute('x2', sx(a)); cruz.setAttribute('visibility', 'visible');
+      const f = [];
+      if (d.h != null) f.push({ l: 'Hombres', v: pesos(d.h), k: 'var(--s1)' });
+      if (d.m != null) f.push({ l: 'Mujeres', v: pesos(d.m), k: 'var(--s2)' });
+      if (d.h != null && d.m != null) f.push({ l: 'Mujeres / hombres', v: num(d.m / d.h * 100, 0) + ' %' });
+      llenarGlobo(a + ' años de escolaridad', f, 'Mediana por hora · n = ' + f0((d.nh || 0) + (d.nm || 0)));
+      colocarGlobo(ev.clientX, ev.clientY);
+    };
+    cap.addEventListener('pointermove', mover);
+    cap.addEventListener('pointerleave', () => { cruz.setAttribute('visibility', 'hidden'); ocultarGlobo(); });
+    return () => ({ cols: ['Años de escolaridad', 'Hombres ($/hora)', 'Mujeres ($/hora)'], num: [1, 2], rows: datos.map((d) => [d.a, d.h != null ? pesos(d.h) : '', d.m != null ? pesos(d.m) : '']) });
+  };
+
+  /* ---- premio salarial por nivel (frente a primaria incompleta) ---- */
+  GRAF.premio = function (el, W) {
+    const clases = ['m-q1', 'm-q2', 'm-q3', 'm-q4'];
+    const rows = D.premio.map((p, i) => ({ label: p.n, v: p.v, lo: p.lo, hi: p.hi, cls: clases[i], lab: true, txt: '+' + f0(p.v) + ' %',
+      tip: [{ l: 'Premio', v: '+' + f1(p.v) + ' %' }, { l: 'IC 95 %', v: ic(p.lo, p.hi) + ' %' }, { l: 'Personas en la muestra', v: f0(p.N) }], nota: 'Frente a no terminar la primaria, con edad, sexo y entidad iguales' }));
+    return barrasH(el, W, {
+      rows: rows, dom: [0, 110], ticks: [0, 25, 50, 75, 100], tickFmt: (t) => '+' + t + ' %', fmt: (v) => '+' + f0(v) + ' %', rowH: 52, barH: 24, aria: 'Premio salarial por nivel de estudios', mR: 70,
+      cols: ['Nivel de estudios', 'Premio', 'IC 95 %'], colsNum: [1, 2], filasTabla: () => D.premio.map((p) => [p.n, '+' + f1(p.v) + ' %', ic(p.lo, p.hi) + ' %']),
+    });
+  };
+
+  /* ---- puntos con intervalo (escalera de controles y ranking de correlación) ---- */
+  function puntosH(el, W, cfg) {
+    const rows = cfg.rows, rowH = cfg.rowH, mT = cfg.derechaTit || cfg.ref ? 20 : 4, mB = cfg.ejeTit ? 48 : 28;
+    let lw = 0; rows.forEach((r) => { if (r.label) lw = Math.max(lw, medir(r.label, 500, 13)); });
+    const mL = Math.min(Math.ceil(lw) + 16, Math.max(110, W * 0.4)), mR = cfg.mR || 14, H = mT + rows.length * rowH + mB;
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': cfg.aria }, el);
+    const x0 = mL, x1 = W - mR - (cfg.derecha ? cfg.derecha : 0), d0 = cfg.dom[0], d1 = cfg.dom[1], sx = (v) => x0 + (v - d0) / (d1 - d0) * (x1 - x0);
+    const g = sv('g', { class: 'eje' }, svg), alto = rows.length * rowH;
+    (cfg.ticks || marcas(d0, d1, 5)).forEach((t) => { const x = sx(t); sv('line', { x1: x, x2: x, y1: mT, y2: mT + alto, class: 'rej' }, g); tx(g, x, mT + alto + 18, cfg.tickFmt ? cfg.tickFmt(t) : f0(t), null, 'middle'); });
+    if (cfg.ejeTit) tx(svg, (x0 + x1) / 2, mT + alto + 39, cfg.ejeTit, 't-ref', 'middle');
+    if (cfg.cero != null) sv('line', { x1: sx(cfg.cero), x2: sx(cfg.cero), y1: mT, y2: mT + alto, class: 'base' }, svg);
+    if (cfg.derechaTit) tx(svg, W - 4, 8, cfg.derechaTit, 't-ref', 'end');
+    if (cfg.ref) { const xr = sx(cfg.ref.v); sv('line', { x1: xr, x2: xr, y1: mT, y2: mT + alto, class: 'ref' }, svg); tx(svg, xr + 4, 8, cfg.ref.label, 't-ref', 'start'); }
+    rows.forEach((r, i) => {
+      const yc = mT + i * rowH + rowH / 2, gr = sv('g', null, svg);
+      if (r.cab) { tx(gr, 4, yc, r.cab, 't-cab', 'start'); return; }                          // fila de encabezado de grupo (sin punto ni intervalo)
+      if (r.sel) sv('rect', { x: 0, y: mT + i * rowH, width: W, height: rowH, class: 'fila-sel' }, gr);
+      tx(gr, x0 - 10, yc, r.label, 't-cat' + (r.sel || r.key ? ' sel' : ''), 'end');
+      sv('line', { x1: sx(r.lo), x2: sx(r.hi), y1: yc, y2: yc, class: 'ic ' + (r.gris || r.lineaGris ? 'ic-gris' : (r.lcls || 'l-s1')) }, gr);
+      sv('circle', { cx: sx(r.v), cy: yc, r: cfg.radio || 5, class: 'punto-m ' + (r.hueco ? 'm-hueco' : r.gris ? 'm-gris' : (r.cls || 'm-s1')) }, gr);
+      if (r.txt) tx(gr, sx(r.hi) + 8, yc, r.txt, 't-val', 'start');
+      if (r.der) tx(gr, W - 4, yc, r.der, 't-ref', 'end');
+      const hit = sv('rect', { x: 0, y: mT + i * rowH, width: W, height: rowH, class: 'fila-hit', tabindex: 0, role: 'img', 'aria-label': r.label + ': ' + cfg.fmt(r.v) }, gr);
+      conGlobo(hit, () => ({ t: r.label, f: r.tip, n: r.nota }));
+      if (cfg.alClic) hit.addEventListener('click', () => cfg.alClic(r));
+    });
+    return () => ({ cols: cfg.cols, num: cfg.colsNum, rows: cfg.filasTabla() });
+  }
+
+  /* ---- escalera de controles de la brecha por hora ---- */
+  GRAF.escalera = function (el, W) {
+    const rows = D.escalera.map((e) => {
+      const g6 = e.id === 'G6';
+      return { label: e.n, v: e.v, lo: e.lo, hi: e.hi, key: e.id === 'G1', gris: g6, txt: ['G0', 'G1', 'G5', 'G6'].indexOf(e.id) >= 0 ? pc(e.v) : null,
+        tip: [{ l: 'Brecha por hora', v: pc(e.v) }, { l: 'IC 95 %', v: ic(e.lo, e.hi) + ' %' }, { l: 'R² del modelo', v: f2(e.r2) }],
+        nota: g6 ? 'No se interpreta: el ingreso por hora ya divide entre horas (sesgo de división)' : e.id === 'G1' ? 'A igual escolaridad: la métrica del protocolo' : 'Cada fila agrega controles a la anterior' };
+    });
+    return puntosH(el, W, {
+      rows: rows, rowH: FIJO ? 38 : clamp(Math.round(innerHeight * 0.052), 32, 46), dom: [0, 20], ticks: [0, 5, 10, 15, 20], tickFmt: (t) => t + ' %', cero: 0, mR: 60, radio: 6, fmt: pc,
+      ejeTit: FIJO ? '% menos que ganan las mujeres por hora (IC 95 %)' : null,
+      aria: 'Brecha por hora al agregar controles', cols: ['Modelo (controles acumulados)', 'Brecha por hora', 'IC 95 %', 'R²'], colsNum: [1, 2, 3],
+      filasTabla: () => D.escalera.map((e) => [e.id + ' ' + e.n, pc(e.v), ic(e.lo, e.hi) + ' %', f2(e.r2)]),
+    });
+  };
+
+  /* ---- brecha por nivel de estudios: dos paneles (por hora y por mes) con intervalo ---- */
+  GRAF.brechaNivel = function (el, W) {
+    const filas = D.brecha_nivel, rowH = 40, barH = 22, mT = 22, mB = 28, mL = Math.min(Math.ceil(Math.max.apply(null, filas.map((r) => medir(r.n, 500, 13)))) + 16, W * 0.3);
+    const gap = 26, ancho = (W - mL - gap - 10) / 2, H = mT + filas.length * rowH + mB;
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Brecha por hora y por mes según el nivel de estudios' }, el);
+    const paneles = [{ k: 'h', tit: 'Por hora', dom: [0, 17], ticks: [0, 5, 10, 15], ox: mL }, { k: 'm', tit: 'Por mes', dom: [0, 52], ticks: [0, 10, 20, 30, 40, 50], ox: mL + ancho + gap }];
+    filas.forEach((r, i) => tx(svg, mL - 10, mT + i * rowH + rowH / 2, r.n, 't-cat' + (r.n === 'Total' ? ' sel' : ''), 'end'));
+    paneles.forEach((p) => {
+      const sx = (v) => p.ox + v / p.dom[1] * ancho, g = sv('g', { class: 'eje' }, svg);
+      tx(svg, p.ox, 6, p.tit + ' (% menos que los hombres)', 't-ref', 'start');
+      p.ticks.forEach((t) => { sv('line', { x1: sx(t), x2: sx(t), y1: mT, y2: mT + filas.length * rowH, class: 'rej' }, g); tx(g, sx(t), H - 10, t + ' %', null, 'middle'); });
+      sv('line', { x1: sx(0), x2: sx(0), y1: mT, y2: mT + filas.length * rowH, class: 'base' }, svg);
+      filas.forEach((r, i) => {
+        const yc = mT + i * rowH + rowH / 2, d = r[p.k], gr = sv('g', null, svg);
+        sv('path', { d: barraRedonda(sx(0), yc - barH / 2, sx(d[0]) - sx(0), barH, 4), class: 'm-s1' }, gr);
+        sv('line', { x1: sx(d[1]), x2: sx(d[2]), y1: yc, y2: yc, class: 'ic ic-gris' }, gr);
+        sv('line', { x1: sx(d[1]), x2: sx(d[1]), y1: yc - 5, y2: yc + 5, class: 'ic ic-gris' }, gr);
+        sv('line', { x1: sx(d[2]), x2: sx(d[2]), y1: yc - 5, y2: yc + 5, class: 'ic ic-gris' }, gr);
+        tx(gr, sx(d[2]) + 7, yc, f1(d[0]), 't-val', 'start');
+        const hit = sv('rect', { x: p.ox - 4, y: mT + i * rowH, width: ancho + 8, height: rowH, class: 'fila-hit', tabindex: 0, role: 'img', 'aria-label': r.n + ', ' + p.tit + ': ' + pc(d[0]) }, gr);
+        conGlobo(hit, () => ({ t: r.n, f: [{ l: 'Por hora', v: pc(r.h[0]) }, { l: 'Por mes', v: pc(r.m[0]) }, { l: 'Menos horas pagadas', v: pc(r.t[0]) }, { l: 'Hombres / mujeres ($/hora)', v: pesos(r.ih) + ' / ' + pesos(r.im) }], n: 'IC 95 % por hora: ' + ic(r.h[1], r.h[2]) + ' %' }));
+      });
+    });
+    return () => ({ cols: ['Nivel', 'Por hora', 'IC 95 % (hora)', 'Por mes', 'IC 95 % (mes)', 'Mujeres trabajan menos horas'], num: [1, 2, 3, 4, 5],
+      rows: filas.map((r) => [r.n, pc(r.h[0]), ic(r.h[1], r.h[2]) + ' %', pc(r.m[0]), ic(r.m[1], r.m[2]) + ' %', pc(r.t[0])]) });
+  };
+
+  /* ---- brecha por percentil del ingreso (línea con banda de intervalo) ---- */
+  GRAF.cuantiles = function (el, W) {
+    const d = D.cuantiles, H = alto(0.4, 260, 430), mL = 54, mR = 24, mT = 14, mB = 44, x0 = mL, x1 = W - mR, y0 = mT, y1 = H - mB;
+    const sx = (i) => x0 + 40 + i / (d.length - 1) * (x1 - x0 - 80), sy = (v) => y1 - (v + 6) / 18 * (y1 - y0);
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Brecha por hora en distintos percentiles del ingreso' }, el);
+    const g = sv('g', { class: 'eje' }, svg);
+    [-5, 0, 5, 10].forEach((t) => { sv('line', { x1: x0, x2: x1, y1: sy(t), y2: sy(t), class: t === 0 ? 'base' : 'rej' }, g); tx(g, x0 - 8, sy(t), t + ' %', null, 'end'); });
+    d.forEach((q, i) => tx(g, sx(i), y1 + 18, 'P' + q.p, null, 'middle'));
+    tx(g, (x0 + x1) / 2, H - 6, 'Posición en la distribución del ingreso por hora (P10 = quien menos gana)', 't-ref', 'middle');
+    const arriba = d.map((q, i) => sx(i) + ',' + sy(q.hi)), abajo = d.map((q, i) => sx(i) + ',' + sy(q.lo)).reverse();
+    sv('polygon', { points: arriba.concat(abajo).join(' '), class: 'banda' }, svg);
+    sv('path', { d: d.map((q, i) => (i ? 'L' : 'M') + sx(i) + ',' + sy(q.v)).join(' '), class: 'linea l-s1' }, svg);
+    d.forEach((q, i) => {
+      sv('circle', { cx: sx(i), cy: sy(q.v), r: 5, class: 'punto-m m-s1' }, svg);
+      tx(svg, sx(i), sy(q.hi) - 12, pc(q.v), 't-val', 'middle');
+      const hit = sv('circle', { cx: sx(i), cy: sy(q.v), r: 22, class: 'fila-hit', tabindex: 0, role: 'img', 'aria-label': 'P' + q.p + ': ' + pc(q.v) }, svg);
+      conGlobo(hit, () => ({ t: 'Percentil ' + q.p, f: [{ l: 'Brecha por hora', v: pc(q.v) }, { l: 'IC 95 %', v: ic(q.lo, q.hi) + ' %' }, { l: 'Hombres', v: pesos(q.h) + '/h' }, { l: 'Mujeres', v: pesos(q.m) + '/h' }], n: q.pv < 0.05 ? 'Significativa (p ' + (q.pv < 0.001 ? '< 0.001' : '= ' + f2(q.pv)) + ')' : 'No significativa (p = ' + f2(q.pv) + ')' }));
+    });
+    return () => ({ cols: ['Percentil', 'Hombres ($/h)', 'Mujeres ($/h)', 'Brecha', 'IC 95 %', 'Valor p'], num: [1, 2, 3, 4, 5],
+      rows: d.map((q) => ['P' + q.p, pesos(q.h), pesos(q.m), pc(q.v), ic(q.lo, q.hi) + ' %', q.pv < 0.001 ? '< 0.001' : f2(q.pv)]) });
+  };
+
+  /* ---- descomposición de Oaxaca-Blinder ---- */
+  GRAF.oaxaca = function (el, W) {
+    const rows = D.oaxaca.map((o, i) => ({ label: o.n, v: o.v, lo: o.lo, hi: o.hi, cls: o.v < 0 ? 'm-s1' : 'm-rojo', lab: true, txt: signo(o.v, 1),
+      tip: [{ l: 'Puntos logarítmicos', v: signo(o.v, 2) }, { l: 'IC 95 %', v: ic(o.lo, o.hi, 2) }], nota: i === 1 ? 'Las mujeres tienen mejores características medidas (sobre todo escolaridad)' : i === 2 ? 'A iguales características, se les paga menos; no prueba discriminación' : 'Brecha por hora entre hombres y mujeres' }));
+    return barrasH(el, W, {
+      rows: rows, dom: [-5.5, 9.5], ticks: [-4, -2, 0, 2, 4, 6, 8], tickFmt: (t) => (t > 0 ? '+' : '') + String(t).replace('-', MENOS), fmt: (v) => signo(v, 1), rowH: 56, barH: 24, mR: 56,
+      aria: 'Descomposición de Oaxaca-Blinder', cols: ['Componente', 'Puntos logarítmicos', 'IC 95 %'], colsNum: [1, 2], filasTabla: () => D.oaxaca.map((o) => [o.n, signo(o.v, 2), ic(o.lo, o.hi, 2)]),
+    });
+  };
+
+  /* ---- dispersión por entidad con intervalo vertical ---- */
+  function dispersion(el, W, cfg) {
+    const H = cfg.H || alto(0.44, 280, 480), mL = 58, mR = 18, mT = 12, mB = 50, x0 = mL, x1 = W - mR, y0 = mT, y1 = H - mB;
+    const sx = (v) => x0 + (v - cfg.xd[0]) / (cfg.xd[1] - cfg.xd[0]) * (x1 - x0), sy = (v) => y1 - (v - cfg.yd[0]) / (cfg.yd[1] - cfg.yd[0]) * (y1 - y0);
+    const svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': cfg.aria }, el);
+    const g = sv('g', { class: 'eje' }, svg);
+    marcas(cfg.yd[0], cfg.yd[1], 5).forEach((t) => { sv('line', { x1: x0, x2: x1, y1: sy(t), y2: sy(t), class: 'rej' }, g); tx(g, x0 - 8, sy(t), cfg.yFmt(t), null, 'end'); });
+    marcas(cfg.xd[0], cfg.xd[1], 6).forEach((t) => tx(g, sx(t), y1 + 17, cfg.xFmt(t), null, 'middle'));
+    tx(g, (x0 + x1) / 2, H - 9, cfg.xTit, 't-ref', 'middle');
+    const yt = tx(g, 12, (y0 + y1) / 2, cfg.yTit, 't-ref', 'middle'); yt.setAttribute('transform', 'rotate(-90 12 ' + (y0 + y1) / 2 + ')');
+    sv('line', { x1: x0, x2: x1, y1: y1, y2: y1, class: 'base' }, svg);
+    if (cfg.ref) { sv('line', { x1: x0, x2: x1, y1: sy(cfg.ref.v), y2: sy(cfg.ref.v), class: 'ref' }, svg); tx(svg, x1, sy(cfg.ref.v) - 9, cfg.ref.label, 't-ref', 'end'); }
+    if (cfg.tendencia) {
+      const n = cfg.pts.length, mx = cfg.pts.reduce((a, p) => a + p.x, 0) / n, my = cfg.pts.reduce((a, p) => a + p.y, 0) / n;
+      const b = cfg.pts.reduce((a, p) => a + (p.x - mx) * (p.y - my), 0) / cfg.pts.reduce((a, p) => a + (p.x - mx) * (p.x - mx), 0), a0 = my - b * mx;
+      sv('line', { x1: sx(cfg.xd[0] + 0.15), y1: sy(a0 + b * (cfg.xd[0] + 0.15)), x2: sx(cfg.xd[1] - 0.15), y2: sy(a0 + b * (cfg.xd[1] - 0.15)), class: 'ref' }, svg);
+    }
+    const marcasPts = cfg.pts.map((p) => {
+      const gr = sv('g', null, svg);
+      sv('line', { x1: sx(p.x), x2: sx(p.x), y1: sy(p.lo), y2: sy(p.hi), class: 'ic ic-gris', opacity: '.4' }, gr);
+      const c = sv('circle', { cx: sx(p.x), cy: sy(p.y), r: 6, class: 'punto-m ' + (p.cls || 'm-s1') + (S.estado != null && S.estado !== p.id ? ' atenuado' : '') }, gr);
+      return { p: p, c: c, gr: gr };
+    });
+    if (S.estado != null) {
+      const m = marcasPts.filter((q) => q.p.id === S.estado)[0];
+      if (m) { m.c.setAttribute('r', 9); m.c.setAttribute('class', 'punto-m ' + (m.p.cls || 'm-s1') + ' destaca'); svg.appendChild(m.gr); }
+    }
+    Array.from(new Set((cfg.etiquetas || []).concat(S.estado != null ? [S.estado] : []))).forEach((id) => {
+      const q = marcasPts.filter((m) => m.p.id === id)[0]; if (!q) return;
+      const der = sx(q.p.x) > x1 - 90;
+      tx(svg, sx(q.p.x) + (der ? -11 : 11), sy(q.p.y) - 11, porId[id].n, 't-val t-halo', der ? 'end' : 'start');
+    });
+    const cap = sv('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, fill: 'transparent', style: 'cursor:pointer' }, svg);
+    let cerca = null;
+    const buscar = (ev) => {
+      const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width), py = (ev.clientY - r.top) * (W / r.width);
+      let mejor = null, dmin = 1e9;
+      cfg.pts.forEach((p) => { const d = Math.hypot(sx(p.x) - px, sy(p.y) - py); if (d < dmin) { dmin = d; mejor = p; } });
+      return dmin < 42 ? mejor : null;
+    };
+    cap.addEventListener('pointermove', (ev) => {
+      const p = buscar(ev);
+      if (cerca) cerca.c.classList.remove('m-hover');
+      cerca = p ? marcasPts.filter((m) => m.p.id === p.id)[0] : null;
+      if (cerca) { cerca.c.classList.add('m-hover'); const d = cfg.tip(p); llenarGlobo(porId[p.id].n, d.f, d.n); colocarGlobo(ev.clientX, ev.clientY); } else ocultarGlobo();
+    });
+    cap.addEventListener('pointerleave', () => { if (cerca) cerca.c.classList.remove('m-hover'); ocultarGlobo(); });
+    cap.addEventListener('click', (ev) => { const p = buscar(ev); if (p) setEstado(p.id); });
+    return () => ({ cols: cfg.cols, num: cfg.colsNum, rows: cfg.filasTabla() });
+  }
+
+  const nombreCuartil = { 1: 'Q1 · ingreso más bajo', 2: 'Q2', 3: 'Q3', 4: 'Q4 · ingreso más alto' };
+  GRAF.dispEstados = function (el, W) {
+    const pts = D.estados.map((e) => ({ id: e.id, x: e.mln[0], y: e.ret[0], lo: e.ret[1], hi: e.ret[2], cls: 'm-q' + e.q, q: e.q, e: e }));
+    const maxE = pts.reduce((a, p) => (p.y > a.y ? p : a)), minE = pts.reduce((a, p) => (p.y < a.y ? p : a));
+    return dispersion(el, W, {
+      pts: pts, xd: [34, 74], yd: [2, 11], xFmt: (v) => '$' + v, yFmt: (v) => v + ' %', xTit: 'Ingreso mediano por hora del estado', yTit: 'Aumento del ingreso por año de estudio',
+      ref: { v: D.k.ret[0], label: 'Nacional ' + pc(D.k.ret[0]) }, etiquetas: [maxE.id, minE.id], aria: 'Rendimiento de estudiar frente al ingreso mediano de cada estado',
+      tip: (p) => ({ f: [{ l: 'Aumento por año de estudio', v: pc(p.e.ret[0], 2) }, { l: 'IC 95 %', v: ic(p.e.ret[1], p.e.ret[2]) + ' %' }, { l: 'Ingreso mediano por hora', v: pesos(p.e.mln[0]) }, { l: 'Cuartil de ingreso', v: nombreCuartil[p.q] }] }),
+      cols: ['Entidad', 'Ingreso mediano ($/h)', 'Cuartil', 'Aumento por año', 'IC 95 %'], colsNum: [1, 3, 4],
+      filasTabla: () => D.estados.slice().sort((a, b) => b.ret[0] - a.ret[0]).map((e) => [e.n, pesos(e.mln[0]), 'Q' + e.q, pc(e.ret[0], 2), ic(e.ret[1], e.ret[2]) + ' %']),
+    });
+  };
+
+  GRAF.rankRho = function (el, W) {
+    const orden = D.estados.slice().sort((a, b) => b.rho[0] - a.rho[0]);
+    const extremos = [orden[0].id, orden[orden.length - 1].id];
+    const rows = orden.map((e) => ({ label: e.n, v: e.rho[0], lo: e.rho[1], hi: e.rho[2], sel: S.estado === e.id, id: e.id, txt: extremos.indexOf(e.id) >= 0 ? f2(e.rho[0]) : null,
+      der: e.rho[3] + ' (' + e.rho[4] + '–' + e.rho[5] + ')', tip: [{ l: 'Correlación ρ', v: f2(e.rho[0]) }, { l: 'IC 95 %', v: ic(e.rho[1], e.rho[2], 2) }, { l: 'Lugar (intervalo)', v: e.rho[3] + ' (' + e.rho[4] + ' a ' + e.rho[5] + ')' }],
+      nota: e.rho[5] - e.rho[4] > 14 ? 'Su lugar no se distingue del de varios estados vecinos en el ranking' : 'Lugar bien definido' }));
+    const out = puntosH(el, W, {
+      rows: rows, rowH: FIJO ? 17 : clamp(Math.floor(innerHeight * 0.46 / 32), 12, 18), dom: [0.1, 0.6], ticks: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], tickFmt: f1, fmt: f2, derecha: 78, derechaTit: 'Lugar (intervalo)', mR: 6, radio: 4.6,
+      ejeTit: FIJO ? 'Correlación de Spearman entre escolaridad e ingreso por hora (ρ)' : null,
+      aria: 'Correlación entre escolaridad e ingreso por hora en cada estado, con intervalo y lugar',
+      alClic: (r) => setEstado(r.id), cols: ['Lugar', 'Entidad', 'ρ', 'IC 95 %', 'Intervalo del lugar'], colsNum: [0, 2],
+      filasTabla: () => orden.map((e) => [e.rho[3], e.n, f2(e.rho[0]), ic(e.rho[1], e.rho[2], 2), e.rho[4] + ' a ' + e.rho[5]]),
+    });
+    return out;
+  };
+
+  /* ---- informalidad por nivel y región (barras) ---- */
+  GRAF.tilNivel = function (el, W) {
+    const clases = ['m-q1', 'm-q2', 'm-q3', 'm-q4'];
+    const rows = D.til_nivel.map((n, i) => ({ label: n.n, v: n.v, lo: n.lo, hi: n.hi, cls: clases[i], lab: true, txt: f0(n.v) + ' %', tip: [{ l: 'Informalidad (TIL1)', v: pc(n.v) }, { l: 'IC 95 %', v: ic(n.lo, n.hi) + ' %' }] }));
+    return barrasH(el, W, { rows: rows, dom: [0, 100], ticks: [0, 50, 100], tickFmt: (t) => t + ' %', fmt: (v) => f0(v) + ' %', rowH: 40, barH: 22, mR: 52, medida: 'Informalidad', aria: 'Informalidad por nivel de estudios',
+      cols: ['Nivel de estudios', 'Informalidad', 'IC 95 %'], colsNum: [1, 2], filasTabla: () => D.til_nivel.map((n) => [n.n, pc(n.v), ic(n.lo, n.hi) + ' %']) });
+  };
+
+  GRAF.dispTil = function (el, W) {
+    const pts = D.estados.map((e) => ({ id: e.id, x: e.esc[0], y: e.til[0], lo: e.til[1], hi: e.til[2], e: e }));
+    const alto = pts.reduce((a, p) => (p.y > a.y ? p : a)), bajo = pts.reduce((a, p) => (p.y < a.y ? p : a)), masEscolar = pts.reduce((a, p) => (p.x > a.x ? p : a));
+    return dispersion(el, W, {
+      pts: pts, xd: [8.5, 13], yd: [25, 85], xFmt: (v) => String(v), yFmt: (v) => v + ' %', xTit: 'Años de escolaridad promedio de los ocupados del estado', yTit: 'Informalidad laboral (TIL1)', tendencia: true,
+      etiquetas: [alto.id, bajo.id, masEscolar.id], aria: 'Informalidad frente a la escolaridad promedio de cada estado',
+      tip: (p) => ({ f: [{ l: 'Informalidad', v: pc(p.e.til[0]) }, { l: 'IC 95 %', v: ic(p.e.til[1], p.e.til[2]) + ' %' }, { l: 'Escolaridad promedio', v: f1(p.e.esc[0]) + ' años' }], n: 'Lugar ' + p.e.til[3] + ' de 32 en informalidad' }),
+      cols: ['Entidad', 'Escolaridad promedio (años)', 'Informalidad', 'IC 95 %'], colsNum: [1, 2], filasTabla: () => D.estados.slice().sort((a, b) => b.til[0] - a.til[0]).map((e) => [e.n, f1(e.esc[0]), pc(e.til[0]), ic(e.til[1], e.til[2]) + ' %']),
+    });
+  };
+
+  /* ---- mosaico de estados (cartograma: cada estado ocupa el mismo área) ---- */
+  const METRICAS = {
+    til: { nombre: 'Informalidad laboral (TIL1)', get: (e) => e.til[0], ic: (e) => [e.til[1], e.til[2]], fmt: (v) => f1(v) + ' %', corto: (v) => String(Math.round(v)), rango: (e) => 'lugar ' + e.til[3] + ' de 32 (1 = más informal)' },
+    esc: { nombre: 'Años de escolaridad promedio de los ocupados', get: (e) => e.esc[0], ic: (e) => [e.esc[1], e.esc[2]], fmt: (v) => f1(v) + ' años', corto: (v) => v.toFixed(1) },
+    ret: { nombre: 'Aumento del ingreso por año de estudio', get: (e) => e.ret[0], ic: (e) => [e.ret[1], e.ret[2]], fmt: (v) => f1(v) + ' %', corto: (v) => v.toFixed(1) },
+    mln: { nombre: 'Ingreso mediano por hora', get: (e) => e.mln[0], ic: (e) => [e.mln[1], e.mln[2]], fmt: (v) => pesos(v), corto: (v) => String(Math.round(v)), rango: (e) => 'lugar ' + e.mln[3] + ' de 32 (1 = menor ingreso)' },
+    bh: { nombre: 'Brecha por hora (mujeres frente a hombres)', get: (e) => e.bh[0], ic: (e) => [e.bh[1], e.bh[2]], fmt: (v) => f1(v) + ' %', corto: (v) => v.toFixed(0), rango: (e) => (e.bh[1] <= 0 ? 'no significativa (el intervalo incluye 0)' : 'significativa') },
+  };
+  function mosaico(el, cfg) {
+    const m = METRICAS[cfg.metrica()], vs = D.estados.map((e) => m.get(e)), vmin = Math.min.apply(null, vs), vmax = Math.max.apply(null, vs);
+    const marco = document.createElement('div'); marco.className = 'mosaico-marco';
+    const mosa = document.createElement('div'); mosa.className = 'mosaico'; mosa.setAttribute('role', 'group'); mosa.setAttribute('aria-label', m.nombre + ' por entidad federativa, un mosaico por estado');
+    const info = document.createElement('p'); info.className = 'mosaico-info'; info.setAttribute('aria-live', 'polite');
+    const porDefecto = cfg.textoInicial || 'Pasa el cursor o toca un mosaico.';
+    const decir = (e) => {
+      info.textContent = '';
+      const b = document.createElement('b'); b.textContent = e.n + ': '; info.appendChild(b);
+      const i = m.ic(e);
+      info.appendChild(document.createTextNode(m.fmt(m.get(e)) + (i ? ' (IC 95 %: ' + f1(i[0]) + ' a ' + f1(i[1]) + ')' : '') + (m.rango ? ' · ' + m.rango(e) : '')));
+    };
+    D.estados.forEach((e) => {
+      const v = m.get(e), t = vmax === vmin ? 0 : (v - vmin) / (vmax - vmin);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tile' + (t > 0.55 ? ' alto' : '') + (S.estado === e.id ? ' sel' : '');
+      b.style.gridColumn = String(e.col + 1); b.style.gridRow = String(e.fila + 1); b.style.setProperty('--t', t.toFixed(3));
+      b.setAttribute('aria-label', e.n + ': ' + m.fmt(v));
+      const a = document.createElement('span'); a.textContent = e.a; const s = document.createElement('small'); s.textContent = m.corto(v);
+      b.appendChild(a); b.appendChild(s);
+      conGlobo(b, () => { const ii = m.ic(e); return { t: e.n, f: [{ l: m.nombre, v: m.fmt(v) }].concat(ii ? [{ l: 'IC 95 %', v: f1(ii[0]) + ' a ' + f1(ii[1]) }] : []), n: m.rango ? m.rango(e) : null }; });
+      b.addEventListener('pointerenter', () => decir(e));
+      b.addEventListener('focus', () => decir(e));
+      b.addEventListener('click', () => { setEstado(e.id); });
+      mosa.appendChild(b);
+    });
+    const esc = document.createElement('div'); esc.className = 'escala';
+    const l1 = document.createElement('span'); l1.textContent = m.fmt(vmin); const barra = document.createElement('i'); const l2 = document.createElement('span'); l2.textContent = m.fmt(vmax);
+    esc.appendChild(l1); esc.appendChild(barra); esc.appendChild(l2);
+    marco.appendChild(mosa); marco.appendChild(esc); marco.appendChild(info);
+    if (S.estado != null) decir(porId[S.estado]); else info.textContent = porDefecto;
+    el.appendChild(marco);
+    return () => ({ cols: ['Entidad', 'Informalidad (%)', 'Años de escolaridad', 'Aumento por año de estudio (%)', 'Ingreso mediano ($/h)', 'Brecha por hora (%)'], num: [1, 2, 3, 4, 5],
+      rows: D.estados.slice().sort((a, b) => a.n.localeCompare(b.n, 'es')).map((e) => [e.n, f1(e.til[0]), f1(e.esc[0]), f1(e.ret[0]), pesos(e.mln[0]), f1(e.bh[0])]) });
+  }
+  GRAF.mosaicoPortada = (el) => mosaico(el, { metrica: () => 'til', textoInicial: 'Pasa el cursor o toca un mosaico para ver el dato del estado.' });
+
+  /* ======================================================================================================================================
+     Lámina de ingeniería: la misma pregunta en SQL y en MongoDB
+     ====================================================================================================================================== */
+  function lineas(destino, lins) {
+    destino.textContent = '';
+    lins.forEach((ln, i) => {
+      if (i) destino.appendChild(document.createTextNode('\n'));
+      ln.forEach((t) => {
+        if (typeof t === 'string') destino.appendChild(document.createTextNode(t));
+        else { const s = document.createElement('span'); s.className = t[1]; s.textContent = t[0]; destino.appendChild(s); }
+      });
+    });
+  }
+  function pintarFicha() {
+    const caja = $('#ficha-mongo');
+    if (!caja) return;
+    const id = S.estado == null ? 20 : S.estado, e = porId[id], d = D.mongo[String(id)];
+    const K = (t) => [t, 'k'], T = (t) => [JSON.stringify(t), 's'], N = (t) => [JSON.stringify(t), 'n'];
+    lineas($('#ficha-sql'), [[K('SELECT'), ' entidad, ROUND(til1_pct, 2) AS til1_pct'], [K('FROM'), ' v_til_entidad'], [K('WHERE'), ' cve_ent = ', N(id), ';']]);
+    const r = $('#ficha-res'); r.textContent = ''; const b = document.createElement('b'); b.textContent = e.n; r.appendChild(b); r.appendChild(document.createTextNode('  ·  til1_pct = ' + f2(d.informalidad.til1_pct)));
+    lineas(caja, [
+      [K('db.entidades.findOne'), '({ cve_ent: ', N(id), ' })'], ['{'],
+      ['  entidad: ', T(d.entidad), ', region: ', T(d.region), ','],
+      ['  informalidad: { til1_pct: ', N(d.informalidad.til1_pct), ', ic95: ', [JSON.stringify(d.informalidad.ic95), 'n'], ', lugar: ', N(d.informalidad.lugar), ' },'],
+      ['  rendimiento_escolaridad: { pct_por_anio: ', N(d.rendimiento_escolaridad.pct_por_anio), ' },'],
+      ['  brecha_genero: { hora_pct: ', N(d.brecha_genero.hora_pct), ', mensual_pct: ', N(d.brecha_genero.mensual_pct), ' }'], ['}'],
+    ]);
+  }
+
+/* Radiografía socioeconómica de México · presentación (presentacion.html): láminas, navegación, notas y tarjetas con vistas.
+   Se concatena después de charts.js (que aporta los datos, las gráficas, el globo y el estado de la entidad elegida). */
+
+  GRAF.mosaicoQ3 = (el) => mosaico(el, { metrica: () => ($('#sel-metrica') || { value: 'til' }).value, textoInicial: 'Elige un indicador y toca un estado.' });
+
+  /* ---- gráficas pequeñas de la lámina de respuestas ---- */
+  function miniBarras(el, W, filas, maximo) {
+    const h = 12, gap = 8, mL = Math.min(86, W * 0.4), H = filas.length * (h + gap) - gap, svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' }, el);
+    filas.forEach((f, i) => {
+      const y = i * (h + gap);
+      tx(svg, mL - 8, y + h / 2, f.t, 't-mini', 'end');
+      sv('path', { d: barraRedonda(mL, y, f.v / maximo * (W - mL - 34), h, 3), class: f.cls }, svg);
+      tx(svg, mL + f.v / maximo * (W - mL - 34) + 6, y + h / 2, f.txt, 't-mini t-mini--v', 'start');
+    });
+  }
+  const NIVELES_CORTOS = ['Primaria inc.', 'Primaria', 'Secundaria', 'Media sup. o más'], Q = ['m-q1', 'm-q2', 'm-q3', 'm-q4'];
+  GRAF.miniPremio = (el, W) => miniBarras(el, W, D.premio.map((p, i) => ({ t: ['Primaria', 'Secundaria', 'Media sup.', 'Licenciatura'][i], v: p.v, cls: Q[i], txt: '+' + f0(p.v) + ' %' })), 100);
+  GRAF.miniTil = (el, W) => miniBarras(el, W, D.til_nivel.map((p, i) => ({ t: NIVELES_CORTOS[i], v: p.v, cls: Q[i], txt: f0(p.v) + ' %' })), 100);
+  GRAF.miniEscalera = (el, W) => miniBarras(el, W, [{ t: 'Por hora', v: D.k.g1[0], cls: 'm-s1', txt: f1(D.k.g1[0]) + ' %' }, { t: 'Por mes', v: D.k.bm[0], cls: 'm-s1', txt: f1(D.k.bm[0]) + ' %' }], 30);
+
+  /* ======================================================================================================================================
+     Ruta KDD y arquitectura
+     ====================================================================================================================================== */
+  const FASES = [
+    { n: 'Selección', sem: 'Sem. 1', sub: 'Fuente y validación', num: f0(D.n.registros), nl: 'registros reales de la ENOE 2025-T4 (INEGI)', chips: ['7 de 7 cifras oficiales reproducidas', 'Huella SHA-256 de cada archivo', 'Diccionario de datos'], ir: 'e-datos' },
+    { n: 'Preprocesamiento', sem: 'Sem. 4', sub: 'Limpieza documentada', num: D.n.pruebas_datos + ' de ' + D.n.pruebas_datos, nl: 'pruebas automáticas de calidad cumplidas', chips: ['99 años y 0 horas pasan a faltante', 'Atípicos P0.5 a P99.5 por entidad', '«Ingreso 0» separado en 4 grupos'], ir: 'e-limpieza' },
+    { n: 'Transformación', sem: 'Sem. 4 · 6', sub: 'Variables y base de datos', num: String(D.n.variables_derivadas), nl: 'variables derivadas, en una base SQLite en estrella', chips: ['ln(ingreso por hora)', 'Imputación por rango (sensibilidad)', 'MongoDB para servir cada entidad'], ir: 'e-ingenieria' },
+    { n: 'Minería y análisis', sem: 'Sem. 2 · 3 · 5', sub: 'Estadística y gráficas', num: f0(D.k.B), nl: 'réplicas Rao-Wu: errores que respetan el diseño de la encuesta', chips: ['Spearman y Mincer', 'Brecha con Holm y d de Cohen', 'Oaxaca-Blinder'], ir: 'e-q1' },
+    { n: 'Interpretación', sem: 'Sem. 5', sub: 'Comunicar y recomendar', num: '3 de 3', nl: 'preguntas contestadas y métricas de éxito cumplidas', chips: ['Asociaciones, no causalidad', 'Un solo trimestre', 'Informe visual y presentación'], ir: 'e-respuestas' },
+  ];
+  const NODOS = [
+    { t: 'Microdatos INEGI', s: 'CSV · SDEMT y COE2T', d: '419,038 y 344,166 filas; huella SHA-256 al leer cada archivo.' },
+    { t: 'Pipeline ETL', s: 'Python · reproducible', d: 'Extrae, limpia, transforma y valida en unos 10 segundos; idempotente y con una sola semilla.' },
+    { t: 'SQLite', s: 'esquema en estrella', d: f0(D.n.filas_fact) + ' filas × ' + D.n.cols_fact + ' columnas, 10 dimensiones, llaves y restricciones. Sirve para analizar: JOIN y agregaciones ponderadas.' },
+    { t: 'MongoDB', s: 'un documento por entidad', d: '32 documentos con indicadores e intervalos anidados: una lectura por clave, sin JOIN, para servir la ficha de cada estado.' },
+    { t: 'Tablero y página', s: 'HTML interactivo', d: 'Leen los documentos de las entidades: mapa, ranking y fichas.' },
+  ];
+  function vincularKdd() {
+    const botones = $$('.fase'), det = $('#fase-detalle');
+    if (!botones.length || !det) return;
+    const mostrar = (i) => {
+      botones.forEach((b, j) => b.setAttribute('aria-pressed', i === j ? 'true' : 'false'));
+      const f = FASES[i];
+      det.textContent = '';
+      const num = document.createElement('div'); num.className = 'num'; num.textContent = f.num; const sm = document.createElement('small'); sm.textContent = f.nl; num.appendChild(sm);
+      const ul = document.createElement('ul'); ul.className = 'chips'; f.chips.forEach((c) => { const li = document.createElement('li'); li.className = 'chip'; li.textContent = c; ul.appendChild(li); });
+      const a = document.createElement('a'); a.className = 'btn'; a.href = '#' + f.ir; a.textContent = 'Ver la evidencia ▸';
+      a.addEventListener('click', (ev) => { ev.preventDefault(); irA(f.ir); });
+      det.appendChild(num); det.appendChild(ul); det.appendChild(a);
+    };
+    botones.forEach((b, i) => b.addEventListener('click', () => mostrar(i)));
+    mostrar(0);
+  }
+  function vincularArquitectura() {
+    const nodos = $$('.nodo'), det = $('#nodo-detalle');
+    if (!nodos.length || !det) return;
+    const mostrar = (i) => { nodos.forEach((n, j) => n.setAttribute('aria-pressed', i === j ? 'true' : 'false')); det.textContent = NODOS[i].d; };
+    nodos.forEach((n, i) => n.addEventListener('click', () => mostrar(i)));
+    mostrar(2);
+  }
+
+  /* ======================================================================================================================================
+     Calculadora, tarjetas (vistas y tabla), navegación y notas
+     ====================================================================================================================================== */
+  function vincularCalculadora() {
+    const rg = $('#calc-rango'), sal = $('#calc-res'), nota = $('#calc-ic');
+    if (!rg) return;
+    const calc = () => {
+      const n = +rg.value, r = D.k.ret;
+      const efecto = (p) => (Math.pow(1 + p / 100, n) - 1) * 100;
+      sal.textContent = '+' + f0(efecto(r[0])) + ' %';
+      nota.textContent = n + (n === 1 ? ' año más de estudio' : ' años más de estudio') + ' · IC 95 %: +' + f0(efecto(r[1])) + ' a +' + f0(efecto(r[2])) + ' %. Es una asociación, no un efecto causal.';
+    };
+    rg.addEventListener('input', calc);
+    calc();
+  }
+  function vincularTarjetas() {
+    $$('.tarjeta').forEach((card) => {
+      const seg = $('.seg', card), vistas = $$('.vista', card), btnTabla = $('.ver-tabla', card), tab = $('.tabla-vista', card);
+      const instVisible = () => { const v = vistas.filter((x) => !x.hidden)[0] || card; return charts.filter((c) => v.contains(c.el) && c.tab)[0]; };
+      const llenarTabla = () => {
+        const inst = instVisible(); if (!inst) return;
+        const t = inst.tab(); tab.textContent = '';
+        const tb = document.createElement('table'), cab = tb.createTHead().insertRow();
+        t.cols.forEach((c, i) => { const th = document.createElement('th'); th.textContent = c; if ((t.num || []).indexOf(i) >= 0) th.className = 'n'; cab.appendChild(th); });
+        const cu = tb.createTBody();
+        t.rows.forEach((fila) => { const r = cu.insertRow(); fila.forEach((v, i) => { const c = r.insertCell(); c.textContent = String(v); if ((t.num || []).indexOf(i) >= 0) c.className = 'n'; }); });
+        tab.appendChild(tb);
+      };
+      if (seg) {
+        const botones = $$('button', seg);
+        botones.forEach((b) => b.addEventListener('click', () => {
+          botones.forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+          vistas.forEach((v) => { v.hidden = v.dataset.vista !== b.dataset.vista; });
+          const pista = $('.pista', card), vis = vistas.filter((v) => !v.hidden)[0];
+          if (pista && vis && vis.dataset.pista) pista.textContent = vis.dataset.pista;
+          charts.forEach((c) => { if (card.contains(c.el)) c.render(); });
+          if (card.classList.contains('con-tabla')) llenarTabla();
+        }));
+      }
+      if (btnTabla) btnTabla.addEventListener('click', () => {
+        const on = !card.classList.contains('con-tabla');
+        if (on) llenarTabla();
+        card.classList.toggle('con-tabla', on);
+        btnTabla.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btnTabla.textContent = on ? 'Ver gráfica' : 'Ver tabla';
+        tab.hidden = !on;
+      });
+      /* la leyenda de la calidad del ingreso resalta una categoría y atenúa las demás */
+      $$('.leyenda button[data-k]', card).forEach((b) => {
+        const poner = (k) => { if (k) card.setAttribute('data-foco', k); else card.removeAttribute('data-foco'); };
+        b.addEventListener('pointerenter', () => { if (!card.dataset.fijo) poner(b.dataset.k); });
+        b.addEventListener('pointerleave', () => { if (!card.dataset.fijo) poner(null); });
+        b.addEventListener('focus', () => { if (!card.dataset.fijo) poner(b.dataset.k); });
+        b.addEventListener('blur', () => { if (!card.dataset.fijo) poner(null); });
+        b.addEventListener('click', () => {
+          const igual = card.dataset.fijo === b.dataset.k;
+          $$('.leyenda button[data-k]', card).forEach((x) => x.classList.remove('on'));
+          if (igual) { delete card.dataset.fijo; poner(null); } else { card.dataset.fijo = b.dataset.k; poner(b.dataset.k); b.classList.add('on'); }
+        });
+      });
+    });
+  }
+
+  const escenas = $$('.escena');
+  let actual = 0;
+  function marcar(i) {                                       // indica en los puntos, el contador y las notas cuál es la lámina actual
+    actual = i;
+    $$('.punto').forEach((b, j) => b.setAttribute('aria-current', j === i ? 'true' : 'false'));
+    const pos = $('#pos'); if (pos) pos.textContent = (i + 1) + ' / ' + escenas.length;
+    pintarNotas();
+  }
+  function ir(i) {
+    i = clamp(i, 0, escenas.length - 1);
+    marcar(i);
+    escenas[i].scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }
+  function irA(id) { const i = escenas.findIndex((e) => e.id === id); if (i >= 0) ir(i); }
+  function pintarNotas() {
+    const e = escenas[actual], g = $('#guion');
+    if (!g || !e) return;
+    $('h4', g).textContent = 'Notas · ' + (e.dataset.titulo || '') + (e.dataset.quien ? ' · propuesta: presenta ' + e.dataset.quien : '');
+    $('p', g).textContent = e.dataset.guion || '';
+  }
+  function vincularNavegacion() {
+    const puntos = $('#puntos');
+    escenas.forEach((e, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'punto'; b.title = e.dataset.titulo || ''; b.setAttribute('aria-label', 'Lámina ' + (i + 1) + ': ' + (e.dataset.titulo || ''));
+      b.addEventListener('click', () => ir(i)); puntos.appendChild(b);
+    });
+    const obs = new IntersectionObserver((items) => {
+      items.forEach((it) => { if (it.isIntersecting && it.intersectionRatio > 0.45) marcar(escenas.indexOf(it.target)); });
+    }, { threshold: [0.45, 0.6] });
+    escenas.forEach((e) => obs.observe(e));
+    marcar(0);
+    $('#sig').addEventListener('click', () => ir(actual + 1));
+    $('#ant').addEventListener('click', () => ir(actual - 1));
+    document.addEventListener('keydown', (ev) => {
+      if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      const tag = (ev.target && ev.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const k = ev.key;
+      if (k === 'ArrowDown' || k === 'PageDown' || k === 'ArrowRight' || (k === ' ' && tag !== 'BUTTON' && tag !== 'A' && tag !== 'SUMMARY')) { ir(actual + 1); ev.preventDefault(); }
+      else if (k === 'ArrowUp' || k === 'PageUp' || k === 'ArrowLeft') { ir(actual - 1); ev.preventDefault(); }
+      else if (k === 'Home') { ir(0); ev.preventDefault(); }
+      else if (k === 'End') { ir(escenas.length - 1); ev.preventDefault(); }
+      else if (k === 'n' || k === 'N') alternarNotas();
+      else if (k === 'f' || k === 'F') pantallaCompleta();
+      else if (k === 'Escape') { const g = $('#guion'); if (g && !g.hidden) alternarNotas(); }
+    });
+  }
+  function alternarNotas() {
+    const g = $('#guion'), b = $('#btn-notas');
+    g.hidden = !g.hidden; b.setAttribute('aria-pressed', g.hidden ? 'false' : 'true');
+    if (!g.hidden) pintarNotas();
+  }
+  function pantallaCompleta() {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else { const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(() => {}); }
+    } catch (e) { /* algunos visores no permiten pantalla completa */ }
+  }
+  function vincularControles() {
+    const sel = $('#sel-estado'), fic = $('#sel-ficha'), lista = D.estados.slice().sort((a, b) => a.n.localeCompare(b.n, 'es'));
+    const opciones = (s, conVacio) => {
+      if (!s) return;
+      if (conVacio) { const o = document.createElement('option'); o.value = ''; o.textContent = 'Entidad: todas'; s.appendChild(o); }
+      lista.forEach((e) => { const o = document.createElement('option'); o.value = String(e.id); o.textContent = e.n; s.appendChild(o); });
+    };
+    opciones(sel, true); opciones(fic, false);
+    if (fic) fic.value = '20';
+    if (sel) sel.addEventListener('change', () => setEstado(sel.value === '' ? null : +sel.value, true));
+    if (fic) fic.addEventListener('change', () => setEstado(+fic.value, true));
+    const chip = $('#chip-estado'); if (chip) $('button', chip).addEventListener('click', () => setEstado(null, true));
+    const met = $('#sel-metrica'); if (met) met.addEventListener('change', () => charts.forEach((c) => { if (c.el.dataset.chart === 'mosaicoQ3') c.render(); }));
+    $('#btn-notas').addEventListener('click', alternarNotas);
+    $('#btn-pantalla').addEventListener('click', pantallaCompleta);
+    const tema = $('#btn-tema');
+    const aplicarTema = (t) => { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('enoe-tema', t); } catch (e) { /* sin almacenamiento */ } setTimeout(renderTodo, 30); };
+    tema.addEventListener('click', () => {
+      const actualOscuro = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+      aplicarTema(actualOscuro ? 'light' : 'dark');
+    });
+    try { const guardado = localStorage.getItem('enoe-tema'); if (guardado === 'dark' || guardado === 'light') document.documentElement.setAttribute('data-theme', guardado); } catch (e) { /* nada */ }
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(renderTodo, 30));
+    $$('[data-ir]').forEach((a) => a.addEventListener('click', (ev) => { ev.preventDefault(); const i = escenas.findIndex((e) => e.id === a.dataset.ir); if (i >= 0) ir(i); }));
+    $$('a[href^="#e-"]').forEach((a) => a.addEventListener('click', (ev) => { const i = escenas.findIndex((e) => '#' + e.id === a.getAttribute('href')); if (i >= 0) { ev.preventDefault(); ir(i); } }));
+  }
+
+  /* ---------- arranque ---------- */
+  function iniciar() {
+    $$('.viz[data-chart]').forEach(montar);
+    vincularKdd(); vincularArquitectura(); vincularCalculadora(); vincularTarjetas(); vincularControles(); vincularNavegacion();
+    pintarFicha();
+    let t = null;
+    addEventListener('resize', () => { clearTimeout(t); t = setTimeout(renderTodo, 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderTodo);
+    if (location.hash) { const i = escenas.findIndex((e) => '#' + e.id === location.hash); if (i > 0) setTimeout(() => ir(i), 60); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+
+})();
+</script>
+</body>
+</html>
