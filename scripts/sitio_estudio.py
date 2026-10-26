@@ -137,6 +137,7 @@ def exponer(D) -> str:
 def descargas() -> str:
     cards = [("Informe técnico (PDF)", "67 páginas: marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión y anexos.", "descargas/Informe_Final_Proyecto_ENOE.pdf", "PDF"),
              ("Presentación completa (PDF)", "48 diapositivas; la versión editable está en la carpeta del proyecto.", "descargas/Presentacion_Completa_Proyecto_ENOE.pdf", "PDF"),
+             ("presentacion2 (PDF)", "Presentación corta: 24 diapositivas (18 principales y 5 de respaldo).", "descargas/Proyecto_Integrador_ENOE.pdf", "PDF"),
              ("Cuaderno ejecutado", "El notebook con código, tablas y gráficas, exportado a HTML.", "cuaderno.html", "HTML"),
              ("Tablero interactivo", "Ficha de cada entidad con mapa, ranking y gráficas (funciona sin internet).", "tablero.html", "HTML")]
     h = '<div class="descargas">' + "".join(f'<a class="tarjeta" href="{u}" target="_blank" rel="noopener"><h3>{e(t)}</h3><p>{e(d)}</p><small>{k} · se abre en otra pestaña</small></a>' for t, d, u, k in cards) + "</div>"

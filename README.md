@@ -20,7 +20,7 @@ y un **sitio web** con la **tesina en formato web** (el documento completo, con 
 | **Guía de estudio** (versión larga con modo presentación): storytelling, ciclo KDD, semanas 1-7, protocolo, glosario, preguntas de defensa y autoevaluación | `sitio/estudio.html` |
 | **Informe técnico** (Word y PDF): marco conceptual, datos, limpieza, ingeniería, metodología, resultados, discusión, glosario, guía de ejecución, preguntas de defensa y guion | `documento/Informe_Final_Proyecto_ENOE.docx` · `.pdf` |
 | **Presentación completa** (48 diapositivas con guion en las notas; ★ = ruta corta de 18 diapositivas) | `presentacion/Presentacion_Completa_Proyecto_ENOE.pptx` · `.pdf` |
-| Presentación corta (18 principales + 5 de respaldo) | `presentacion/Proyecto_Integrador_ENOE.pptx` |
+| Presentación corta (18 principales + 5 de respaldo); en el sitio aparece como «presentacion2 (PDF)» | `presentacion/Proyecto_Integrador_ENOE.pptx` · `.pdf` |
 | Cuaderno ejecutado y narrado | `notebooks/Proyecto_Integrador_ENOE.ipynb` · `.html` |
 | Tablero interactivo (un solo archivo, sin internet) | `tablero/tablero_enoe.html` |
 
@@ -85,7 +85,7 @@ python scripts/build_deck.py                 # presentación corta (.pptx, 24 di
 python scripts/build_deck_completa.py        # presentación completa (.pptx, 48 diapositivas, secciones y guion)
 python scripts/build_informe.py              # informe técnico (.docx)
 powershell -File scripts\exportar_informe.ps1   # (Windows con Word) actualiza el índice y exporta el PDF del informe
-powershell -File scripts\exportar_presentacion.ps1   # (Windows con PowerPoint) exporta el PDF de la presentación completa
+powershell -File scripts\exportar_presentacion.ps1   # (Windows con PowerPoint) exporta el PDF de una presentación: -Pptx presentacion\Proyecto_Integrador_ENOE.pptx -Pdf presentacion\Proyecto_Integrador_ENOE.pdf
 python scripts/build_sitio.py                # guía de estudio: sitio/estudio.html (usa results/, figures/, el guion de la presentación completa y los PDF)
 python scripts/build_sitio_lite.py           # presentación de 11 láminas: sitio/presentacion.html (usa results/, SQLite y los documentos NoSQL)
 python scripts/build_tesina.py               # tesina web: sitio/index.html (mismo texto que el informe en Word; usa results/, SQLite y las figuras de sitio/img)

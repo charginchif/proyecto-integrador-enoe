@@ -192,7 +192,7 @@ def cuerpos(D, d: dict) -> dict[str, str]:
     c["cierre"] = zona(
         '<p class="dia__sub">¿Preguntas o comentarios?</p><p class="dia__txt">Todo el trabajo está en esta misma página: el documento completo, la bibliografía y los anexos, y en las otras versiones del sitio.</p>'
         '<p class="dia__enlaces"><a href="#cap-7" data-cerrar-pres>Resultados (capítulo 7)</a><a href="#anexo-d" data-cerrar-pres>Preguntas frecuentes (anexo D)</a><a href="cuaderno.html">Cuaderno</a><a href="tablero.html">Tablero</a>'
-        '<a href="descargas/Informe_Final_Proyecto_ENOE.pdf">Informe técnico (PDF)</a></p>',
+        '<a href="descargas/Informe_Final_Proyecto_ENOE.pdf">Informe técnico (PDF)</a><a href="descargas/Proyecto_Integrador_ENOE.pdf">presentacion2 (PDF)</a></p>',
         '<p class="dia__etq2">Reproducir todo</p><div class="codigo codigo--g"><pre><code>python scripts/run_etl.py\npython scripts/run_analysis.py\npython scripts/make_figures.py\npython scripts/build_notebook.py</code></pre></div>'
         '<p class="dia__nota">Código, pruebas y datos derivados: carpeta Proyecto_ENOE y repositorio de GitHub.</p>', "dia--texto")
     return c

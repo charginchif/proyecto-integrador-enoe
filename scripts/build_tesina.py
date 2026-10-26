@@ -309,7 +309,8 @@ def indice_lateral(res: dict) -> str:
         out.append(f'<li class="cap" data-cap="{c["id"]}"><a href="#{c["id"]}" data-id="{c["id"]}"><span class="n">{e(num)}</span>{md(c["titulo"])}</a>' + (f'<ol class="subs">{subs}</ol>' if subs else "") + "</li>")
     out.append("</ol>"
                '<div class="indice__enlaces"><p class="grupo">Otras versiones</p><a href="presentacion.html">Presentación interactiva (11 láminas)</a><a href="estudio.html">Guía de estudio</a><a href="cuaderno.html">Cuaderno</a><a href="tablero.html">Tablero</a>'
-               '<a href="descargas/Informe_Final_Proyecto_ENOE.pdf">Informe técnico (PDF)</a><a href="descargas/Presentacion_Completa_Proyecto_ENOE.pdf">Presentación (PDF)</a>'
+               '<a href="descargas/Informe_Final_Proyecto_ENOE.pdf">Informe técnico (PDF)</a><a href="descargas/Presentacion_Completa_Proyecto_ENOE.pdf" title="Presentación completa: 48 diapositivas con guion">Presentación (PDF)</a>'
+               '<a href="descargas/Proyecto_Integrador_ENOE.pdf" title="Presentación corta: 24 diapositivas (18 principales y 5 de respaldo)">presentacion2 (PDF)</a>'
                f'<a href="{REPO}" rel="noopener">Código en GitHub</a></div></nav>')
     return "".join(out)
 

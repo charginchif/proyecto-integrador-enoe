@@ -114,7 +114,8 @@ def copiar_documentos(salida: Path) -> list[str]:
     (salida / "descargas").mkdir(parents=True, exist_ok=True)
     for origen, destino in [(RAIZ / "notebooks" / "Proyecto_Integrador_ENOE.html", "cuaderno.html"), (RAIZ / "tablero" / "tablero_enoe.html", "tablero.html"),
                             (RAIZ / "documento" / "Informe_Final_Proyecto_ENOE.pdf", "descargas/Informe_Final_Proyecto_ENOE.pdf"),
-                            (RAIZ / "presentacion" / "Presentacion_Completa_Proyecto_ENOE.pdf", "descargas/Presentacion_Completa_Proyecto_ENOE.pdf")]:
+                            (RAIZ / "presentacion" / "Presentacion_Completa_Proyecto_ENOE.pdf", "descargas/Presentacion_Completa_Proyecto_ENOE.pdf"),
+                            (RAIZ / "presentacion" / "Proyecto_Integrador_ENOE.pdf", "descargas/Proyecto_Integrador_ENOE.pdf")]:
         if origen.exists():
             if destino == "cuaderno.html":
                 (salida / destino).write_text(limpiar_rutas(origen.read_text(encoding="utf-8")), encoding="utf-8")
